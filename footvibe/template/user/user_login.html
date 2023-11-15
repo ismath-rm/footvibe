@@ -1,0 +1,59 @@
+{% extends 'user/base.html' %}
+{% load static %}
+{% block title %} Login {% endblock %}
+{% block  body %}
+<section class="pt-150 pb-150">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 m-auto">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5">
+                            <div class="padding_eight_all bg-white">
+                                <div class="heading_s1">
+                                    <h3 class="mb-30">Login</h3>
+                                </div>
+                                <div class="form-group">
+                                    {% for message in messages %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{message}}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <input type="email" name="email" placeholder="Email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" name="password" placeholder="Password" required>
+                                    </div>
+                                    <div class="login_footer form-group">
+                                        <div class="chek-form">
+                                            <div class="custome-checkbox">
+                                                <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">
+                                                <label class="form-check-label" for="exampleCheckbox1"><span>Remember me</span></label>
+                                            </div>
+                                        </div>
+                                        <a class="text-muted" href="{% url 'log:forgot_password' %}">Forgot password?</a>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Log in</button>
+                                    
+                                    </div>
+                                    <a class="text-muted" href="{% url 'log:user_signup' %}">Register</a>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-6">
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
