@@ -10,10 +10,15 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.core.mail import send_mail
 import random
 from django.core.exceptions import ObjectDoesNotExist
+from product_management.models import *
 
 # Create your views here.
 def index(request):
-    return render(request, 'user/index.html')
+    product=Product.objects.all()
+    context={
+        'products':product
+    }
+    return render(request, 'user/index.html',context)
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -29,6 +34,11 @@ def user_login(request):
             login(request, user)
             messages.success(request, 'You are logged in successfully')
             return redirect('log:index')
+        
+        if not Account.objects.filter(email=email,is_active=True).exists():
+            messages.error(request,"You are Blocked By Admin, Please contact Admin")
+            return redirect('log:user_login')
+        
         else:
             messages.error(request, 'Login failed. Please check your email and password.')
 
@@ -83,16 +93,19 @@ def send_otp(request):
     return redirect('log:verify_otp')
 
 def verify_otp(request):
-   user=Account.objects.get(email=request.session['email'])
-   if request.method=="POST":
-      if str(request.session['OTP_Key']) != str(request.POST['otp']):
-         print(request.session['OTP_Key'],request.POST['otp'])
-         user.is_active=False
+    print('hiii')
+    user=Account.objects.get(email=request.session['email'])
+    if request.method=="POST":
+        if str(request.session['OTP_Key']) != str(request.POST['otp']):
+            print(request.session['OTP_Key'],request.POST['otp'])
 
-      else:
-         login(request,user)
-         return redirect('log:index')
-   return render(request,'user/otp_verification.html')
+        else:
+            user.is_active=True
+            user.save()
+            # login(request,user)
+            print("hiiiiiiiiiiii")
+            return redirect('log:user_login')
+    return render(request,'user/otp_verification.html')
 
 
 @login_required(login_url='log:user_login')
@@ -127,6 +140,7 @@ def forgot_password(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def sent_otp_forgot_password(request):
    random_num=random.randint(1000,9999)
+   print(random_num)
    request.session['OTP_Key']=random_num
    send_mail(
    "OTP AUTHENTICATING footvibe",

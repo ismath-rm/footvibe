@@ -41,9 +41,9 @@
                             <td>{{user.username}}</td>
                             <td>{{user.email}}</td>
                             <td>
-                                <form method="post" action="{% url 'admin_log:block_unblock_user' user.id %}" style="display: inline;">
+                                <form method="post" action="{% url 'admin_log:block_unblock_user' user.id %}" style="display: inline;" id="blockUnblockForm{{ forloop.counter }}" onsubmit="return confirmBlockUnblock('{{ forloop.counter }}')">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm {% if not user.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                    <button type="submit" class="btn btn-sm {% if not user.is_active %}btn-danger{% else %}btn-success{% endif %}" onclick="confirmBlockUnblock('{{ forloop.counter }}')">
                                         {% if not user.is_active %}Unblock{% else %}Block{% endif %}
                                     </button>
                                 </form>
@@ -57,18 +57,7 @@
             </div>
         </div> <!-- card-body end// -->
     </div> <!-- card end// -->
-    <!-- <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                <li class="page-item"><a class="page-link" href="#">02</a></li>
-                <li class="page-item"><a class="page-link" href="#">03</a></li>
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">16</a></li>
-                <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
-            </ul>
-        </nav>
-    </div> -->
+   
 </section>
 
 {% endblock %}

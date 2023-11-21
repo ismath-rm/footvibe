@@ -24,7 +24,7 @@ def superadmin_required(view_func):
 @superadmin_required
 def dashboard(request):
 
-    return render(request,'admin/index.html')
+    return render(request,'admin/index.html')   
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
