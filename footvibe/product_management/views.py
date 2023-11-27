@@ -15,7 +15,7 @@ def category(request):
     content = {
         'categories': categories
     }
-    return render(request, 'admin/category.html',content)
+    return render(request, 'admin_temp/category.html',content)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_category(request):
@@ -93,7 +93,7 @@ def edit_category(request,category_id):
 
         return redirect('product_mng:category')
 
-    return render(request,'admin/edit_category.html',content)
+    return render(request,'admin_temp/edit_category.html',content)
 
 
 
@@ -111,7 +111,7 @@ def brands(request):
     content = {
         'brands': brands
     }
-    return render(request, 'admin/brands.html',content)
+    return render(request, 'admin_temp/brands.html',content)
 
 
 
@@ -166,7 +166,7 @@ def attribute(request):
     content = {
         'attributes': attributes
     }
-    return render(request, 'admin/attribute.html',content)
+    return render(request, 'admin_temp/attribute.html',content)
 
 
 
@@ -223,7 +223,7 @@ def attribute_value(request):
         'attribute_values': attribute_values,
         'attribute_names': attribute_names
     }
-    return render(request,'admin/attribute_value.html',content)
+    return render(request,'admin_temp/attribute_value.html',content)
 
 
 
@@ -249,7 +249,7 @@ def add_attribute_value(request):
         'attribute_names': attribute_names
     }
     
-    return render(request, 'admin/attribute_value.html', context)
+    return render(request, 'admin_temp/attribute_value.html', context)
 
 
 
@@ -294,7 +294,7 @@ def products_list(request):
         'product_values':product_values
     }
 
-    return render(request,'admin/products_list.html',context)
+    return render(request,'admin_temp/products_list.html',context)
 
 
 
@@ -303,15 +303,15 @@ def products_list(request):
 def add_product(request):
     if not request.user.is_authenticated:
         return HttpResponse("Unauthorized", status=401)
+    
+
     categories = Category.objects.all()
-    brands = Brand.objects.all().exclude(is_active=False)    
+    brands = Brand.objects.all().exclude(is_active=False)  
+
 
     if request.method == 'POST':
         product_name= request.POST.get('product_name')
-        product_sk_id= request.POST.get('sku_id')
         description= request.POST.get('product_desc')
-        max_price= request.POST.get('product_max_price')
-        sale_price= request.POST.get('product_sale_price')
         category_name= request.POST.get('product_category')
         brand_name=request.POST.get('product_brand')
 
@@ -321,23 +321,32 @@ def add_product(request):
 
         product = Product(
             product_name=product_name,
-            sku_id=product_sk_id,
             product_catg=category,
             product_brand=brand,
             product_description=description,
-            max_price=max_price,
-            sale_price=sale_price,
-            image=request.FILES['image_feild']  # Make sure your file input field is named 'product_image'
         )
         product.save()
 
         return redirect('product_mng:add_product')
     else:
         form=CreateProductForm()
+
+        
     content = {
         'categories': categories,
         'brands': brands,   
         'form': form
     }
-    return render(request,'admin/add_product.html', content)
+    return render(request,'admin_temp/add_product.html', content)
 
+
+
+def edit_product(request):
+
+    return render(request,'admin_temp/edit_product.html')
+
+
+
+def delete_product(request):
+
+    return redirect('product_mng:product_list')

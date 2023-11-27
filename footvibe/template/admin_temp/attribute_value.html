@@ -1,0 +1,82 @@
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+{% block title %} Category {% endblock %}
+{% block  body %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Attribute value </h2>
+        </div>
+    
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <form method="post" action="{% url 'product_mng:add_attribute_value' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="product_name" class="form-label">Attribute Value</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="product_name" name="attribute_value_name"/>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Attributes</label>
+                            <select class="form-select" name="attribute">
+                                {% for attribute_name in attribute_names %}
+                                   
+                                        <option value="{{ attribute_name.attribute_name }}">{{ attribute_name.attribute_name }}</option>
+                                   
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Create Attribute value</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Attribute</th>
+                                    <th>Attribute Value</th>
+                                    <th>Availability</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attribute_value in attribute_values %}
+                                <tr>
+                                    <td>{{attribute_value.id}}</td>
+                                    <td><b>{{attribute_value.attribute_id}}</b></td>
+                                    <td>{{attribute_value.attribute_value}}</td>
+                                    <td>
+                                        <button  class="{% if not attribute_value.is_active %}btn btn-outline-danger{% else %}btn btn-outline-success{% endif %}">
+                                            {% if not attribute_value.is_active %}Not Available {% else %}Available{% endif %}
+                                        </button>
+                                    </td>
+                                    <td class="text-end" >
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="{% url 'product_mng:attribute_value_available' attribute_value.id %}">{% if not attribute_value.is_active %}Mark Available {% else %}Mark Unavailable{% endif %}</a>
+                                                <a class="dropdown-item text-danger" href="{% url 'product_mng:delete_attribute_value' attribute_value.id %}">Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- .col// -->
+            </div> <!-- .row // -->
+        </div> <!-- card body .// -->
+    </div> <!-- card .// -->
+</section>
+
+
+{% endblock %}

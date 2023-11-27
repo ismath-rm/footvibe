@@ -15,10 +15,15 @@
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="static/image/theme/favicon.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'image/theme/favicon.svg' %}">
     <!-- Template CSS -->
-    <link rel="stylesheet" href="static/css/main.css">
-   
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+   <!-- alterify -->
+
+<!-- CSS -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+<!-- Default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
     
 </head>
 
@@ -51,9 +56,9 @@
                                 <li>
                                     <a class="language-dropdown-active" href="#"> <i class="fi-rs-world"></i> English <i class="fi-rs-angle-small-down"></i></a>
                                     <ul class="language-dropdown">
-                                        <li><a href="#"><img src="static/image/theme/flag-fr.png" alt="">Français</a></li>
-                                        <li><a href="#"><img src="static/image/theme/flag-dt.png" alt="">Deutsch</a></li>
-                                        <li><a href="#"><img src="static/image/theme/flag-ru.png" alt="">Pусский</a></li>
+                                        <li><a href="#"><img src="{% static '/image/theme/flag-fr.png' %}" alt="">Français</a></li>
+                                        <li><a href="#"><img src="{% static '/image/theme/flag-dt.png' %}" alt="">Deutsch</a></li>
+                                        <li><a href="#"><img src="{% static '/image/theme/flag-ru.png' %}" alt="">Pусский</a></li>
                                     </ul>
                                 </li>
                                     {% if request.user.is_authenticated %}
@@ -76,7 +81,7 @@
             <div class="container">
                 <div class="header-wrap">
                     <div class="logo logo-width-1">
-                        <a href="{% url 'log:index' %}"><img src="static/image/theme/logo.svg" alt="logo"></a>
+                        <a href="{% url 'log:index' %}"><img src="{% static 'image/theme/logo.svg' %}" alt="logo"></a>
                     </div>
                     <div class="header-right">
                         <div class="search-style-2">
@@ -89,13 +94,13 @@
                             <div class="header-action-2">
                                 <div class="header-action-icon-2">
                                     <a href="shop-wishlist.html">
-                                        <img class="svgInject" alt="Evara" src="static/image/theme/icons/icon-heart.svg">
+                                        <img class="svgInject" alt="Evara" src="{% static 'image/theme/icons/icon-heart.svg' %}">
                                         <span class="pro-count blue">0</span>
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
                                     <a class="mini-cart-icon" href="shop-cart.html">
-                                        <img alt="Evara" src="static/image/theme/icons/icon-cart.svg">
+                                        <img alt="Evara" src="{% static 'image/theme/icons/icon-cart.svg' %}">
                                         <span class="pro-count blue">0</span>
                                     </a>
                                 </div>
@@ -109,7 +114,7 @@
             <div class="container">
                 <div class="header-wrap header-space-between position-relative">
                     <div class="logo logo-width-1 d-block d-lg-none">
-                        <a href="index.html"><img src="static/image/theme/logo.svg" alt="logo"></a>
+                        <a href="index.html"><img src="{% static 'image/theme/logo.svg' %}" alt="logo"></a>
                     </div>
                     <div class="header-nav d-none d-lg-flex">
                         <div class="main-categori-wrap d-none d-lg-block">
@@ -164,7 +169,7 @@
                     <div class="col-lg-7 mb-md-3 mb-lg-0">
                         <div class="row align-items-center">
                             <div class="col flex-horizontal-center">
-                                <img class="icon-email" src="static/image/theme/icons/icon-email.svg" alt="">
+                                <img class="icon-email" src="{% static 'image/theme/icons/icon-email.svg' %}" alt="">
                                 <h4 class="font-size-20 mb-0 ml-3">Sign up to Newsletter</h4>
                             </div>
                             <div class="col my-4 my-md-0 des">
@@ -189,7 +194,7 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="widget-about font-md mb-md-5 mb-lg-0">
                             <div class="logo logo-width-1 wow fadeIn animated">
-                                <a href="index.html"><img src="static/image/theme/logo.svg" alt="logo"></a>
+                                <a href="index.html"><img src="{% static 'image/theme/logo.svg' %}%" alt="logo"></a>
                             </div>
                             <h5 class="mt-20 mb-10 fw-600 text-grey-4 wow fadeIn animated">Contact</h5>
                             <p class="wow fadeIn animated">
@@ -203,11 +208,11 @@
                             </p>
                             <h5 class="mb-10 mt-30 fw-600 text-grey-4 wow fadeIn animated">Follow Us</h5>
                             <div class="mobile-social-icon wow fadeIn animated mb-sm-5 mb-md-0">
-                                <a href="#"><img src="static/image/theme/icons/icon-facebook.svg" alt=""></a>
-                                <a href="#"><img src="static/image/theme/icons/icon-twitter.svg" alt=""></a>
-                                <a href="#"><img src="static/image/theme/icons/icon-instagram.svg" alt=""></a>
-                                <a href="#"><img src="static/image/theme/icons/icon-pinterest.svg" alt=""></a>
-                                <a href="#"><img src="static/image/theme/icons/icon-youtube.svg" alt=""></a>
+                                <a href="#"><img src="{% static '/image/theme/icons/icon-facebook.svg' %}" alt=""></a>
+                                <a href="#"><img src="{% static '/image/theme/icons/icon-twitter.svg' %}" alt=""></a>
+                                <a href="#"><img src="{% static '/image/theme/icons/icon-instagram.svg' %}" alt=""></a>
+                                <a href="#"><img src="{% static '/image/theme/icons/icon-pinterest.svg' %}" alt=""></a>
+                                <a href="#"><img src="{% static '/image/theme/icons/icon-youtube.svg' %}" alt=""></a>
                             </div>
                         </div>
                     </div>
@@ -239,13 +244,13 @@
                             <div class="col-md-8 col-lg-12">
                                 <p class="wow fadeIn animated">From App Store or Google Play</p>
                                 <div class="download-app wow fadeIn animated">
-                                    <a href="#" class="hover-up mb-sm-4 mb-lg-0"><img class="active" src="static/image/theme/app-store.jpg" alt=""></a>
-                                    <a href="#" class="hover-up"><img src="static/image/theme/google-play.jpg" alt=""></a>
+                                    <a href="#" class="hover-up mb-sm-4 mb-lg-0"><img class="active" src="{% static 'image/theme/app-store.jpg' %}" alt=""></a>
+                                    <a href="#" class="hover-up"><img src="{% static 'image/theme/google-play.jpg' %}" alt=""></a>
                                 </div>
                             </div>
                             <div class="col-md-4 col-lg-12 mt-md-3 mt-lg-0">
                                 <p class="mb-20 wow fadeIn animated">Secured Payment Gateways</p>
-                                <img class="wow fadeIn animated" src="static/image/theme/payment-method.png" alt="">
+                                <img class="wow fadeIn animated" src="{% static 'image/theme/payment-method.png' %}" alt="">
                             </div>
                         </div>
                     </div>
@@ -284,29 +289,29 @@
         </div>
     </div> -->
     <!-- Vendor JS-->
-    <script src="static/js/vendor/modernizr-3.6.0.min.js"></script>
-    <script src="static/js/vendor/jquery-3.6.0.min.js"></script>
-    <script src="static/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-    <script src="static/js/vendor/bootstrap.bundle.min.js"></script>
-    <script src="static/js/plugins/slick.js"></script>
-    <script src="static/js/plugins/jquery.syotimer.min.js"></script>
-    <script src="static/js/plugins/wow.js"></script>
-    <script src="static/js/plugins/jquery-ui.js"></script>
-    <script src="static/js/plugins/perfect-scrollbar.js"></script>
-    <script src="static/js/plugins/magnific-popup.js"></script>
-    <script src="static/js/plugins/select2.min.js"></script>
-    <script src="static/js/plugins/waypoints.js"></script>
-    <script src="static/js/plugins/counterup.js"></script>
-    <script src="static/js/plugins/jquery.countdown.min.js"></script>
-    <script src="static/js/plugins/images-loaded.js"></script>
-    <script src="static/js/plugins/isotope.js"></script>
-    <script src="static/js/plugins/scrollup.js"></script>
-    <script src="static/js/plugins/jquery.vticker-min.js"></script>
-    <script src="static/js/plugins/jquery.theia.sticky.js"></script>
-    <script src="static/js/plugins/jquery.elevatezoom.js"></script>
+    <script src="{% static '/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+    <script src="{% static '/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static '/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+    <script src="{% static '/js/vendor/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static '/js/plugins/slick.js' %}"></script>
+    <script src="{% static '/js/plugins/jquery.syotimer.min.js' %}"></script>
+    <script src="{% static '/js/plugins/wow.js' %}"></script>
+    <script src="{% static '/js/plugins/jquery-ui.js' %}"></script>
+    <script src="{% static '/js/plugins/perfect-scrollbar.js' %}"></script>
+    <script src="{% static '/js/plugins/magnific-popup.js' %}"></script>
+    <script src="{% static '/js/plugins/select2.min.js' %}"></script>
+    <script src="{% static '/js/plugins/waypoints.js' %}"></script>
+    <script src="{% static '/js/plugins/counterup.js' %}"></script>
+    <script src="{% static '/js/plugins/jquery.countdown.min.js' %}"></script>
+    <script src="{% static '/js/plugins/images-loaded.js' %}"></script>
+    <script src="{% static '/js/plugins/isotope.js' %}"></script>
+    <script src="{% static '/js/plugins/scrollup.js' %}"></script>
+    <script src="{% static '/js/plugins/jquery.vticker-min.js' %}"></script>
+    <script src="{% static '/js/plugins/jquery.theia.sticky.js' %}"></script>
+    <script src="{% static '/js/plugins/jquery.elevatezoom.js' %}"></script>
     <!-- Template  JS -->
-    <script src="static/js/main.js"></script>
-    <script src="static/js/shop.js"></script>
+    <script src="{% static '/js/main.js' %}"></script>
+    <script src="{% static '/js/shop.js' %}"></script>
 
 
     <script>
@@ -330,6 +335,21 @@
             });
         }
     </script>
+
+    <!-- altertify -->
+
+	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+	<script>
+		alertify.set('notifier','position', 'top-center'); 
+		{% for msg in messages %}
+        {% if msg.tags == 'success' %}
+            alertify.success('{{ msg }}');
+        {% elif msg.tags == 'error' %}
+            alertify.error('{{ msg }}');
+        {% endif %}
+		{%endfor%}
+		  
+	</script>
    
 </body>
 

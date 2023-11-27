@@ -24,7 +24,7 @@ def superadmin_required(view_func):
 @superadmin_required
 def dashboard(request):
 
-    return render(request,'admin/index.html')   
+    return render(request,'admin_temp/index.html')   
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -50,7 +50,7 @@ def admin_login(request):
             messages.error(request, 'Login failed. Please check your email and password.')
 
 
-    return render(request,'admin/admin_login.html')
+    return render(request,'admin_temp/admin_login.html')
 
 
 
@@ -67,7 +67,7 @@ def admin_logout(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def order_list(request):
 
-    return render(request,'admin/order_list.html')
+    return render(request,'admin_temp/order_list.html')
 
 
 @login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
@@ -87,7 +87,7 @@ def user_list(request):
         'users': users
     }
       
-    return render(request,'admin/user_list.html',context)
+    return render(request,'admin_temp/user_list.html',context)
 
 
 @login_required(login_url='admin_log:admin_login')  # Use the named URL pattern

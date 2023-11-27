@@ -134,9 +134,10 @@
                         <div class="product-cart-wrap mb-30">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
-                                    <a href="">
-                                        <img class="default-img" src="{{product.image.url}}" alt="">
-                                        <img class="hover-img" src="{{product.image.url}}" alt="">
+                                    <a href="{% url 'log:product_detail' product.product_variant_slug %}">
+                                        
+                                        <img class="default-img" src="{{product.thumbnail_image.url}}" alt="">
+                                        <img class="hover-img" src="{{product.product_images.all.0.image.url}}" alt="">
                                     </a>
                                 </div>
                                 <div class="product-action-1">
@@ -148,9 +149,9 @@
                             </div>
                             <div class="product-content-wrap">
                                 <div class="product-category">
-                                    <a href="">{{product.product_catg.category_name}}</a>
+                                    <a href="">{{product.product.product_catg.category_name}}</a>
                                 </div>
-                                <h2><a href="">{{product.product_name}}</a></h2>
+                                <h2><a href="">{{product.product.product_name}}</a></h2>
                                 <div class="rating-result" title="90%">
                                     <span>
                                         <span>90%</span>

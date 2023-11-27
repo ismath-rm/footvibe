@@ -2,48 +2,61 @@
 {% load static %}
 {% block title %} Otp verification {% endblock %}
 {% block  body %}
+<style>
+    .red-text {
+        color: red;
+    }
+</style>
 <section class="pt-150 pb-150">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-10 m-auto">
-                <div class="row">
-                    <div class="col-lg-5">
-                        <div class="login_wrap widget-taber-content p-30 background-white border-radius-10 mb-md-5 mb-lg-0 mb-sm-5">
-                            <div class="padding_eight_all bg-white">
-                                <div class="heading_s1">
-                                    <h3 class="mb-30">Otp verification</h3>
-                                </div>
-                                <div class="form-group">
-                                    {% for message in messages %}
-                                    <div class="alert alert-danger" role="alert">
-                                        {{message}}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                <form method="post">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        
-                                        <input type="text" name="otp" placeholder="Enter your otp hear" required>
-                                    </div>
-                                    <div class="login_footer form-group">
-                                        
-                                    </div>
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-fill-out btn-block hover-up" name="">Verify</button>
-                                    </div>
-
-                                </form>
-                            </div>
-                        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="mt-5 mb-4">OTP Verification</h1>
+                <form method="post" class="mb-5">
+                    {% csrf_token %}
+                    <p>Enter the OTP sent to your email:</p>
+                    <div class="form-group">
+                        <label for="otp">OTP:</label>
+                        <input type="text" name="otp" class="form-control" required>
+                        <p id="timer">Time remaining: <span id="countdown">60</span> seconds</p>
                     </div>
-                    <div class="col-lg-1"></div>
-                    <div class="col-lg-6">
-                     
-                    </div>
-                </div>
+                    <button type="submit" class="btn btn-primary">Verify OTP</button>
+                </form>
+                
+                <a id="resend-link" style="display: none;" href="{% url "log:resend_otp" %}">Resend OTP</a>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+    function startTimer(duration, display) {
+        var timer = duration, seconds;
+
+        var countdown = setInterval(function () {
+            seconds = parseInt(timer % 60, 10);
+
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            var timeText = "00:" + seconds;
+            display.textContent = timeText;
+
+            if (timer < 10) {
+                display.classList.add("red-text");
+            }
+
+            if (--timer < 0) {
+                clearInterval(countdown);
+                // Handle timer expiration here (e.g., show Resend OTP link)
+                document.getElementById("resend-link").style.display = "block";
+            }
+        }, 1000);
+    }
+
+    window.onload = function () {
+        var thirtySeconds = 30;
+        var display = document.querySelector('#timer');
+        startTimer(thirtySeconds, display);
+    };
+</script>
 {% endblock %}
