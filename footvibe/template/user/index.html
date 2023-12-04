@@ -151,7 +151,7 @@
                                 <div class="product-category">
                                     <a href="">{{product.product.product_catg.category_name}}</a>
                                 </div>
-                                <h2><a href="">{{product.product.product_name}}</a></h2>
+                                <h2><a href="{% url 'log:product_detail' product.product_variant_slug %}">{{product.product.product_name}}</a></h2>
                                 <div class="rating-result" title="90%">
                                     <span>
                                         <span>90%</span>

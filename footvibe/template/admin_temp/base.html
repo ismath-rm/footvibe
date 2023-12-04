@@ -53,10 +53,7 @@
                         <a href="{% url "product_mng:attribute" %}">Attribute </a>
                         <a href="{% url "product_mng:attribute_value" %}">Attribute value</a>
                         <a href="{% url "product_mng:add_product" %}">Add Product</a>
-                        
-
-                        
-
+                        <a href="{% url "product_mng:add_product_variant" %}">Add Product Variant</a>
                     </div>
                 </li>
                 <li class="menu-item has-submenu">
@@ -64,7 +61,7 @@
                         <span class="text">Orders</span>
                     </a>
                     <div class="submenu">
-                        <a href="page-orders-1.html">Order list </a>
+                        <a href="#">Order list </a>
 
                     </div>
                 </li>
@@ -178,6 +175,17 @@
             </div>
         </footer>
     </main>
+    <script>
+		{% comment %} alertify.set('notifier','position', 'top-center'); 
+		{% for msg in messages %}
+        {% if msg.tags == 'success' %}
+            alertify.success('{{ msg }}');
+        {% elif msg.tags == 'error' %}
+            alertify.error('{{ msg }}');
+        {% endif %}
+		{%endfor%} {% endcomment %}
+		  
+	</script>
     <script src="{% static 'admin/js/vendors/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'admin/js/vendors/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'admin/js/vendors/select2.min.js' %}"></script>

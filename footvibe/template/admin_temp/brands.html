@@ -3,6 +3,8 @@
 {% block title %} Brand {% endblock %}
 {% block  body %}
 
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+
 <section class="content-main">
     <div class="content-header">
         <div>
@@ -42,14 +44,15 @@
                                     <td><b>{{brand.brand_name}}</b></td>
                                     <td>
                                         <button  class="{% if not brand.is_active %}btn btn-outline-danger{% else %}btn btn-outline-success{% endif %}">
-                                            {% if not brand.is_active %}Available {% else %} not Available{% endif %}
+                                            {% if not brand.is_active %} Not Available {% else %} Available {% endif %}
                                         </button>
                                     </td>
                                     <td class="text-end" >
                                         <div class="dropdown">
                                             <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
                                             <div class="dropdown-menu"> 
-                                                <a class="dropdown-item" href="{% url 'product_mng:brand_available' brand.id %}">{% if not brand.is_active %}Mark Available {% else %}Mark Unavailable{% endif %}</a>
+                                                <a class="dropdown-item" href="{% url 'product_mng:edit_brand' brand.id %}">edit_info</a>
+                                                <a class="dropdown-item" href="{% url 'product_mng:brand_available' brand.id %}">{% if not brand.is_active %}Mark UnAvailable {% else %}Mark available{% endif %}</a>
                                                 <a class="dropdown-item text-danger" href="{% url 'product_mng:delete_brand' brand.id %}">Delete</a>
                                             </div>
                                         </div> <!-- dropdown //end -->

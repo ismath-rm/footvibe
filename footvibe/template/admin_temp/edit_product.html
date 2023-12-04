@@ -3,209 +3,98 @@
 {% block title %} Edit product {% endblock %}
 {% block  body %}
 
+
 <section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Products grid</h2>
-            <p>Lorem ipsum dolor sit amet.</p>
-        </div>
-        <div>
-            <a href="#" class="btn btn-light rounded font-md">Export</a>
-            <a href="#" class="btn btn-light rounded  font-md">Import</a>
-            <a href="#" class="btn btn-primary btn-sm rounded">Create new</a>
-        </div>
-    </div>
-    <div class="card mb-4">
-        <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control">
-                </div>
-                <div class="col-lg-2 col-6 col-md-3">
-                    <select class="form-select">
-                        <option>All category</option>
-                        <option>Electronics</option>
-                        <option>Clothings</option>
-                        <option>Something else</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-6 col-md-3">
-                    <select class="form-select">
-                        <option>Latest added</option>
-                        <option>Cheap first</option>
-                        <option>Most viewed</option>
-                    </select>
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Edit Product</h2>
+                <div>
+                    
+                    {% comment %} {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %} {% endcomment %}
                 </div>
             </div>
-        </header> <!-- card-header end// -->
-        <div class="card-body">
-            <div class="row gx-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 row-cols-xxl-5">
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/1.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Just another product name</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Product Details</h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-lg-6">
+                            
+                                <div class="mb-4">
+                                    <label for="{{form.product_name.id_for_label}}" class="form-label">Product name</label>
+                                    <input placeholder="" type="text" class="form-control" name="product_name" required="True">
+                                   
+                                    <div class="row gx-2">
+                                         
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/2.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Brown Winter Jacket for Men</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
+
+                         <div class="mb-4">
+                            <label for="{{form.product_description.id_for_label}}" class="form-label">Description</label>
+                            <textarea placeholder="Type here" class="form-control" rows="4" name="product_desc"></textarea>
+                        </div> 
+                        
+                        
+                </div>
+            </div> <!-- card end// -->
+
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Category / Brand</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row gx-2">
+                        <div class="col-sm-6 mb-3">
+                            <label for="{{ form.product_catg.id_for_label }}" class="form-label">Category</label>
+                            <select class="form-select" name="product_category" required="True">
+                                {% for category in categories %}
+                                {% if category.parent_id is None %}
+                                    <option value="{{ category.category_name }}">{{ category.category_name }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
                         </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/3.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Jeans short new model</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
+                        <div class="col-sm-6 mb-3">
+                            <label for="{{ form.product_brand.id_for_label }}" class="form-label">Brand</label>
+                            <select class="form-select" name="product_brand" required="True">
+                                {% for brand in brands %}
+                                <option value="{{brand.brand_name}}">{{brand.brand_name}}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/4.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Travel Bag XL</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/5.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Just another product name</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/6.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Just another product name</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/7.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Just another product name</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/8.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Apple Airpods CB-133</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/9.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Apple Airpods CB-133</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-                <div class="col">
-                    <div class="card card-product-grid">
-                        <a href="#" class="img-wrap"> <img src="{% static 'imgs/items/10.jpg' %}" alt="Product"> </a>
-                        <div class="info-wrap">
-                            <a href="#" class="title text-truncate">Apple Airpods CB-133</a>
-                            <div class="price mb-2">$179.00</div> <!-- price.// -->
-                            <a href="#" class="btn btn-sm font-sm rounded btn-brand">
-                                <i class="material-icons md-edit"></i> Edit
-                            </a>
-                            <a href="#" class="btn btn-sm font-sm btn-light rounded">
-                                <i class="material-icons md-delete_forever"></i> Delete
-                            </a>
-                        </div>
-                    </div> <!-- card-product  end// -->
-                </div> <!-- col.// -->
-            </div> <!-- row.// -->
-        </div> <!-- card-body end// -->
-    </div> <!-- card end// -->
-    <div class="pagination-area mt-30 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                <li class="page-item"><a class="page-link" href="#">02</a></li>
-                <li class="page-item"><a class="page-link" href="#">03</a></li>
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">16</a></li>
-                <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
-            </ul>
-        </nav>
-    </div>
-</section> <!-- content-main end// -->
+                        
+                    </div> <!-- row.// -->
+                </div>
+                
+            </div> <!-- card end// -->
+      
+<div class="card mb-4">
+<div class="mb-4">
+    <button  type="submit" class="btn btn-primary btn-sm rounded col-lg-12">Edit Product</button>
+    
+</div>
+</div>
+</form>
+</div>
+</div>
+</section> 
 
 {% endblock %}
-        

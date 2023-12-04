@@ -1,0 +1,35 @@
+<!-- edit_brand.html -->
+
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+
+{% block title %} Edit Brand {% endblock %}
+
+{% block body %}
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Edit Brand</h2>
+                <p>Edit brand information</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="col-md-6">
+                    <form method="post" action="{% url 'product_mng:edit_brand' brand_id %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="brand_name" class="form-label">Name</label>
+                            <input type="text" value="{{ brand_name }}" class="form-control" id="brand_name" name="brand_name"/>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Update Brand</button>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- card body .// -->
+        </div> <!-- card .// -->
+    </section>
+{% endblock %}

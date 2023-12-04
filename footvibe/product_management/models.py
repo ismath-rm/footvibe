@@ -20,7 +20,7 @@ class Category(models.Model):
             self.slug = slugify(self.category_name)
             super(Category, self).save(*args, **kwargs)
 
-        def _str_(self):
+        def __str__(self):
             return self.category_name
         
 
@@ -38,8 +38,8 @@ class Attribute(models.Model):
         attribute_name = models.CharField(max_length=50,unique=True)
         is_active = models.BooleanField(default=True)
 
-        def _str_(self):
-            return self.atribute_name
+        def __str__(self):
+            return self.attribute_name
         
 
 class Attribute_Value(models.Model):
@@ -47,7 +47,7 @@ class Attribute_Value(models.Model):
         attribute_value = models.CharField(max_length=50,unique=True)
         is_active = models.BooleanField(default=True)
 
-        def _str_(self):
+        def __str__(self):
             return self.attribute_value+"-"+self.attribute.attribute_name
 
 
@@ -76,18 +76,21 @@ class Product(models.Model):
     def __str__(self):
         return self.product_brand.brand_name+"-"+self.product_name+"-"+self.product_catg.category_name
     
+    def get_product_name(self):
+        return f'{self.product_brand} {self.product_name} ({self.product_catg.category_name})'
+
 
 
 class ProductVariant(models.Model):
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete = models.CASCADE)
     sku_id = models.CharField(max_length=30)
-    Attribute_Value = models.ManyToManyField(Attribute_Value,related_name='attributes')
+    attribute_value = models.ManyToManyField(Attribute_Value,related_name='attributes', blank=True)
     max_price = models.DecimalField(max_digits=8, decimal_places=2)
     sale_price = models.DecimalField(max_digits=8, decimal_places=2)
     stock = models.IntegerField()
-    product_variant_slug = models.SlugField(unique=True, blank=True,max_length=200)
+    product_variant_slug = models.SlugField(blank=True,max_length=200)
     is_active = models.BooleanField(default=True)
-    thumbnail_image = models.ImageField(upload_to='product_variant/images/')
+    thumbnail_image = models.ImageField(upload_to='product_variant/images/',blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -113,7 +116,7 @@ class ProductVariant(models.Model):
         return reverse('product-variant-detail',args=[self.product.product_catg.slug,self.product_variant_slug])
     
     def get_product_name(self):
-        return f'{self.product.product_brand} {self.product.product_name}-{self.sku_id} - {", ".join([value[0] for value in self.Attribute_Value.all().values_list("attribute_value")])}'
+        return f'{self.product.product_brand} {self.product.product_name}-{self.sku_id} - {", ".join([value[0] for value in self.attribute_value.all().values_list("attribute_value")])}'
 
 
 class ProductImage(models.Model):

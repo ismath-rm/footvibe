@@ -1,0 +1,45 @@
+<!-- edit_attribute_value.html -->
+
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+
+{% block title %} Edit Attribute Value {% endblock %}
+
+{% block body %}
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Edit Attribute Value</h2>
+                <p>Edit attribute value information</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="col-md-6">
+                    <form method="post" action="{% url 'product_mng:edit_attribute_value' attribute_value.id %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="attribute_value_name" class="form-label">Attribute Value</label>
+                            <input type="text" value="{{ attribute_value.attribute_value }}" class="form-control" id="attribute_value_name" name="attribute_value_name"/>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Attribute</label>
+                            <select class="form-select" name="attribute">
+                                {% for attribute_name in attribute_names %}
+                                    <option value="{{ attribute_name.attribute_name }}" {% if attribute_value.attribute_id.attribute_name == attribute_name.attribute_name %}selected{% endif %}>
+                                        {{ attribute_name.attribute_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Update Attribute Value</button>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- card body .// -->
+        </div> <!-- card .// -->
+    </section>
+{% endblock %}

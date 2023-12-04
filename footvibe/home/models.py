@@ -54,7 +54,7 @@ class Account(AbstractBaseUser):
 
     objects = AccountManager()
 
-    def _str_(self):
+    def __str__(self):
         return self.email
 
     # Check user permissions

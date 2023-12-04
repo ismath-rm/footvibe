@@ -1,0 +1,35 @@
+<!-- edit_attribute.html -->
+
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+
+{% block title %} Edit Attribute {% endblock %}
+
+{% block body %}
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Edit Attribute</h2>
+                <p>Edit attribute information</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="col-md-6">
+                    <form method="post" action="{% url 'product_mng:edit_attribute' attribute.id %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="attribute_name" class="form-label">Attribute Name</label>
+                            <input type="text" value="{{ attribute.attribute_name }}" class="form-control" id="attribute_name" name="attribute_name"/>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Update Attribute</button>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- card body .// -->
+        </div> <!-- card .// -->
+    </section>
+{% endblock %}

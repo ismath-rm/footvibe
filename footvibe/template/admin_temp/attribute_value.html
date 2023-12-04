@@ -1,6 +1,6 @@
 {% extends 'admin_temp/base.html' %}
 {% load static %}
-{% block title %} Category {% endblock %}
+{% block title %} Attribute Value {% endblock %}
 {% block  body %}
 <section class="content-main">
     <div class="content-header">
@@ -11,6 +11,7 @@
     </div>
     <div class="card">
         <div class="card-body">
+            {% include 'admin_temp/general-alerts/alerts.html' %}
             <div class="row">
                 <div class="col-md-3">
                     <form method="post" action="{% url 'product_mng:add_attribute_value' %}">
@@ -61,6 +62,7 @@
                                         <div class="dropdown">
                                             <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
                                             <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="{% url 'product_mng:edit_attribute_value' attribute_value.id %}">edit_info</a>
                                                 <a class="dropdown-item" href="{% url 'product_mng:attribute_value_available' attribute_value.id %}">{% if not attribute_value.is_active %}Mark Available {% else %}Mark Unavailable{% endif %}</a>
                                                 <a class="dropdown-item text-danger" href="{% url 'product_mng:delete_attribute_value' attribute_value.id %}">Delete</a>
                                             </div>

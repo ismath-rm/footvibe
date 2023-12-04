@@ -1,32 +1,39 @@
+<!-- edit_category.html -->
+
 {% extends 'admin_temp/base.html' %}
 {% load static %}
+
 {% block title %} Edit Category {% endblock %}
-{% block  body %}
-<div class="card">
-    <div class="card-body">
-        <div class="container ">
-            <div class="col-md-3">
-                <form method="post" action="#">
-                    {% csrf_token %}
-                    <div class="mb-4">
-                        <label for="product_name" class="form-label">Name</label>
-                        <input type="text" placeholder="Type here" value="{% if request.user.is_authenticated %}{{ category_name }}{% endif %}" class="form-control" id="" name="category_name"/>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label">Description</label>
-                        <textarea placeholder="Type here"   class="form-control" name="description">{% if request.user.is_authenticated %}{{ category_disc }}{% endif %}</textarea>
-                        
-                    </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-sm rounded col-lg-12">Apply Changes</button>
-                        </div>
-                </form>
+
+{% block body %}
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Edit Category</h2>
+                <p>Edit category information</p>
             </div>
-
         </div>
-    </div>
-</div>
-
-
-
+        <div class="card">
+            <div class="card-body">
+                <div class="col-md-6">
+                    <form method="post" action="{% url 'product_mng:edit_category' category_list.id %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="category_name" class="form-label">Category Name</label>
+                            <input type="text" value="{{ category_name }}" class="form-control" id="category_name" name="category_name"/>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description">{{ category_disc }}</textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Update Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- card body .// -->
+        </div> <!-- card .// -->
+    </section>
 {% endblock %}

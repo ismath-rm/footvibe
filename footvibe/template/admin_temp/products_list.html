@@ -2,35 +2,45 @@
 {% load static %}
 {% block title %} Product list {% endblock %}
 {% block  body %}
+
+<style>
+    .dropdown-custom{
+        background-color: rgb(207, 200, 200);
+    }
+</style>
+
 <section class="content-main">
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Products List</h2>
-            <p>Lorem ipsum dolor sit amet.</p>
         </div>
         <div>
 
-            <a href="#" class="btn btn-primary btn-sm rounded">Create new</a>
+            <a href={% url "product_mng:add_product" %} class="btn btn-primary btn-sm rounded">Create new</a>
         </div>
     </div>
 
     <div class="card mb-4">
         <header class="card-header">
             <div class="row align-items-center">
-                <div class="col col-check flex-grow-0">
-                    <div class="form-check ms-2">
-                        <input class="form-check-input" type="checkbox" value="">
-                    </div>
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form action="{% url 'product_mng:products_list' %}" method="get">
+                        <input type="text" name="query" placeholder="Search..." class="form-control">
+                        
+                    
+                </div>
+                <div class="col-lg-4 col-md-2 col-6">
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
                 </div>
 
-                <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                {% comment %} <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
                     <select class="form-select">
                         <option selected>All category</option>
                         <option>Electronics</option>
                         <option>Clothes</option>
                         <option>Automobile</option>
                     </select>
-                </div>
+                </div> {% endcomment %}
 
                 <div class="col-md-2 col-6">
                     <input type="date" value="02.05.2021" class="form-control">
@@ -54,21 +64,34 @@
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>Product</th>
-                                        <th>Sale Price</th>                                    
+                                        <th>Product</th>                                   
                                         <th class="text-end">Availability</th>
+                                        <th class="text-end">Action</th> 
                                         
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for product in product_values %}
                                     <tr>
-                                        <td><img src="{{ product.productvariant_set.all.0.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Item"></td>
-                                        <td><a href="#"> <h6 class="mb-0">{{ product.product_slug }}</h6></a></td>
-                                        <td>{{ product.sale_price }}</td>
+                                        <td><img src="{{ product.productvariant_set.all.0.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
+                                        <td><a href="#"> <h6 class="mb-0">{{ product.get_product_name }}</h6></a></td>
                                         <td class="text-end">
                                             <span class="badge rounded-pill {% if product.is_active %} alert-success {% else %} alert-danger {% endif %}">
-                                                {% if product.is_active %} Active {% else %}Out Of Stock {% endif %} </span>
+                                                {% if product.is_active %} Active {% else %}Inactive {% endif %} </span>
+                                        </td>
+                                        <td class="text-end" >
+                                            <div class="dropdown">
+                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm text-secondary fw-bold font-sm"> 
+                                                    More
+                                                </a>
+                                                <div class="dropdown-menu dropdown-custom">
+                                                    {% comment %} <a class="dropdown-item" href="#">View detail</a> {% endcomment %}
+                                                    <a class="dropdown-item" href="{% url 'product_mng:edit_product' product.id %}">edit_info</a>
+                                                    <a class="dropdown-item" href="{% url 'product_mng:variant_list' product.id %}">Available variants</a>
+                                                    <a class="dropdown-item" href="{% url 'product_mng:add_product_variant' product.id %}">Add Variant</a>
+                                                    <a class="dropdown-item" href="{% url 'product_mng:product_control' product.id %}">{% if not product.is_active %}Enable {% else %}Disable{% endif %}</a>
+                                                </div>
+                                            </div> <!-- dropdown //end -->
                                         </td>
                                     </tr>
                                     {% endfor %}

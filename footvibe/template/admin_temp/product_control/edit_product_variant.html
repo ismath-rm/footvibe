@@ -1,0 +1,194 @@
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+{% block title %} Add product Variant {% endblock %}
+{% block body %}
+
+
+<section class="content-main">
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Edit Product Variant</h2>
+                <div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Product Details</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-lg-6">
+
+                                <div class="mb-4">
+
+
+
+                                    <label for="{{form.product_name.id_for_label}}" class="form-label">Product </label>
+                                    {% if product %}
+                                    <input value="{{product.product_name}}" type="text" class="form-control" readonly>
+                                    {% else %}
+                                    {{form.product}}
+                                    {% endif %}
+                                    <div class="row gx-2">
+
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="{{form.sku_id.id_for_label}}" class="form-label">SKU Id</label>
+                                    {{form.sku_id}}
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="mb-4">
+                            {% comment %} <label for="{{ form.Attribute_value.id_for_label }}"
+                                class="form-label">Attribute value</label>
+                            {{form.attribute_value}} {% endcomment %}
+                            {% comment %} <select class="form-select" name="Attribute_value" required="True">
+                                {% for attribute_value in form.Attribute_Value %}
+                                <option value="{{attribute_value}}">{{attribute_value}}</option>
+                                {% endfor %}
+                            </select> {% endcomment %}
+                            {% for attribute_name, attribute_values in attribute_dict.items %}
+                            <div class="col-3">
+                                <label class="form-label">{{attribute_name}}</label>
+                                <select name="attributes_{{ forloop.counter }}" class="form-control" 
+                                {% if not attribute_values %} disabled {% endif %}>
+                                    {% if not attribute_values %}
+                                    <option value="None">Empty</option>
+                                    {% else %}
+                                    <option value="None">Select</option>
+                                    {% endif %}
+
+                                    {% for value in attribute_values %}
+                                    <option value="{{ value.id }}">{{ value.attribute_value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{form.max_price.id_for_label}}" class="form-label">max Price</label>
+                            <input placeholder="Type here" class="form-control" rows="2" name="max_price"></textarea>
+                        </div>
+
+
+                </div>
+            </div> <!-- card end// -->
+
+        </div>
+        <div class="col-lg-4">
+
+            <div class="mb-4">
+                <label for="{{form.sale_price.id_for_label}}" class="form-label">Sale Price</label>
+                <input placeholder="Type here" class="form-control" rows="4" name="sale_price"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="{{form.stock.id_for_label}}" class="form-label">Stock</label>
+                <input placeholder="Type here" class="form-control" rows="4" name="stock"></textarea>
+            </div>
+
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Thumbnail</h4>
+                </div>
+                <div class="card-body">
+                    <div class="input-upload">
+                        <input class="form-control" type="file" required="True" name="thumbnail_image"
+                            accept=".jpg,.jpeg,.webp,.png">
+                    </div>
+                </div>
+
+            </div> <!-- card end// -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Additional images</h4>
+                </div>
+                <div class="card-body">
+                    <div class="input-upload">
+                        <input class="form-control" multiple type="file" required="True" name="additional_images"
+                            accept=".jpg,.jpeg,.webp,.png">
+                    </div>
+                </div>
+
+            </div> <!-- card end// -->
+
+            <div class=" card mb-4">
+                <div class="mb-4">
+                    <button type="submit" class="btn btn-primary btn-sm rounded col-lg-12">Add
+                        Product</button>
+                </div>
+            </div>
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<script>
+
+    // Function to retrieve the CSRF token from the cookie
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+    function send_data(inputid, variant_slug, image_id='thumbnail') {
+    url = `/admin-control/product/variant/update/additional-images/${variant_slug}/`
+    var formData = new FormData();
+    var files = $('#photo'+ inputid)[0].files[0]
+    formData.append('file', files);
+    formData.append('image_id', image_id);
+
+    $.ajax({
+      type: "POST",
+      url: url,  // Replace with the actual URL for your view
+      dataType: "json", 
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: {
+          // "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": getCookie("csrftoken"), 
+        },
+      success: (data) => {
+        console.log(data);
+        document.getElementById('image'+ inputid).setAttribute('src', data['new_image'])
+        },
+      error: (error) => {
+          console.log(error);
+          alert(error)
+        }
+    });
+  }
+
+</script>
+
+
+
+
+{% endblock %}

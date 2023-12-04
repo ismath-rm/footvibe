@@ -83,6 +83,10 @@ def user_signup(request):
             messages.error(request, "Invalid email")
             return redirect('log:user_signup')
         
+        if not re.match(r'^[\w.@+-]+$', user):
+            messages.error(request, "Invalid username")
+            return redirect('log:user_signup')
+        
         if password != confirm_password:
             messages.error(request, "Passwords do not match")
             return redirect('log:user_signup')
@@ -235,6 +239,8 @@ def product_detail(request, variant_slug):
     print('hello', variant_slug)
     try:
         single_product = ProductVariant.objects.get(product_variant_slug = variant_slug)
+        product_variant = ProductVariant.objects.filter(product = single_product.product)
+
 
     except Exception as e:
         print(e)
@@ -246,6 +252,7 @@ def product_detail(request, variant_slug):
     context = {
         'single_product': single_product,
         'product_images': product_images,
+        'product_variant':product_variant,
     }        
 
 
