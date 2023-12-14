@@ -63,11 +63,11 @@ def admin_logout(request):
     return redirect('admin_log:admin_login')
 
 
-# @login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def order_list(request):
+@login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def order_list(request):
 
-#     return render(request,'admin_temp/order_list.html')
+    return render(request,'admin_temp/order_list.html')
 
 
 @login_required(login_url='admin_log:admin_login')  # Use the named URL pattern

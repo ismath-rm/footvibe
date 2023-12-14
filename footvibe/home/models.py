@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 # from django.contrib.auth.models import AbstractBaseUser, UserManager,PermissionsMixin,Permission,Group
 
 class AccountManager(BaseUserManager):
-    def create_user(self, username, email, password):
+    def create_user(self, username, email, phone, password):
         if not email:
             raise ValueError("User must have a email")
         if not username:
@@ -13,6 +13,7 @@ class AccountManager(BaseUserManager):
         user=self.model(
             email=self.normalize_email(email),
             username=username,
+            phone=phone
             
         )
 
@@ -39,6 +40,7 @@ class AccountManager(BaseUserManager):
 class Account(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=254, unique=True)
+    phone =models.CharField(max_length=50)
    
 
     # required
@@ -64,3 +66,27 @@ class Account(AbstractBaseUser):
     # Check user module permissions
     def has_module_perms(self, add_label):
         return True
+    
+
+class AddressBook(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE,null=True, default=None)
+    first_name = models.CharField(max_length=50,null=True,blank=True)
+    last_name = models.CharField(max_length=50,null=True,blank=True)
+    phone = models.CharField(max_length=15,default=9633018297)
+    email = models.EmailField(max_length=100, default='ismathrm(@gmail.com)')
+    address_line_1 = models.CharField(max_length=150,null=True,blank=True)
+    address_line_2 = models.CharField(max_length=150,null=True,blank=True)
+    country = models.CharField(max_length=50,null=True,blank=True)
+    state = models.CharField(max_length=50,null=True,blank=True)
+    city =models.CharField(max_length=50,null=True,blank=True)
+    pincode = models.CharField(max_length=10,null=True,blank=True)
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.address_line_1
+    
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(Account, on_delete=models.CASCADE)
+    otp_secret = models.CharField(max_length=16)  # Store the OTP secret key

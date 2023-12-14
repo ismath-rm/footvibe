@@ -60,17 +60,29 @@
                                         <li><a href="#"><img src="{% static '/image/theme/flag-dt.png' %}" alt="">Deutsch</a></li>
                                         <li><a href="#"><img src="{% static '/image/theme/flag-ru.png' %}" alt="">Pусский</a></li>
                                     </ul>
+
                                 </li>
-                                    {% if request.user.is_authenticated %}
-                                    <p class="text-success">{{ request.user.username }}</p>
-                                </li>
-                                <li> </li>
-                                <li>
-                                    <a href="{% url 'log:user_logout' %}">Logout</a>
-                                </li>    
+
+                                {% if request.user.is_authenticated %}
+                                
+                                    <li class="dropdown nav-item">
+                                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="{% static 'admin/imgs/people/avatar2.jpg' %}" alt="User" style="width: 40px; height: 40px;"></a>
+                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+
+                                            <a class="dropdown-item" href="{% url "log:user_profile" %}"><i class="material-icons md-perm_identity"></i>Profile</a>
+                                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i> My Order</a>
+                                            <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
+                                            
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="{% url 'log:user_logout'%}"><i class="material-icons md-exit_to_app"></i>Logout</a>
+                                        </div>
+                                    </li>                                </li>
+                               
                                     {% else %}
                                         <li><i class="fi-rs-user"></i><a href="{% url 'log:user_login' %}">Log In / Sign Up</a></li>
                                     {% endif %}
+                                    
+                              
                             </ul>
                         </div>
                     </div>
@@ -81,7 +93,7 @@
             <div class="container">
                 <div class="header-wrap">
                     <div class="logo logo-width-1">
-                        <a href="{% url 'log:index' %}"><img src="{% static 'image/theme/logo.svg' %}" alt="logo"></a>
+                        <a href="{% url 'log:index' %}"><img src="{% static 'image\home images\footvibe logo - 2.png' %}" alt="logo"></a>
                     </div>
                     <div class="header-right">
                         <div class="search-style-2">
@@ -99,7 +111,7 @@
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
-                                    <a class="mini-cart-icon" href="shop-cart.html">
+                                    <a class="mini-cart-icon" href="{% url 'cart_mng:cart' %}">
                                         <img alt="Evara" src="{% static 'image/theme/icons/icon-cart.svg' %}">
                                         <span class="pro-count blue">0</span>
                                     </a>
@@ -130,17 +142,9 @@
                                         <a href="{% url 'log:index' %}">Home</a>
                                     </li>
                                     <li>
-                                        <a href="#">Shop</a>
+                                        <a href="{% url "log:shop" %}">Shop</a>
                                     </li>
-                                    <li>
-                                        <a href="#">Mens</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">Womens</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">Kids</a>
-                                    </li>
+        
                                     <li>
                                         <a href="#">About</a>
                                     </li>
@@ -194,7 +198,7 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="widget-about font-md mb-md-5 mb-lg-0">
                             <div class="logo logo-width-1 wow fadeIn animated">
-                                <a href="index.html"><img src="{% static 'image/theme/logo.svg' %}%" alt="logo"></a>
+                                <a href="index.html"><img src="{% static 'image\home images\footvibe logo - 2.png' %}%" alt="logo"></a>
                             </div>
                             <h5 class="mt-20 mb-10 fw-600 text-grey-4 wow fadeIn animated">Contact</h5>
                             <p class="wow fadeIn animated">

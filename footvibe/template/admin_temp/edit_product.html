@@ -36,8 +36,8 @@
                             
                                 <div class="mb-4">
                                     <label for="{{form.product_name.id_for_label}}" class="form-label">Product name</label>
-                                    <input placeholder="" type="text" class="form-control" name="product_name" required="True">
-                                   
+                                    <input placeholder="" value="{{product.product_name}}" type="text" class="form-control" name="product_name" required="True">
+            
                                     <div class="row gx-2">
                                          
                                     </div>
@@ -45,10 +45,11 @@
                             </div>
                         </div>
 
-                         <div class="mb-4">
-                            <label for="{{form.product_description.id_for_label}}" class="form-label">Description</label>
-                            <textarea placeholder="Type here" class="form-control" rows="4" name="product_desc"></textarea>
-                        </div> 
+
+                        <div class="mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="product_description">{{ product.product_description }}</textarea>
+                        </div>
                         
                         
                 </div>
@@ -64,11 +65,11 @@
                     <div class="row gx-2">
                         <div class="col-sm-6 mb-3">
                             <label for="{{ form.product_catg.id_for_label }}" class="form-label">Category</label>
-                            <select class="form-select" name="product_category" required="True">
+                            <select class="form-select" name="product_catg" required="True">
                                 {% for category in categories %}
-                                {% if category.parent_id is None %}
-                                    <option value="{{ category.category_name }}">{{ category.category_name }}</option>
-                                {% endif %}
+                                    <option value="{{ category.id }}" {% if category.id == product.product_catg.id %}selected{% endif %}>
+                                         {{ category.category_name }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -76,10 +77,13 @@
                             <label for="{{ form.product_brand.id_for_label }}" class="form-label">Brand</label>
                             <select class="form-select" name="product_brand" required="True">
                                 {% for brand in brands %}
-                                <option value="{{brand.brand_name}}">{{brand.brand_name}}</option>
+                                    <option value="{{ brand.id }}" {% if brand.brand_name == product.product_brand.brand_name %}selected{% endif %}>
+                                        {{ brand.brand_name }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>
+                        
                         
                     </div> <!-- row.// -->
                 </div>

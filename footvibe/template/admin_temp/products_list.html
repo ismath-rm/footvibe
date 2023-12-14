@@ -64,7 +64,8 @@
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>Product</th>                                   
+                                        <th>Product</th> 
+                                        <th>Stock</th>                                  
                                         <th class="text-end">Availability</th>
                                         <th class="text-end">Action</th> 
                                         
@@ -75,6 +76,10 @@
                                     <tr>
                                         <td><img src="{{ product.productvariant_set.all.0.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
                                         <td><a href="#"> <h6 class="mb-0">{{ product.get_product_name }}</h6></a></td>
+                                        <td><a href="#"> <h6 class="mb-0">{{product.total_stock }}</h6></a></td>
+
+
+
                                         <td class="text-end">
                                             <span class="badge rounded-pill {% if product.is_active %} alert-success {% else %} alert-danger {% endif %}">
                                                 {% if product.is_active %} Active {% else %}Inactive {% endif %} </span>

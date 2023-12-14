@@ -1,0 +1,66 @@
+{% extends 'user/base.html' %}
+{% load static %}
+{% block title %} Edit Address {% endblock %}
+{% block body %}
+
+<section class="mt-10 mb-10">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-3"></div>
+            <div class="col-lg-6 login_wrap widget-taber-content bg-white background-white border-radius-5">
+                <div class="padding_eight_all p-30">
+                    <div class="heading_s1">
+                        <h3 class="mb-30">Edit Address</h3>
+                    </div>
+                    <form method="post" action="{% if address.id %}{% url 'log:edit_address' address.id %}{% endif %}">
+                        {% csrf_token %}
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="first_name" class="text-box" placeholder="First Name" value="{{ address.first_name }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="last_name" class="text-box" placeholder="Last Name" value="{{ address.last_name }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="phone" class="text-box" placeholder="Phone" value="{{ address.phone }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="email" name="email" class="text-box" placeholder="Email" value="{{ address.email }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="address_line_1" class="text-box" placeholder="Address" value="{{ address.address_line_1 }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="country" class="text-box" placeholder="Country" value="{{ address.country }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="state" class="text-box" placeholder="State" value="{{ address.state }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="city" class="text-box" placeholder="City" value="{{ address.city }}">
+                        </div>
+
+                        <div class="form-group container-custom">
+                            <input type="text" name="pincode" class="text-box" placeholder="Pincode" value="{{ address.pincode }}">
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-fill-out btn-block hover-up" name="edit_address">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

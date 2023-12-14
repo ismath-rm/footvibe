@@ -29,7 +29,7 @@ class Brand(models.Model):
         brand_name = models.CharField(max_length=50,unique=True)
         is_active = models.BooleanField(default=True)
 
-        def __str__(self):  # Corrected to use two underscores before and after 'str'
+        def __str__(self):
             return self.brand_name
         
 
@@ -92,31 +92,47 @@ class ProductVariant(models.Model):
     is_active = models.BooleanField(default=True)
     thumbnail_image = models.ImageField(upload_to='product_variant/images/',blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    
+    updated_at = models.DateTimeField(auto_now=True)    
     objects = models.Manager()
+    
+    def __str__(self) -> str:
+        attribute_values = ', '.join([str(value) for value in self.attribute_value.all()])
+        return f"{self.product.product_name} {attribute_values}"
+
    
     
     
     def save(self, *args, **kwargs):
+        # Fetch the related objects from the database
+        self.product.refresh_from_db()
+
+        # Build the slug using the fetched values
         product_variant_slug_name = f'{self.product.product_brand.brand_name}-{self.product.product_name}-{self.product.product_catg.category_name}-{self.sku_id}'
         base_slug = slugify(product_variant_slug_name)
-        counter = ProductVariant.objects.filter(product_variant_slug__startswith=base_slug).count()
+        
+        # Count the existing slugs
+        counter = ProductVariant.objects.filter(product_variant_slug__startswith=base_slug).exclude(pk=self.pk).count()
+
+        # Append the counter if necessary
         if counter > 0:
             self.product_variant_slug = f'{base_slug}-{counter}'
         else:
             self.product_variant_slug = base_slug
-        super(ProductVariant, self).save(*args, **kwargs)
 
+        super(ProductVariant, self).save(*args, **kwargs)
     
-        
+     
         
     def get_url(self):
         return reverse('product-variant-detail',args=[self.product.product_catg.slug,self.product_variant_slug])
     
     def get_product_name(self):
-        return f'{self.product.product_brand} {self.product.product_name}-{self.sku_id} - {", ".join([value[0] for value in self.attribute_value.all().values_list("attribute_value")])}'
+        attribute_values = ', '.join([value.attribute_value for value in self.attribute_value.all()])
+        return f'{self.product.product_brand} {self.product.product_name}-{self.sku_id} - {attribute_values}'
+
+    
+    def get_url(self):
+        return reverse('log:product_detail', args=[self.product_variant_slug])
 
 
 class ProductImage(models.Model):

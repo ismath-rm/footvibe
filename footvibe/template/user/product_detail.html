@@ -1,7 +1,7 @@
 ﻿{% extends 'user/base.html' %}
 {% load static %}
-{% block title %} Prodcut Detail {% endblock %}
-{% block  body %}
+{% block title %} Product Detail {% endblock %}
+{% block body %}
 
 <section class="mt-50 mb-50">
     <div class="container">
@@ -35,7 +35,6 @@
                             <div class="detail-info">
 
                                 <!--product name-->
-
                                 <h2 class="title-detail">{{single_product.product.product_name}}</h2>
 
                                 <div class="product-detail-rating">
@@ -44,15 +43,13 @@
                                     </div>
                                     <div class="product-rate-cover text-end">
                                         <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width:90%">
-                                            </div>
+                                            <div class="product-rating" style="width:90%"></div>
                                         </div>
                                         <span class="font-small ml-5 text-muted"> (25 reviews)</span>
                                     </div>
                                 </div>
 
                                 <!--product price-->
-
                                 <div class="clearfix product-price-cover">
                                     <div class="product-price primary-color float-left">
                                         <ins><span class="text-brand">{{single_product.sale_price}}</span></ins>
@@ -62,47 +59,101 @@
                                 </div>
                                 <div class="bt-1 border-color-1 mt-15 mb-15"></div>
                                 <div class="short-desc mb-30">
-                                        {{single_product.product.product_description}}    
-                                </div>
-    
-                                <div class="attr-detail attr-color mb-15">
-                                    <strong class="mr-10">Color</strong>
-                                    <select class="js-select2" name="color" required>
-                                        <option value="" disabled selected>Choose an option</option>
-                                        {% for color in products.productvariant_set.colors %}
-                                        <option value="{{color}}">{{color | capfirst }}</option>
-                                        {% endfor %}
-                                    </select>
+                                    {{single_product.product.product_description}}    
                                 </div>
 
-                                <div class="attr-detail attr-size">
-                                    <strong class="mr-10">Size</strong>
-                                    <select class="js-select2" name="color" required>
-                                        <option value="" disabled selected>Choose an option</option>
-                                        {% for size in product_variant.Attribute_value %}
-                                        <option value="{{size}}">{{size | capfirst }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                                {% comment %} <form method="post" action="{% url 'cart_mng:add_cart' single_product.product.id %}"> {% endcomment %}
+                                {% comment %} <form method="post" action="{% url 'log:product_detail' variant_slug=single_product.product.product_variant_slug %}"> {% endcomment %}
+                                    {% comment %}  {% endcomment %}
+                                <form method="post" action="{% url 'cart_mng:add_cart' id=single_product.product.id  %}">     
+                                    {% csrf_token %}
+                               
+                                    {% comment %} Color {% endcomment %}
+                                    <div class="attr-detail attr-color mb-15">
+                                        <strong class="mr-10">Color</strong>
+                                        <select class="js-select2" name="color" required>
+                                            <option value="" disabled selected>Choose an option</option>
+                                                {% for value in color %}
+
+                                                    <option value="{{ value.attribute_value }}">{{ value.attribute_value | capfirst }}</option>
+
+                                                {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    {% comment %} Size {% endcomment %}
+                                    <div class="attr-detail attr-color mb-15">
+                                        <strong class="mr-10">Size </strong>
+                                        <select class="js-select2" name="size" required>
+
+                                            <option value="" disabled selected>Choose an option</option>
+                                                {% for value in size %}
+
+                                                    <option value="{{ value.attribute_value }}">{{ value.attribute_value | capfirst }}</option>
+
+                                                {% endfor %}
+                                        
+                                        </select>
+                                    </div> 
+                                    
+                                    
                                 
-                                <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-                                <div class="detail-extralink">
-                                    <div class="detail-qty border radius">
-                                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                        <span class="qty-val">1</span>
-                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                    <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                    <div class="detail-extralink">
+                                        <div class="detail-qty border radius">
+                                            <a onclick='minus_item()'  class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                            <input value='1' name="input" id="quantityInput" type="hidden" >
+                                            <span id='quantitySpan' class="qty-val">1</span>
+                
+                                            <a  onclick='plus_item()' class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                        </div>
+                                        <div class="product-extra-link2">
+                                            <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                            <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                        </div>
                                     </div>
-                                    <div class="product-extra-link2">
-                                        <button type="submit" class="button button-add-to-cart">Add to cart</button>
-                                        <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                        <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
-                                    </div>
-                                </div>
-                      </div>
+                                </form>
+                               
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-</main>
+<script>
+                                   
+    function plus_item(){
+        console.log("asasas");
+        var quantitySpan = document.getElementById('quantitySpan');
+        var quantityInput = document.getElementById('quantityInput');
+        console.log(quantityInput);
+        var currentQuantity = parseInt(quantitySpan.innerText);
+        console.log(currentQuantity, "currentQuantity");
+
+        // Ensure the new quantity doesn't exceed the stock value
+        var newQuantity = currentQuantity + 1;
+
+        quantitySpan.innerText = newQuantity;
+        quantityInput.value = newQuantity;
+        var val=document.getElementById('quantityInput').value;
+        console.log(val);
+    }
+    function minus_item() {
+        console.log("minus")
+        var quantityElement = document.getElementById('quantitySpan');
+        var quantityInput = document.getElementById('quantityInput');
+        var currentQuantity = parseInt(quantityElement.textContent);
+
+        if (currentQuantity > 1) {
+            quantityElement.textContent = currentQuantity - 1;
+            quantityInput.value = currentQuantity - 1;
+        }
+    }
+</script>
+
+
 {% endblock %}
+

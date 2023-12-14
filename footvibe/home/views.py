@@ -1,7 +1,8 @@
-from django.shortcuts import render,HttpResponse,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.models import User,auth
+from django.http import HttpResponseNotFound
 from django.contrib import messages
-from .models import Account
+from home.models import Account,AddressBook
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
@@ -11,6 +12,9 @@ from django.core.mail import send_mail
 import random,re
 from django.core.exceptions import ObjectDoesNotExist
 from product_management.models import *
+from django.contrib.auth import update_session_auth_hash
+from home.forms import AddressForm
+from cart_management.models import *
 
 
 # Create your views here.
@@ -65,6 +69,7 @@ def user_signup(request):
     if request.method=='POST':
         user=request.POST.get('username')
         email = request.POST.get('email')
+        phone = request.POST.get('phone')
         password = request.POST.get('password1')
         confirm_password = request.POST.get('password2')
         print('email',email)
@@ -87,6 +92,11 @@ def user_signup(request):
             messages.error(request, "Invalid username")
             return redirect('log:user_signup')
         
+        if not re.match(r'^\d{10}$', phone):
+            messages.error(request, "Invalid phone number. Please enter a 10-digit phone number.")
+            return redirect('log:user_signup')
+
+        
         if password != confirm_password:
             messages.error(request, "Passwords do not match")
             return redirect('log:user_signup')
@@ -95,7 +105,7 @@ def user_signup(request):
             messages.error(request, "Password must be at least 8 characters")
             return redirect('log:user_signup')
         
-        user=Account.objects.create_user(email=email, password=password,username=user)
+        user=Account.objects.create_user(email=email, password=password,username=user,phone=phone)
         user.save()
 
         # Add success message
@@ -235,25 +245,267 @@ def resend_otp(request):
 
 
 
-def product_detail(request, variant_slug):
-    print('hello', variant_slug)
+# def product_detail(request, variant_slug):
+#     print('hello', variant_slug)
+#     try:
+#         single_product = ProductVariant.objects.get(product_variant_slug = variant_slug)
+#         product_variant = ProductVariant.objects.filter(product = single_product.product)
+
+
+#     except Exception as e:
+#         print(e)
+
+#     product_images = [image.image for image in single_product.product_images.all()]
+#     product_images.insert(0, single_product.thumbnail_image)
+    
+
+#     context = {
+#         'single_product': single_product,
+#         'product_images': product_images,
+#         'product_variant':product_variant,
+#     }        
+    
+#     return render(request,'user/product_detail.html',context)
+
+
+
+def product_detail(request, variant_slug=None):
+
+    # if not variant_slug:
+    #     return HttpResponseNotFound("Product not found")
+    
     try:
-        single_product = ProductVariant.objects.get(product_variant_slug = variant_slug)
-        product_variant = ProductVariant.objects.filter(product = single_product.product)
+        single_product = get_object_or_404(ProductVariant, product_variant_slug=variant_slug)
+        # print(single_product, "single_product")
+        print(single_product.product_variant_slug)
 
+        product = ProductVariant.objects.get(product_variant_slug=variant_slug).product
 
-    except Exception as e:
-        print(e)
+        product_variants = ProductVariant.objects.filter(product=single_product.product)
+
+        attribute_values = [product_variant.attribute_value.all() for product_variant in product_variants]
+        # print([product for product in attribute_values])
+
+    except ProductVariant.DoesNotExist:
+        return HttpResponseNotFound("Product not found")
 
     product_images = [image.image for image in single_product.product_images.all()]
     product_images.insert(0, single_product.thumbnail_image)
-    
+    # print(attribute_values)
 
+    # Extract colors and sizes from attribute values.
+    # color = [i[0] for i in attribute_values]
+    # print("asdfads", color)
+    # size = [i[0] for i in attribute_values]
+    color = Attribute_Value.objects.filter(attribute = 10)
+    size = Attribute_Value.objects.filter(attribute = 11)
+
+
+    # Prepare context for rendering the template.
     context = {
         'single_product': single_product,
         'product_images': product_images,
-        'product_variant':product_variant,
-    }        
+        'product_variant': product_variants,
+        'attribute_values': attribute_values,
+        'color': color,
+        'size': size,
+    }
+
+    # Render the product_detail template with the context.
+    return render(request, 'user/product_detail.html', context)
 
 
-    return render(request,'user/product_detail.html',context)
+
+
+# ..........................................shop..........................................#
+
+def shop(request):
+    variants = []
+    products = Product.objects.filter(is_active = True)
+    categories = Category.objects.all()
+    print(products)
+
+    for product in products:
+        prod_variants = ProductVariant.objects.filter(product = product, is_active = True)
+        if prod_variants:
+            variants.append(prod_variants[0])
+    context = {
+        'products': variants,
+        'categories': categories,
+    }
+
+    return render(request,'user/shop.html',context)
+
+
+
+
+
+def shop_category(request,slug):
+    categorires = Category.objects.all()
+    products = ProductVariant.objects.filter(product__product_catg__slug=slug)
+    print(categorires)
+    context = {
+        'products': products,
+        'categories':categorires,
+    }
+    return render(request, "user/shop.html", context)
+
+
+
+
+#......................................profile........................................#
+
+@login_required(login_url='log:user_login')
+def user_profile(request):
+    try:
+        user_profile = Account.objects.get(email=request.user.email)
+        addresses = AddressBook.objects.filter(user=user_profile)
+        print("Addresses found for user", addresses)
+    except Account.DoesNotExist:
+        messages.error(request, "User profile not found.")
+        return render(request, 'user/user_profile.html')
+
+    context = {
+        'user_profile': user_profile,
+        'addresses': addresses,
+    }
+    return render(request, 'user/user_profile.html', context)
+
+
+
+
+
+
+def edit_profile(request):
+    if not request.user.is_authenticated:
+        return redirect('log:index')
+
+    user = request.user
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        # Check if the passwords match
+        if password1 == password2:
+            # Update the user profile fields with the form data
+            user.email = email
+            user.username = username
+
+            # Check if a new password is provided and update it
+            if password1:
+                user.set_password(password1)
+                update_session_auth_hash(request, user)  # Update session to avoid logout
+
+            # Save the changes to the User model
+            user.save()
+
+            messages.success(request, "Profile updated successfully")
+            return redirect('log:index')  # Redirect to the user profile page after successful update
+        else:
+            messages.error(request, "Passwords do not match. Please try again.")
+    return render(request, "user/edit_profile.html", {'user': user})
+
+
+
+
+#................................................Address..........................................................#
+
+
+
+def add_address(request):
+    if request.method == 'POST':
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            # Retrieve address data from the form and create a new address
+            # Make sure to associate it with the logged-in user
+            new_address = form.save(commit=False)
+            new_address.user = request.user  # Assuming the user is logged in
+            new_address.save()
+
+            messages.success(request, 'Address added successfully.')
+            return redirect('log:user_profile')  # Adjust the redirect URL as needed
+        else:
+            messages.error(request, 'Error adding address. Please check the form.')
+
+    else:
+        form = AddressForm()
+
+    return render(request, 'user/add_address.html', {'form': form})
+
+
+
+
+
+
+def edit_address(request, address_id):
+    address = get_object_or_404(AddressBook, pk=address_id)
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance=address)
+        if form.is_valid():
+            edited_address = form.save(commit=False)
+            edited_address.user = request.user  
+            edited_address.save()
+            messages.success(request, 'Address updated successfully.')
+            return redirect('log:user_profile')
+        else:
+            messages.error(request, 'Error updating address. Please correct the errors below.')
+    else:
+        form = AddressForm(instance=address)
+
+    return render(request, 'user/edit_address.html', {'form': form, 'address': address})
+
+
+
+
+def set_default_address(request, address_id):
+    # Set is_default to False for all other addresses of the same user
+    AddressBook.objects.filter(user=request.user).exclude(pk=address_id).update(is_default=False)
+
+    # Set the specified address as the default
+    address = AddressBook.objects.get(pk=address_id)
+    address.is_default = True
+    address.save()
+
+    return redirect('log:user_profile')
+
+
+# @login_required(login_url='log:user_login')
+def checkout(request):
+    if request.method == 'POST':
+        form = AddressForm(request.POST)
+
+        if form.is_valid():
+            new_address = form.save(commit=False)
+            new_address.user = request.user
+            new_address.save()
+            messages.success(request, 'Address Added Successfully.')
+            return redirect('log:checkout')
+        else:
+            messages.error(request, 'Error adding address. Please check the form.')
+    else:
+        form = AddressForm()
+
+    # Retrieve user's addresses and pass them to the template
+    address_list = AddressBook.objects.filter(user=request.user)
+
+    # Retrieve user's cart and cart items
+    user_cart, created = Cart.objects.get_or_create(user=request.user)
+
+    # Make sure cart_items are instances of CartItem
+    cart_items = user_cart.cartitem_set.all()
+
+    # Calculate total for the cart items
+    total = sum(item.subtotal() for item in cart_items)
+    context = {
+        'form': form,
+        'address_list': address_list,
+        'cart_items': cart_items,
+        'total': total
+
+    }
+
+    return render(request, 'user/checkout.html',context)
+
+

@@ -6,8 +6,11 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from .forms import ProductVariantForm 
 from django.contrib import messages
+import re
+
 # Create your views here.
 #......................................................category..............................................................#
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def category(request):
     if not request.user.is_superuser:
@@ -18,26 +21,8 @@ def category(request):
     }
     return render(request, 'admin_temp/category.html',content)
 
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def add_category(request):
-#     if not request.user.is_superuser:
-#         return redirect('admin_log:admin_login')
-#     category_name = request.POST['category_name']
-#     parent = None if request.POST['parent'] == 'None' else Category.objects.get(category_name=request.POST['parent'])
-#     description = request.POST['description']
-
-#     Category.objects.create(
-#         category_name=category_name,
-#         parent=parent,
-#         description=description,
-        
-#     )
-#     return redirect('product_mng:category')
 
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-import re
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_category(request):
@@ -53,11 +38,12 @@ def add_category(request):
         if not category_name or not description:
             messages.error(request, 'Category name and description are required.')
             return redirect('product_mng:category')
-
-        # Username validation
-        if not re.match(r'^[\w.@+-]+$', category_name):
-            messages.error(request, 'Invalid category name. Use only letters, numbers, and @/./+/-/_ characters.')
+        
+        # Validate category name
+        if any(re.match('[@#$%^@%@#%&]', char) for char in category_name) or category_name.startswith(" "):
+            messages.error(request, "Invalid category name")
             return redirect('product_mng:category')
+
 
         # Check if the category already exists
         if Category.objects.filter(category_name=category_name).exists():
@@ -74,8 +60,8 @@ def add_category(request):
         messages.success(request, f'Category "{category_name}" has been successfully added.')
         return redirect('product_mng:category')
 
-    # Handle non-POST requests (e.g., GET requests)
-    return render(request, 'your_template.html')
+
+
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -104,6 +90,10 @@ def available(request,category_id):
         category.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+
+
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def delete_category(request,category_id):
     if not request.user.is_superuser:
@@ -115,6 +105,9 @@ def delete_category(request,category_id):
     category.delete()
 
     return redirect('product_mng:category')
+
+
+
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_category(request,category_id):
@@ -185,11 +178,14 @@ def add_brand(request):
     
     brand_name = request.POST.get('brand_name', '')  # Use get() to handle the case when 'brand_name' is not in POST
     
+    print(f"Brand name received: {brand_name}")
 
-    # Validate email
-    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', brand_name):
-        messages.error(request, "Invalid brand")
-        return redirect("product_mng:brands")
+    # Validate brand name
+    if any(re.match('[@#$%^@%@#%&]', char) for char in brand_name) or brand_name.startswith(" "):
+        messages.error(request, "Invalid brand name")
+        return redirect('product_mng:brands')
+
+
 
     # Continue with brand creation
     Brand.objects.create(
@@ -200,6 +196,11 @@ def add_brand(request):
     messages.success(request, f"Brand '{brand_name}' created successfully!")
 
     return redirect('product_mng:brands')
+
+
+
+
+
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)   
@@ -291,10 +292,10 @@ def add_attribute(request):
         return redirect('admin_log:admin_login')
 
     attribute_name = request.POST['attribute_name']
-
-    # Validate the attribute_name using a regex pattern
-    if not re.match(r'^[\w.@+-]+$', attribute_name):
-        messages.error(request, "Invalid attribute name. Please use only letters, numbers, and symbols @, +, - and _.")
+    
+    # Validate attribute name
+    if any(re.match('[@#$%^@%@#%&]', char) for char in attribute_name) or attribute_name.startswith(" "):
+        messages.error(request, "Invalid attribute name")
         return redirect('product_mng:attribute')
 
     try:
@@ -376,7 +377,7 @@ def attribute_value(request):
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     attribute_values = Attribute_Value.objects.all()
-    attribute_names=Attribute.objects.all()
+    attribute_names  = Attribute.objects.all()
     content = {
         'attribute_values': attribute_values,
         'attribute_names': attribute_names
@@ -541,6 +542,9 @@ def products_list(request):
 
     product_values = Product.objects.all().order_by('-created_at')
     
+    for product in product_values:
+        total_stock = sum([variant.stock for variant in product.productvariant_set.all()])
+        product.total_stock = total_stock
 
 
     context = {
@@ -568,6 +572,17 @@ def add_product(request):
         category_name= request.POST.get('product_category')
         brand_name=request.POST.get('product_brand')
 
+
+        # Basic validation checks
+        if not product_name or not description or not category_name or not brand_name:
+            messages.error(request, "All fields are required")
+            return redirect('product_mng:add_product')
+
+        # Product name validation
+        if any(re.match('[@#$%^@%@#%&]', char) for char in product_name) or product_name.startswith(" "):
+            messages.error(request, "Invalid product name")
+            return redirect('product_mng:add_product')
+
        
         category = get_object_or_404(Category, category_name=category_name)
         brand = get_object_or_404(Brand, brand_name=brand_name)
@@ -594,6 +609,10 @@ def add_product(request):
     return render(request,'admin_temp/add_product.html', content)
 
 
+
+
+
+
 def variant_list(request, product_id):
     try:
         product = Product.objects.get(id = product_id)
@@ -605,6 +624,12 @@ def variant_list(request, product_id):
         'product': product,
     }
     return render(request, 'admin_temp/product_control/variant_list.html', context)
+
+
+
+
+
+
 
 
 
@@ -620,6 +645,9 @@ def product_variant_control(request, product_variant_id):
     product_variant.save()
     print("h112345678")
     return redirect('product_mng:variant_list', product_variant.product.id )
+
+
+
 
 
 
@@ -640,7 +668,7 @@ def add_product_variant(request, product_id = None):
     for attribute in attributes:
         attribute_values = attribute.attribute_value_set.filter(is_active = True)
         attribute_dict[attribute.attribute_name] = attribute_values
-    print(attribute_dict.items())
+    print(attribute_dict.items(),"llllllllllllllllllllllllllllllllll")
 
     attribute_values = Attribute_Value.objects.all()
   
@@ -709,80 +737,87 @@ def add_product_variant(request, product_id = None):
     return render(request, 'admin_temp/add_product_variant.html', context)
 
 
-def product_variant_update(request, product_variant_slug):
+
+
+
+
+
+
+
+def edit_product_variant(request, product_variant_slug):
+    print(f"Attempting to retrieve ProductVariant with slug: {product_variant_slug}")
+
     try:
-        product_variant = ProductVariant.objects.get(product_variant_slug = product_variant_slug)
+        product_variant = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
+        print(f"Retrieved ProductVariant: {product_variant}")
     except ProductVariant.DoesNotExist:
-        return redirect('variant_list', product_variant.product.id)
-    except ValueError:
-        return redirect('variant_list', product_variant.product.id)
-    
-    product_variant_form = ProductVariantForm(instance = product_variant)
+        print("ProductVariant not found.")
+        # Handle the case where the product variant is not found
+        # You may want to redirect or show an error message
+        # For now, I'm redirecting to a view named 'variant_list'
+        return redirect('product_mng:variant_list')  # Adjust the redirect as needed
+    except Exception as e:
+        print(f"Error retrieving ProductVariant: {e}")
+        # Handle other exceptions here
+        # For now, I'm redirecting to a view named 'variant_list'
+        return redirect('product_mng:variant_list')
+
+
+    if not product_variant:
+        # Handle the case where the product variant is not found
+        messages.error(request, "Product variant not found.")
+        return redirect('product_mng:variant_list', product_variant.product.id)  # Adjust the redirect as needed
+
+    product_variant_form = ProductVariantForm(instance=product_variant)
     current_additional_images = product_variant.product_images.all()
-    
+
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    if request.method == "POST" and is_ajax:
-        image = request.FILES['file']
-        image_id = request.POST['image_id']
-        
-        if image_id == 'thumbnail':
-            image_id = None
-            
-        if image and image_id:
-            try:
-                additional_image = ProductImage.objects.get(id = image_id)
-                additional_image.image = image
-                additional_image.save()
-                return JsonResponse({"status": "success",
-                                     'new_image': additional_image.image.url,})
-            except Exception as e :
-                print(e)
-    
-        elif image and (not image_id):
-            
-            try:
-                product_variant.thumbnail_image = image
-                product_variant.save()
-                
-                return JsonResponse({
-                    'status': 'success',
-                    'new_image': product_variant.thumbnail_image.url,
-                    })
-            except Exception as e :
-                print(e)
-        else:
-            return JsonResponse({"status": "error", "message": "image send error !"})
-        
-    
+
     if request.method == 'POST':
-        product_variant_form = ProductVariantForm(request.POST,instance=product_variant)
+        if is_ajax:
+            image = request.FILES.get('file')
+            image_id = request.POST.get('image_id')
+
+            if image_id == 'thumbnail':
+                image_id = None
+
+            try:
+                if image and image_id:
+                    additional_image = ProductImage.objects.get(id=image_id)
+                    additional_image.image = image
+                    additional_image.save()
+                    return JsonResponse({"status": "success", 'new_image': additional_image.image.url})
+                elif image and not image_id:
+                    product_variant.thumbnail_image = image
+                    product_variant.save()
+                    return JsonResponse({"status": "success", 'new_image': product_variant.thumbnail_image.url})
+                else:
+                    return JsonResponse({"status": "error", "message": "image send error !"})
+            except Exception as e:
+                print(e)
+
+        product_variant_form = ProductVariantForm(request.POST, instance=product_variant)
         if product_variant_form.is_valid():
             variant = product_variant_form.save()
-            
             messages.success(request, "Variant Updated")
-            print("not working post")
-            return redirect('product_update', product_variant.product.prod_slug)
+            return redirect('product_mng:variant_list', product_variant.product.id)
         else:
             messages.error(request, product_variant_form.errors)
             context = {
                 'form': product_variant_form,
-                'product_variant_slug':product_variant_slug,
+                'product_variant_slug': product_variant_slug,
                 'product_variant': product_variant,
                 'current_additional_images': current_additional_images,
             }
-            
-            return render(request, 'admin_templates/product_control/edit_product_variant.html', context)
-        
-    
+            return render(request, 'admin_temp/product_control/edit_product_variant.html', context)
+
     context = {
         'form': product_variant_form,
         'product_variant_slug': product_variant_slug,
         'product_variant': product_variant,
         'current_additional_images': current_additional_images,
-        }
-    return render(request, 'admin_temp/product_control/edit_product_variant.html',context)
-
-
+    }
+    return render(request, 'admin_temp/product_control/edit_product_variant.html', context)
 
 
 
@@ -794,11 +829,22 @@ def edit_product(request, product_id):
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
-    product = get_object_or_404(Product, id=product_id)
+
+    
+    product = Product.objects.get(id=product_id)
+ 
+    categories = Category.objects.all()
+    brands = Brand.objects.all().exclude(is_active=False)
 
     if request.method == 'POST':
-        form = CreateProductForm(request.POST, instance=product)
+        # product.product_name = request.POST.get('product_name')
+        # product.product_description = request.POST.get('description')
+        # product.product_catg = request.POST.get('product_catg')
+        # product.product_brand = request.POST.get('product_brand')
 
+        
+        form = CreateProductForm(request.POST, instance=product)
+        print(form.errors)
         if form.is_valid():
             form.save()
             messages.success(request, "Product updated successfully!")
@@ -808,11 +854,16 @@ def edit_product(request, product_id):
         form = CreateProductForm(instance=product)
 
     context = {
+        'categories':categories,
+        'brands':brands,
         'form': form,
         'product': product,
     }
 
     return render(request, 'admin_temp/edit_product.html', context)
+
+
+
 
 
 def product_control(request, product_id):
@@ -825,3 +876,6 @@ def product_control(request, product_id):
     product.is_active = not product.is_active
     product.save()
     return redirect('product_mng:products_list')
+
+
+

@@ -43,11 +43,14 @@ urlpatterns = [
     path('products_list/', views.products_list, name = 'products_list'),
     path('products_list/product-control/<int:product_id>/', views.product_control, name='product_control'),
     path('add_product/', views.add_product, name='add_product'),
-    path('product/variants/<int:product_id>/', views.variant_list, name = 'variant_list'),
+    path('product_variants/<int:product_id>/', views.variant_list, name = 'variant_list'),
     path('add_product_variant', views.add_product_variant, name = 'add_product_variant'),
     path('add_product_variant/<int:product_id>/', views.add_product_variant, name = 'add_product_variant'),
-    path('edit-product-variant/<str:product_variant_slug>/', views.product_variant_update, name = 'product_variant_update'),
+    path('edit-product-variant/<str:product_variant_slug>/', views.edit_product_variant, name='product_variant_update'),
+
     path('variants/product-variant-control/<int:product_variant_id>/', views.product_variant_control, name='product_variant_control'),
     path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
+
+
 
 ]
