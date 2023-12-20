@@ -155,22 +155,6 @@ def brands(request):
     return render(request, 'admin_temp/brands.html',content)
 
 
-
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def add_brand(request):
-#     if not request.user.is_superuser:
-#         return redirect('admin_log:admin_login')
-    
-#     brand_name = request.POST['brand_name']
-#     print("welcome")
-#     print(brand_name)
-#     Brand.objects.create(
-#         brand_name=brand_name,
-#     )
-#     return redirect('product_mng:brands')
-
-
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_brand(request):
     if not request.user.is_superuser:
@@ -185,14 +169,10 @@ def add_brand(request):
         messages.error(request, "Invalid brand name")
         return redirect('product_mng:brands')
 
-
-
-    # Continue with brand creation
     Brand.objects.create(
         brand_name=brand_name,
     )
 
-    # Display success message
     messages.success(request, f"Brand '{brand_name}' created successfully!")
 
     return redirect('product_mng:brands')
@@ -233,7 +213,6 @@ def delete_brand(request,brand_id):
     return redirect('product_mng:brands')
 
 
-# views.py
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_brand(request, brand_id):
@@ -247,13 +226,12 @@ def edit_brand(request, brand_id):
         brand.brand_name = brand_name
         brand.save()
 
-        # Add a success message if needed
         messages.success(request, f"Brand '{brand_name}' updated successfully!")
 
         return redirect('product_mng:brands')
 
     content = {
-        'brand_id': brand.id,  # Pass the brand_id to the template
+        'brand_id': brand.id,
         'brand_name': brand.brand_name,
     }
 
@@ -271,19 +249,6 @@ def attribute(request):
         'attributes': attributes
     }
     return render(request, 'admin_temp/attribute.html',content)
-
-
-
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def add_attribute(request):
-#     if not request.user.is_superuser:
-#         return redirect('admin_log:admin_login')
-#     attribute_name = request.POST['attribute_name']
-#     Attribute.objects.create(
-#         attribute_name=attribute_name,
-#     )
-#     return redirect('product_mng:attribute')
-
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -386,33 +351,6 @@ def attribute_value(request):
 
 
 
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def add_attribute_value(request):
-#     if not request.user.is_superuser:
-#         return redirect('admin_log:admin_login')
-#     if request.method == 'POST':
-#         attribute_value_n = request.POST.get('attribute_value_name')
-#         attribute = request.POST.get('attribute')
-#         print(attribute_value_n)
-#         print(attribute)
-#         if attribute_value_n and attribute:
-#             print("hoiiiiiiiiiiiiiiii")
-#             attribute_id = Attribute.objects.get(attribute_name=attribute)
-#             Attribute_Value.objects.create(
-#                 attribute_value=attribute_value_n,
-#                 attribute_id=attribute_id.id
-#             )
-    
-#     attribute_values = Attribute_Value.objects.all()
-#     attribute_names = Attribute.objects.all()
-#     context = {
-#         'attribute_values': attribute_values,
-#         'attribute_names': attribute_names
-#     }
-    
-#     return render(request, 'admin_temp/attribute_value.html', context)
-
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_attribute_value(request):
     if not request.user.is_superuser:
@@ -432,7 +370,6 @@ def add_attribute_value(request):
             return redirect('product_mng:attribute_value')
 
         try:
-            # Get the Attribute object
             attribute_obj = Attribute.objects.get(attribute_name=attribute)
 
             # Check if the attribute value already exists for the selected attribute
@@ -507,14 +444,12 @@ def edit_attribute_value(request, attribute_value_id):
         attribute_value_name = request.POST['attribute_value_name']
         attribute_name = request.POST['attribute']
 
-        # Assuming you have a ForeignKey from Attribute_Value to Attribute named attribute_id
         attribute = Attribute.objects.get(attribute_name=attribute_name)
 
         attribute_value.attribute_value = attribute_value_name
         attribute_value.attribute_id = attribute.id
         attribute_value.save()
 
-        # Add a success message if needed
         messages.success(request, f"Attribute value '{attribute_value_name}' updated successfully!")
 
         return redirect('product_mng:attribute_value')
@@ -698,9 +633,6 @@ def add_product_variant(request, product_id = None):
 
         print("hello stephan")
 
-        # attribute_value = get_object_or_404(Attribute_Value, attribute_value = attribute_value)
-
-    
         product_variant = ProductVariant(
             product = product,
             sku_id = sku_id,
@@ -752,21 +684,18 @@ def edit_product_variant(request, product_variant_slug):
         print(f"Retrieved ProductVariant: {product_variant}")
     except ProductVariant.DoesNotExist:
         print("ProductVariant not found.")
-        # Handle the case where the product variant is not found
-        # You may want to redirect or show an error message
-        # For now, I'm redirecting to a view named 'variant_list'
-        return redirect('product_mng:variant_list')  # Adjust the redirect as needed
+        
+        return redirect('product_mng:variant_list')  
     except Exception as e:
         print(f"Error retrieving ProductVariant: {e}")
-        # Handle other exceptions here
-        # For now, I'm redirecting to a view named 'variant_list'
+ 
         return redirect('product_mng:variant_list')
 
 
     if not product_variant:
-        # Handle the case where the product variant is not found
+        
         messages.error(request, "Product variant not found.")
-        return redirect('product_mng:variant_list', product_variant.product.id)  # Adjust the redirect as needed
+        return redirect('product_mng:variant_list', product_variant.product.id) 
 
     product_variant_form = ProductVariantForm(instance=product_variant)
     current_additional_images = product_variant.product_images.all()

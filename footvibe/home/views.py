@@ -15,6 +15,7 @@ from product_management.models import *
 from django.contrib.auth import update_session_auth_hash
 from home.forms import AddressForm
 from cart_management.models import *
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -27,6 +28,7 @@ def index(request):
         prod_variants = ProductVariant.objects.filter(product = product, is_active = True)
         if prod_variants:
             variants.append(prod_variants[0])
+
     context = {
         'products': variants,
     }
@@ -245,34 +247,7 @@ def resend_otp(request):
 
 
 
-# def product_detail(request, variant_slug):
-#     print('hello', variant_slug)
-#     try:
-#         single_product = ProductVariant.objects.get(product_variant_slug = variant_slug)
-#         product_variant = ProductVariant.objects.filter(product = single_product.product)
-
-
-#     except Exception as e:
-#         print(e)
-
-#     product_images = [image.image for image in single_product.product_images.all()]
-#     product_images.insert(0, single_product.thumbnail_image)
-    
-
-#     context = {
-#         'single_product': single_product,
-#         'product_images': product_images,
-#         'product_variant':product_variant,
-#     }        
-    
-#     return render(request,'user/product_detail.html',context)
-
-
-
 def product_detail(request, variant_slug=None):
-
-    # if not variant_slug:
-    #     return HttpResponseNotFound("Product not found")
     
     try:
         single_product = get_object_or_404(ProductVariant, product_variant_slug=variant_slug)
@@ -301,7 +276,6 @@ def product_detail(request, variant_slug=None):
     size = Attribute_Value.objects.filter(attribute = 11)
 
 
-    # Prepare context for rendering the template.
     context = {
         'single_product': single_product,
         'product_images': product_images,
@@ -310,8 +284,6 @@ def product_detail(request, variant_slug=None):
         'color': color,
         'size': size,
     }
-
-    # Render the product_detail template with the context.
     return render(request, 'user/product_detail.html', context)
 
 
@@ -320,6 +292,9 @@ def product_detail(request, variant_slug=None):
 # ..........................................shop..........................................#
 
 def shop(request):
+    sort_by = request.GET.get('sort_by', 'name')  
+    print(f'Sort by: {sort_by}')
+
     variants = []
     products = Product.objects.filter(is_active = True)
     categories = Category.objects.all()
@@ -329,9 +304,19 @@ def shop(request):
         prod_variants = ProductVariant.objects.filter(product = product, is_active = True)
         if prod_variants:
             variants.append(prod_variants[0])
+
+    if sort_by == 'price_low_high':
+        variants = sorted(variants, key=lambda x: x.sale_price)
+    elif sort_by == 'price_high_low':
+        variants = sorted(variants, key=lambda x: x.sale_price, reverse=True)
+    elif sort_by == 'name':
+        variants = sorted(variants, key=lambda x: x.product.product_name)
+
+
     context = {
         'products': variants,
         'categories': categories,
+        'current_sort': sort_by,
     }
 
     return render(request,'user/shop.html',context)
@@ -384,25 +369,26 @@ def edit_profile(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         username = request.POST.get('username')
+        number = request.POST.get('number')
+
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        # Check if the passwords match
         if password1 == password2:
-            # Update the user profile fields with the form data
+
             user.email = email
             user.username = username
+            user.phone = number
 
-            # Check if a new password is provided and update it
+        
             if password1:
                 user.set_password(password1)
-                update_session_auth_hash(request, user)  # Update session to avoid logout
+                update_session_auth_hash(request, user)
 
-            # Save the changes to the User model
             user.save()
 
             messages.success(request, "Profile updated successfully")
-            return redirect('log:index')  # Redirect to the user profile page after successful update
+            return redirect('log:user_profile')  
         else:
             messages.error(request, "Passwords do not match. Please try again.")
     return render(request, "user/edit_profile.html", {'user': user})
@@ -418,14 +404,12 @@ def add_address(request):
     if request.method == 'POST':
         form = AddressForm(request.POST)
         if form.is_valid():
-            # Retrieve address data from the form and create a new address
-            # Make sure to associate it with the logged-in user
             new_address = form.save(commit=False)
-            new_address.user = request.user  # Assuming the user is logged in
+            new_address.user = request.user  
             new_address.save()
 
             messages.success(request, 'Address added successfully.')
-            return redirect('log:user_profile')  # Adjust the redirect URL as needed
+            return redirect('log:user_profile')  
         else:
             messages.error(request, 'Error adding address. Please check the form.')
 
@@ -460,10 +444,9 @@ def edit_address(request, address_id):
 
 
 def set_default_address(request, address_id):
-    # Set is_default to False for all other addresses of the same user
+
     AddressBook.objects.filter(user=request.user).exclude(pk=address_id).update(is_default=False)
 
-    # Set the specified address as the default
     address = AddressBook.objects.get(pk=address_id)
     address.is_default = True
     address.save()
@@ -487,23 +470,18 @@ def checkout(request):
     else:
         form = AddressForm()
 
-    # Retrieve user's addresses and pass them to the template
     address_list = AddressBook.objects.filter(user=request.user)
 
-    # Retrieve user's cart and cart items
     user_cart, created = Cart.objects.get_or_create(user=request.user)
 
-    # Make sure cart_items are instances of CartItem
     cart_items = user_cart.cartitem_set.all()
 
-    # Calculate total for the cart items
     total = sum(item.subtotal() for item in cart_items)
     context = {
         'form': form,
         'address_list': address_list,
         'cart_items': cart_items,
         'total': total
-
     }
 
     return render(request, 'user/checkout.html',context)

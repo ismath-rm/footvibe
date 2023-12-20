@@ -90,7 +90,7 @@
             </div>
         
 
-            <form method="post" action=" #" onsubmit="return false">
+            <form method="post" action="{% url "order_mng:order_placed" %}" onsubmit="return false">
 
                 {% csrf_token %}
 
@@ -216,28 +216,29 @@
                                 <div class="payment_option">
                                     <div class="custome-radio">
                                         <input class="form-check-input"  type="radio" value="CashOnDelivery" name="payment_option" id="exampleRadios3" checked="">
-                                        <label class="form-check-label" for="exampleRadios3" aria-controls="bankTranfer">
-                                            Cash On Delivery
-                                        </label>
-                                        {% comment %} <div>
-                                        <input class="form-check-input"  type="radio" value="RAZORPAY" name="payment_option" id="exampleRadios4" >
-                                        <label class="form-check-label" for="exampleRadios4" aria-controls="bankTranfer">
-                                            Online Payment
-                                        </label>
-                                        </div>
+                                            <label class="form-check-label" for="exampleRadios3" aria-controls="bankTranfer">
+                                                Cash On Delivery
+                                            </label>
                                         <div>
-                                        <input class="form-check-input"  type="radio" value="Wallet" name="payment_option" id="exampleRadios5" >
-                                        <label class="form-check-label" for="exampleRadios5" aria-controls="bankTranfer">
-                                        Wallet
-                                        </label>
-                                        </div> {% endcomment %}
+                                            <input class="form-check-input"  type="radio" value="RAZORPAY" name="payment_option" id="exampleRadios4" >
+                                            <label class="form-check-label" for="exampleRadios4" aria-controls="bankTranfer">
+                                                Online Payment
+                                            </label>
+                                        </div>
+
+                                        {% comment %} <div>
+                                            <input class="form-check-input"  type="radio" value="Wallet" name="payment_option" id="exampleRadios5" >
+                                            <label class="form-check-label" for="exampleRadios5" aria-controls="bankTranfer">
+                                                Wallet
+                                            </label>
+                                        </div>  {% endcomment %}
                                         
                                     </div>
                                 </div>
                             </div>
 
 
-                            <button onclick="checkForCredentials(this.form)" type="submit" class="btn btn-brand btn-block mt-30">Place Order</button>
+                            <button type="submit" class="btn btn-brand btn-block mt-30"> <a style="color:white;" href=""> Place Order </a></button>
                         
                         </div>
                     

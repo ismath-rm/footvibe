@@ -1,5 +1,7 @@
 from django.db import models
 from home.models import *
+from product_management.models import *
+
 
 # Create your models here.
 
@@ -60,3 +62,22 @@ class Order(models.Model):
 
 
 
+class OrderProduct(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product_price = models.FloatField()
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, blank=True, null=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    variations = models.ManyToManyField(ProductVariant, blank=True)
+    quantity = models.IntegerField(default=0, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    ordered = models.BooleanField(default=False)
+    color = models.CharField(max_length=50)
+    size = models.CharField(max_length=50)
+
+
+    @property
+    def get_total(self):
+        total = self.product_price * self.quantity
+        return total

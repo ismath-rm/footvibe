@@ -40,7 +40,7 @@
                                         {% endfor %}
                                     </td>
                                   
-                                    <td class="price" data-title="Price"><span>${{ cart_item.product_variant.sale_price }}</span></td>
+                                    <td class="price" data-title="Price"><span>{{ cart_item.product_variant.sale_price }}</span></td>
                             
                                     <td class="text-center" data-title="Stock">
                                         <div class="row">
@@ -54,7 +54,7 @@
                                         </div>
                                     </td>
                                     <td class="text-right" data-title="Cart">
-                                        <span>${{ cart_item.subtotal }}</span>
+                                        <span>{{ cart_item.subtotal }}</span>
                                     </td>
                                     <td class="action" data-title="Remove"><a href="{% url 'cart_mng:remove_cart_item' cart_item.id  %}" class="text-muted"><i class="fi-rs-trash"></i></a></td>
                                 </tr>
@@ -88,21 +88,21 @@
                     <tbody>
                         <tr>
                             <td class="cart_total_label">Cart Subtotal</td>
-                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">${{ total }}</span></td>
+                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">{{ total }}</span></td>
                         </tr>
                         <tr>
                             <td class="cart_total_label">Tax</td>
-                            <td class="cart_total_amount"><i class="ti-gift mr-5"></i>${{ tax }}</td>
+                            <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ tax }}</td>
                         </tr>
                         {% if descount %}
                         <tr>
                             <td class="cart_total_label">Coupon Discount</td>
-                            <td class="cart_total_amount"><i class="ti-gift mr-5"></i>${{ descount }}</td>
+                            <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ descount }}</td>
                         </tr>
                         {% endif %}
                         <tr>
                             <td class="cart_total_label">Total</td>
-                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">${{ grand_total }}</span></strong></td>
+                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">{{ grand_total }}</span></strong></td>
                         </tr>
                     </tbody>
                 </table>

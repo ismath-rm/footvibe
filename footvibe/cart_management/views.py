@@ -8,26 +8,54 @@ from product_management.models import *
 from django.core.exceptions import ObjectDoesNotExist
 
 
+# def cart(request, total=0, quantity=0, cart_items=None):
+#     try:
+#         tax = 0
+#         grand_total = 0
+
+#         if request.user.is_authenticated:
+            
+#             cart_items = CartItem.objects.filter(cart__user=request.user)
+#             active_carts = Cart.objects.filter(cartitem__in=cart_items).distinct()
+
+#             cart_items = CartItem.objects.filter(cart__in=active_carts)
+
+#             for cart_item in cart_items:
+#                 total += (cart_item.product_variant.sale_price * cart_item.quantity)
+#                 quantity += cart_item.quantity
+
+
+#             tax = (2 * total) / 100
+#             grand_total = total + tax
+
+#     except ObjectDoesNotExist:
+#         pass
+
+#     context = {
+#         'total': total,
+#         'quantity': quantity,
+#         'cart_items': cart_items,
+#         'tax': tax,
+#         'grand_total': grand_total
+#     }
+
+#     return render(request, 'user/cart.html', context)
+
+
 def cart(request, total=0, quantity=0, cart_items=None):
     try:
         tax = 0
         grand_total = 0
-        sub_total = 0
 
         if request.user.is_authenticated:
-            # Filter carts with at least one active CartItem
             cart_items = CartItem.objects.filter(cart__user=request.user)
             active_carts = Cart.objects.filter(cartitem__in=cart_items).distinct()
 
-            # Use the active carts to retrieve cart items
             cart_items = CartItem.objects.filter(cart__in=active_carts)
 
             for cart_item in cart_items:
                 total += (cart_item.product_variant.sale_price * cart_item.quantity)
-                # sub_total = (cart_item.product_variant.sale_price * cart_item.quantity)
-                # print(sub_total,"sub_totalsub_totalsub_totalsub_totalsub_totalsub_total")
                 quantity += cart_item.quantity
-
 
             tax = (2 * total) / 100
             grand_total = total + tax
@@ -36,16 +64,15 @@ def cart(request, total=0, quantity=0, cart_items=None):
         pass
 
     context = {
-        # 'sub_total':sub_total,
         'total': total,
         'quantity': quantity,
         'cart_items': cart_items,
         'tax': tax,
-        'grand_total': grand_total
+        'grand_total': grand_total,
+        'cart_count': quantity,  
     }
 
     return render(request, 'user/cart.html', context)
-
 
 
 
@@ -103,38 +130,10 @@ def add_cart(request, id):
     return redirect('cart_mng:cart')
 
 
-
-def remove_cart(request, product_id, cart_item_id):
-    product_variant = get_object_or_404(ProductVariant, id=product_id)
-
-    try:
-        cart_item = CartItem.objects.get(cart__user=request.user, product_variant=product_variant, id=cart_item_id)
-
-        print("Cart Item Product Variant (All):", cart_item.product_variant.all())
-        print("Cart Item Product Variant (First):", cart_item.product_variant.first())
-
-        if cart_item.quantity >= 1:
-            if cart_item.product_variant:
-                print('in the cahnges')
-                cart_item.product_variant.stock += 1
-                cart_item.quantity -= 1
-                cart_item.product_variant.save()
-                cart_item.save()
-        else:
-            cart_item.delete()
-
-    except CartItem.DoesNotExist:
-        pass  # Handle the case where the cart item doesn't exist
-
-    return redirect('cart_mng:cart')
-
-
-
 def remove_cart_item(request, cart_item_id):
     try:
         cart_item = CartItem.objects.get(cart__user=request.user, id=cart_item_id)
         cart_item.delete()
     except CartItem.DoesNotExist:
-        pass  # Handle the case where the cart item doesn't exist
-
+        pass 
     return redirect('cart_mng:cart')

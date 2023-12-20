@@ -28,15 +28,16 @@
                             <div class="form-group container-custom">
                                 <input type="email" name="email" value="{{ user.email }}" class="text-box" placeholder="Email">
                             </div>
+
                             <div class="form-group container-custom">
-                                <input type="password" name="password1" class="text-box" placeholder="Password" required>
+                                <input value="{{user.phone}}" type="number" name="number" class="text-box" placeholder="Phone" >
                             </div>
 
                         
-                            <div class="form-group">
+                            {% comment %} <div class="form-group">
                                 <input type="password" name="password2"  placeholder="Confirm Password " required>
                             
-                            </div>
+                            </div> {% endcomment %}
                         
                             <div class="form-group">
                                 <button type="submit" class="btn btn-fill-out btn-block hover-up" name="edit">

@@ -143,8 +143,8 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
+
                             <div class="tab-pane fade" id="track-orders" role="tabpanel"
                                 aria-labelledby="track-orders-tab">
                                 <div class="card">
@@ -178,37 +178,38 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
-                                {% for address in addresses %}
-                                <div>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="card mb-3 mb-lg-0">
-                                                <div class="card-header">
-                                                    <h5 class="mb-0">Address</h5>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="card mb-3 mb-lg-0">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">Address</h5>
+                                            </div>
+                                            {% for address in addresses %}
+                                                <div class="card-body">
+                                                    <p>
+                                                        <strong>{{ address.first_name }}{{ address.last_name }}</strong><br>
+                                                        {{ address.address_line_1 }}<br>
+                                                        {{ address.city }}, {{ address.state }}, {{ address.country }}<br>
+                                                        {{ address.pincode }}
+                                                    </p>
+                                                    <a href="{% url "log:edit_address" address_id=address.id %}" class="btn">Edit</a>
                                                 </div>
-                                                {% comment %} {% if address.is_default %} {% endcomment %}
-                                                        <div class="card-body">
-                                                            <p><strong>{{ address.first_name }}{{ address.last_name }}</strong><br>
-                                                                 
-                                                                {{ address.address_line_1  }}<br>
-                                                                
-                                                                {{ address.city }}, {{ address.state }}, {{ address.country }}<br>
-                                                                 
-                                                                {{ address.pincode }}
-                                                            </p>
-                                                            {% comment %} {% endif %} {% endcomment %}
-                                                            <a href="{% url "log:edit_address" address_id=address.id %}" class="btn">Edit</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <div class="card text-left">
+                                            <div class="card-body">
+                                                <a href="{% url 'log:add_address' %}" class="btn btn-primary" type="submit">Add Address</a>
                                             </div>
                                         </div>
-                                    {% endfor %}
-                                                
-                            
-                                <a href="{% url 'log:add_address' %}" class="btn btn-primary" type="submit">Add Address</a>
+                                    </div>
+                                </div>
                             </div>
+
                             
 
 

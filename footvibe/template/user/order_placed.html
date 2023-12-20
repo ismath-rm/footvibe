@@ -53,7 +53,7 @@
         <p>Your order has been confirmed. Thank you for shopping with us.</p><br>
         <a href="{% url 'order_mng:order_placed' %}">Order Placed</a>
         <a href="{% url "log:index" %}" class="btn btn-secondary">Continue Shopping</a>
-        {% comment %} <a href="{% url "orders:my_orders" %}" class="btn btn-secondary">My Orders</a> {% endcomment %}
+        <a href="{% url "log:my_orders" %}" class="btn btn-secondary">My Orders</a>
     </div>
     <div id="preloader-active">
         <div class="preloader d-flex align-items-center justify-content-center">

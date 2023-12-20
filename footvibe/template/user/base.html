@@ -70,7 +70,7 @@
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
 
                                             <a class="dropdown-item" href="{% url "log:user_profile" %}"><i class="material-icons md-perm_identity"></i>Profile</a>
-                                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i> My Order</a>
+                                            <a class="dropdown-item" href=""><i class="material-icons md-receipt"></i> My Order</a>
                                             <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
                                             
                                             <div class="dropdown-divider"></div>
@@ -110,10 +110,11 @@
                                         <span class="pro-count blue">0</span>
                                     </a>
                                 </div>
+                                <!-- Inside your header where the cart icon is located -->
                                 <div class="header-action-icon-2">
                                     <a class="mini-cart-icon" href="{% url 'cart_mng:cart' %}">
                                         <img alt="Evara" src="{% static 'image/theme/icons/icon-cart.svg' %}">
-                                        <span class="pro-count blue">0</span>
+                                        <span class="pro-count blue">{{cart_count}}</span>
                                     </a>
                                 </div>
                             </div>
@@ -198,7 +199,7 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="widget-about font-md mb-md-5 mb-lg-0">
                             <div class="logo logo-width-1 wow fadeIn animated">
-                                <a href="index.html"><img src="{% static 'image\home images\footvibe logo - 2.png' %}%" alt="logo"></a>
+                                <a href="index.html"><img src="{% static 'image\home images\footvibe logo - 2.png' %}" alt="logo"></a>
                             </div>
                             <h5 class="mt-20 mb-10 fw-600 text-grey-4 wow fadeIn animated">Contact</h5>
                             <p class="wow fadeIn animated">
