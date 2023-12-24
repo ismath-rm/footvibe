@@ -2,6 +2,10 @@
 {% load static %}
 {% block title %} Cart {% endblock %}
 {% block body %}
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+
 <main class="main">
     {% if not cart_items %}
     <div class="mb-200 mt-200">
@@ -42,17 +46,40 @@
                                   
                                     <td class="price" data-title="Price"><span>{{ cart_item.product_variant.sale_price }}</span></td>
                             
-                                    <td class="text-center" data-title="Stock">
+                                    {% comment %} <td class="text-center" data-title="Stock">
                                         <div class="row">
                                             <div class="col-lg-4">
                                                 <a type="button" href="#" class="btn" id="button-minus"><i class="fi-rs-angle-small-up"></i></a>
+                                                <a type="button" href="#" class="btn" id="button-plus"><i class="fi-rs-angle-small-down"></i></a>
+
                                             </div>
                                             <div class="col-lg-4">
-                                                <span class="qty-val">{{ cart_item.quantity }}</span>
+                                                <span class="qyt-val">{{ cart_item.quantity }}</span>
                                             </div>
                                             
                                         </div>
+                                    </td> {% endcomment %}
+
+
+
+                                    <td class="text-center" data-title="Stock">
+                                        <div class="detail-qyt border radius  m-auto "  style="max-width: 150px;">
+
+                                            {% csrf_token %}
+                                            <input type="hidden" value="{{cart_item.product_variant.id}}" id="product_id">
+
+                                            <input type="hidden" value=" {{forloop.counter}}" id="item_counter">
+
+                                            <input type="hidden" value="{{cart_item.id}} " id="cart_id">
+                                            {% comment %} <a href="#" class="qyt-down"><i class="fi-rs-angle-small-down button-minus"></i></a> {% endcomment %}
+                                            <button class="button-plus border-0 bg-white " ><i class="fi-rs-angle-small-up "></i></button>
+                                            <!-- <span class="qyt">{{cart_item.quantity}}</span>  -->
+                                            <input type="text" class="txt-center qyt"   value="{{cart_item.quantity   }}">
+                                            <button class="button-minus  border-0 bg-white "><i class="fi-rs-angle-small-down "></i></button> 
+                                        </div>
                                     </td>
+
+
                                     <td class="text-right" data-title="Cart">
                                         <span>{{ cart_item.subtotal }}</span>
                                     </td>
@@ -70,51 +97,179 @@
                     <div class="cart-action text-end">                                         
                         <form method="post" action= {% url 'cart_mng:cart' %}>
                             {% csrf_token %}
-                            {% comment %} <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a> {% endcomment %}
                         </form>
                         <a class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a> 
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-lg-6 col-md-12">
-        <div class="border p-md-4 p-30 border-radius cart-totals">
-            <div class="heading_s1 mb-3">
-                <h4>Cart Totals</h4>
-            </div>
-            <div class="table-responsive">
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <td class="cart_total_label">Cart Subtotal</td>
-                            <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">{{ total }}</span></td>
-                        </tr>
-                        <tr>
-                            <td class="cart_total_label">Tax</td>
-                            <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ tax }}</td>
-                        </tr>
-                        {% if descount %}
-                        <tr>
-                            <td class="cart_total_label">Coupon Discount</td>
-                            <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ descount }}</td>
-                        </tr>
-                        {% endif %}
-                        <tr>
-                            <td class="cart_total_label">Total</td>
-                            <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">{{ grand_total }}</span></strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <a href="{% url 'log:checkout' %}" class="btn"><i class="fi-rs-box-alt mr-10"></i> Proceed To Checkout</a>
-        </div>
-    </div>
-</div>
+
+        <div class="col-lg-6 col-md-12">
+            <div class="border p-md-4 p-30 border-radius cart-totals">
+                <div class="heading_s1 mb-3">
+                    <h4>Cart Totals</h4>
                 </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td class="cart_total_label">Cart Subtotal</td>
+                                <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">{{ total }}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="cart_total_label">Tax</td>
+                                <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ tax }}</td>
+                            </tr>
+                            {% comment %} {% if descount %}
+                            <tr>
+                                <td class="cart_total_label">Coupon Discount</td>
+                                <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ descount }}</td>
+                            </tr>
+                            {% endif %} {% endcomment %}
+                            <tr>
+                                <td class="cart_total_label">Total</td>
+                                <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">{{ grand_total }}</span></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'log:checkout' %}" class="btn"><i class="fi-rs-box-alt mr-10"></i> Proceed To Checkout</a>
             </div>
         </div>
     </section>
     {% endif %}
 </main>
+
+
+  <!-- alertify -->
+
+    <!-- JavaScript -->
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+
+	<!-- </form> -->
+    <script>
+        $(document).ready(function() {
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+    
+            // Handle button clicks
+            $(document).on('click', '.button-plus', function(e) {
+                e.preventDefault();
+    
+                // Get the product ID, cart item ID, and quantity from the DOM
+                var productId = $(this).closest('td').find('#product_id').val();
+                console.log($(this).closest('td').find('#product_id'))
+                var itemCounter = parseInt($(this).closest('td').find('#item_counter').val(), 10); // Convert to integer
+                var cartItemId = $(this).closest('td').find('#cart_id').val();
+                var qytInput = $(this).closest('td').find('.qyt');
+                var subTotalField = $(this).closest('tr').find('td.sub_total');
+                var sub_total = $(this).closest('td').find('.sub_total');
+    
+                // Make an AJAX request to update the cart item quantity
+                $.ajax({
+                    method: "POST",
+                    url: "{% url 'cart_mng:newcart_update' %}",
+                    data: {
+                        'product_id': productId,
+                        'cart_id': cartItemId,
+                        'qyt': qytInput.val(),
+                        'counter': itemCounter,
+                        'csrfmiddlewaretoken': token
+                    },
+                    success: function(response) {
+                        if (response.status === "success") {
+                            // Update the displayed quantity
+                            qytInput.val(parseInt(response.new_quantity, 10));
+                            sub_total.text("₹" + response.sub_total);
+    
+                            // Update the subtotal for this specific cart item
+                            subTotalField.html("₹" + response.sub_total);
+    
+                            // Update total, grand total, and tax as needed
+                            $('.total').text("₹" + response.total);
+                            $('.grand_total').text("₹" + response.grand_total);
+                            $('.tax').text("₹" + response.tax);
+                        } else if (response.status === "error") {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+    
+            // Handle button clicks
+            $('.button-minus').click(function(e) {
+                e.preventDefault();
+    
+                var productId = $(this).closest('td').find('#product_id').val();
+                var itemCounter = parseInt($(this).closest('td').find('#item_counter').val(), 10);
+                var cartItemId = $(this).closest('td').find('#cart_id').val();
+                var qytInput = $(this).closest('td').find('.qyt');
+                var subTotalField = $(this).closest('tr').find('td.sub_total');
+    
+                $.ajax({
+                    method: "POST",
+                    url: "{% url 'cart_mng:remove_cart_item_fully' %}",
+                    data: {
+                        'product_id': productId,
+                        'cart_id': cartItemId,
+                        'qyt': qytInput.val(),
+                        'counter': itemCounter,
+                        'csrfmiddlewaretoken': token
+                    },
+                    success: function(response) {
+                        if (response.status === "success") {
+                            qytInput.val(parseInt(response.new_quantity, 10));
+                            subTotalField.html("₹" + response.sub_total);
+    
+                            $('.total').text("₹" + response.total);
+                            $('.grand_total').text("₹" + response.grand_total);
+                            $('.tax').text("₹" + response.tax);
+                        } else if (response.status === "error") {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
+    
+            
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <script>
+        function confirmRemoval(form) {
+            
+                Swal.fire({
+
+        title: 'Are you sure?',
+        text: 'Do you want to edit this status?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No, cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+        
+    });
+        }
+            
+    
+    </script>
+    {% comment %} <script>
+        alertify.set('notifier','position', 'top-center');
+        {% for msg in messages %}
+    
+            alertify.success('{{msg}}');
+        {%endfor%}
+            
+    </script> {% endcomment %}
+
 {% endblock %}

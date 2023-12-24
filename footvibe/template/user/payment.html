@@ -1,4 +1,4 @@
-{% extends 'evara-frontend/base.html' %}
+{% extends 'user/base.html' %}
 {% load static %}
 {% block title %} Online Payment {% endblock title %}
 {% block body %}
@@ -19,8 +19,8 @@
                     <div class="card">
                         <h5 class="card-header">Billing Address</h5>
                         <div class="card-body">
-                          <p class="card-text mb=0">{{order.first_name}}</p>
-                          <p class="card-text mb=0">{{order.last_name}}</p>   
+                          <p class="card-text mb=0">{{order.first_name}} {{order.last_name}}</p>
+                          <p class="card-text mb=0">{{order.address_line_1}}</p>   
                           <p class="card-text mb=0">{{order.city}}, {{order.state}}</p>  
                           <p class="card-text mb=0">{{order.country}}</p>
                           {% comment %} <p class="card-text mb=0">{{order.email}}</p> {% endcomment %}
@@ -30,6 +30,7 @@
                           {% endif %}  
                         </div>
                     </div>
+                    
                     <div class="card">
                         <h5 class="card-header">Review Products</h5>
                         <div class="card-body">
@@ -43,18 +44,28 @@
                                 <tbody>
                                     {% for ordered_product in ordered_products %}
                                     <tr>
-                                        <td class="image product-thumbnail"><img src="{{ordered_product.product.images.url }}" alt="#"></td>
-                                        <td>
-                                            <h5><a href="shop-product-full.html">{{ordered_product.product.product_name}}</a></h5> <span class="product-qty">x {{ordered_product.quantity}}</span>
-                                            <p class="font-xs">
-                                              
-                                         
-                                                    {{ordered_product.variation_category | capfirst}}  {{ordered_product.variation_value | capfirst}}<br>
-                                               
-                                           
-                                            </p>
+                                        {{ordered_product.product_variant}}
+                                        <td class="image product-thumbnail">
+                                            <img src="{{ordered_product.product_variant.thumbnail_image.url }}" alt="#">
                                         </td>
-                                        <td> &#8377  {{ordered_product.product.price|floatformat:1}}</td>
+                                        <td>
+                                            <h5><a href="#">
+                                                <span>{{ ordered_product.product_variant.product.product_slug }}</span>
+                                            </a></h5>
+                                            <span class="product-qty"><strong>Quantity:</strong> {{ ordered_product.quantity }}</span>
+
+                                            <div>
+                                                {% for attribute in ordered_product.product_variant.attribute_value.all %}
+                                                    {% if attribute.attribute.attribute_name == 'color' %}
+                                                        <p><strong>Color:</strong> {{ attribute.attribute_value }}</p>
+                                                    {% elif attribute.attribute.attribute_name == 'size' %}
+                                                        <p><strong>Size:</strong> {{ attribute.attribute_value }}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            
+                                        </td>
+                                        <td><span> &#8377  {{ ordered_product.product_variant.sale_price}}</span></td>
                                     </tr>
                                     {% endfor %}
                                     
@@ -73,20 +84,32 @@
                             <table class="table">
                                 <tbody>
                                     <tr>
-                                        <td class="cart_total_label">Cart Subtotal</td>
-                                        <td class="cart_total_amount"><span class="font-lg fw-900 text-brand"> &#8377  {{order.order_total|floatformat:1}}</span></td>
+                                        <th>SubTotal</th>
+                                        <td class="product-subtotal" colspan="2">
+                                            <span></span>
+                                            <span class="total-amount-no-discount"> &#8377  {{ total|floatformat:1 }}</span>
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="cart_total_label">Shipping</td>
-                                        <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free Shipping</td>
+                                        <th>Shipping</th>
+                                        <td colspan="2"><em>Free Shipping</em></td>
                                     </tr>
                                     <tr>
-                                        <td class="cart_total_label">Total</td>
-                                        <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand"> &#8377  {{order.total|floatformat:1}}</span></strong></td>
+                                        <th>Tax</th>
+                                        <td colspan="2"><em>{{tax}}</em></td>
+                                    </tr>
+                                
+                                    <tr>
+                                        <th>Total</th>
+                                        <td colspan="2" class="product-subtotal">
+                                            <span class="font-xl text-brand fw-900"></span>
+                                            <span  class="total-amount-no-discount font-xl text-brand fw-900">&#8377; {{ grand_total }}</span>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+
                         <div class="col-md-4 col-lg-12 mt-md-3 mt-lg-0">
                             <img class="wow fadeIn animated" style='max-width:30%' src="{% static 'assets/imgs/theme/payment-method.png' %}" alt="">
                         </div>
@@ -154,60 +177,59 @@
 </main>
 
 
- <!-- JavaScript -->
 
- <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<!-- 
- <script>
-    document.getElementById('cod-button1').onclick = function(e){
-        window.location.href = `{{success_url}}?order_id={{order.order_number}}&method=cod`
-    }
 
-</script> -->
 
- 
- 
- <script>
-    let total_price = {{order.total}} * 100
-     var options = {
-         "key": "rzp_test_0cRU7HtN39HFf4", // Enter the Key ID generated from the Dashboard
-         "amount": total_price, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-         "currency": "INR",
-         "name": "TimeMachine",
-         "description": "Purchases",
-         "image": "https://example.com/your_logo",
-         "order_id": "{{payment_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-         "handler": function (response){
-            
-             //alert(response.razorpay_payment_id);
-             //alert(response.razorpay_order_id);
-             //alert(response.razorpay_signature)
-             console.log(response)
-            // window.location.href = `/orders/online_payment/${response.order_id}/?payment_method=RAZORPAY&payment_id=${response.razorpay_payment_id}&payment_order_id=${response.razorpay_order_id}`;
-            window.location.href = `/order/payment/?order_id={{order.order_number}}&method=RAZORPAY&payment_id=${response.razorpay_payment_id}&status=COMPLETED `
-            // window.location.href = `/payment/payments/?order_id={{order.order_number}}&method=RAZORPAY&payment_id=${response.razorpay_payment_id}&payment_order_id=${response.razorpay_order_id}&payment_sign=${response.razorpay_signature}&status=COMPLETED & discount={{ coupon_discount }}`
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    var options = {
+        "key": "rzp_test_7g2Uvpoxn3gc8O", // Enter the Key ID generated from the Dashboard
+        "amount": "{{grand_total}}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "Footvibe",
+        "description": "Purchases",
+        "image": "https://example.com/your_logo",
+        "order_id": "{{razorpay_order.id}}", 
+        "handler": function (response){
+            //console.log(response)
+            window.location.href = `/order_mng/payment/?order_id={{order.order_number}}&method=RAZORPAY&payment_id=${response.razorpay_payment_id}&payment_order_id=${response.razorpay_order_id}&user={{user}}`
         },
- 
-         "theme": {
-             "color": "#3399cc"
-         }
-     };
-     var rzp1 = new Razorpay(options);
-     rzp1.on('payment.failed', function (response){
-             alert(response.error.code);
-             alert(response.error.description);
-             alert(response.error.source);
-             alert(response.error.step);
-             alert(response.error.reason);
-             alert(response.error.metadata.order_id);
-             alert(response.error.metadata.payment_id);
-     });
-     document.getElementById('rzp-button1').onclick = function(e){
-         rzp1.open();
-         e.preventDefault();
-     }
-     </script> 
+
+        /*"handler": function (response){
+            alert(response.razorpay_payment_id);
+            alert(response.razorpay_order_id);
+            alert(response.razorpay_signature)
+        }, */
+        "prefill": {
+            "name": "Ismath R M",
+            "email": "ismathrm9@gmail.com",
+            "contact": "9633018297"
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response){
+            alert(response.error.code);
+            alert(response.error.description);
+            alert(response.error.source);
+            alert(response.error.step);
+            alert(response.error.reason);
+            alert(response.error.metadata.order_id);
+            alert(response.error.metadata.payment_id);
+    });
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+
 
 
 

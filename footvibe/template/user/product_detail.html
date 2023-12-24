@@ -123,15 +123,13 @@
         </div>
     </div>
 </section>
+
 <script>
                                    
     function plus_item(){
-        console.log("asasas");
         var quantitySpan = document.getElementById('quantitySpan');
         var quantityInput = document.getElementById('quantityInput');
-        console.log(quantityInput);
-        var currentQuantity = parseInt(quantitySpan.innerText);
-        console.log(currentQuantity, "currentQuantity");
+        var currentQuantity = parseInt(quantityInput.value);
 
         // Ensure the new quantity doesn't exceed the stock value
         var newQuantity = currentQuantity + 1;
@@ -142,7 +140,7 @@
         console.log(val);
     }
     function minus_item() {
-        console.log("minus")
+
         var quantityElement = document.getElementById('quantitySpan');
         var quantityInput = document.getElementById('quantityInput');
         var currentQuantity = parseInt(quantityElement.textContent);
@@ -150,6 +148,8 @@
         if (currentQuantity > 1) {
             quantityElement.textContent = currentQuantity - 1;
             quantityInput.value = currentQuantity - 1;
+            var val=document.getElementById('quantityInput').value;
+           console.log(val);
         }
     }
 </script>

@@ -90,7 +90,7 @@
             </div>
         
 
-            <form method="post" action="{% url "order_mng:order_placed" %}" onsubmit="return false">
+            <form method="post" action="{% url "order_mng:order_placed" %}">
 
                 {% csrf_token %}
 
@@ -130,12 +130,12 @@
                                                 <span>{{ address.country }}</span>
                                             </div>
                                             <span class="mr-5"></span>
-                                            <span>'Pin code: {{ address.pincode }}</span>
+                                            <span>Pin code: {{ address.pincode }}</span>
                                         </div>
                                     </div>
                                     <div class="col-lg-1">
                                         <label for="addressId"></label>
-                                        <input type="radio" class="" id="addressId" name="address" value="{address.id}" checked="">
+                                        <input type="radio" class="" id="addressId" name="address" value="{{address.id}}" checked="">
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -196,18 +196,23 @@
                                             <th>Shipping</th>
                                             <td colspan="2"><em>Free Shipping</em></td>
                                         </tr>
+                                        <tr>
+                                            <th>Tax</th>
+                                            <td colspan="2"><em>{{tax}}</em></td>
+                                        </tr>
                                     
                                         <tr>
                                             <th>Total</th>
                                             <td colspan="2" class="product-subtotal">
                                                 <span class="font-xl text-brand fw-900"></span>
-                                                <span  class="total-amount-no-discount font-xl text-brand fw-900">&#8377; {{ total|floatformat:1 }}</span>
+                                                <span  class="total-amount-no-discount font-xl text-brand fw-900">&#8377; {{ grand_total }}</span>
                                             </td>
                                         </tr>
                                         
                                     </tbody>
                                 </table>
                             </div>
+                            
                             <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                             <div class="payment_method">
                                 <div class="mb-25">
@@ -238,7 +243,7 @@
                             </div>
 
 
-                            <button type="submit" class="btn btn-brand btn-block mt-30"> <a style="color:white;" href=""> Place Order </a></button>
+                            <button type="submit" class="btn btn-brand btn-block mt-30"> <a style="color:white;"> Place Order </a></button>
                         
                         </div>
                     

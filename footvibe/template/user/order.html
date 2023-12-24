@@ -41,7 +41,7 @@
                         {% for order_product in order.orderproduct_set.all %}
                             <div class="d-flex flex-row justify-content-evenly">
                                 <div class="col-lg-3 p-3 m-2 bg-white border border-dark rounded d-flex justify-content-center">
-                                    <img class="default-img" src="{{ order_product.product.images.url }}" style="height: 100px; width: 100px;" alt="">
+                                    <img class="default-img" src="{{order_product.product_variant.thumbnail_image.url }}" style="height: 100px; width: 100px;" alt="">
                                 </div>
                                 <div class="col-lg-6 d-flex align-items-center">
                                     <h5 class="product-name d-flex flex-column">
@@ -52,7 +52,7 @@
                                 </div>
                                 <div class="col-lg-3 d-flex align-items-center">
                                     <div>
-                                        <div><span class="h6 mb-2">PRICE: &#8377; {{ order_product.product_price}}</span></div>
+                                        <div><span class="h6 mb-2">PRICE: &#8377; {{ order_product.product_variant.sale_price}}</span></div>
                                         <div><span class="h6 mt-2">quantity: {{ order_product.quantity }}</span></div>
                                     </div>
                                 </div>
@@ -70,12 +70,12 @@
                         </div>
                         <!-- DIVIDER ENDS -->
 
-                        <div class="d-flex flex-row align-items-center justify-content-between mt-25">
+                        {% comment %} <div class="d-flex flex-row align-items-center justify-content-between mt-25">
                             <div>
                                 <label for="orderID1"></label>
                                 <input type="number" id="orderID1" value="{{ order.id }}" hidden="hidden">
                                 {% if order.status == "Pending" or order.status == "Shipped" %}
-                                <form action="{% url 'orders:cancel_order' order.id %}" method="post" id="cancelOrderForm">
+                                <form action="{% url 'order_mng:cancel_order' order.id %}" method="post" id="cancelOrderForm">
                                     {% csrf_token %}
                                     <input type="hidden" name="cancellation_reason" id="cancellationReason">
                                     <button type="button" onclick="Confirm()" class="btn btn-outline-warning">
@@ -83,7 +83,7 @@
                                         <span>Cancel Order</span>
                                     </button>
                                     <!-- In your template -->
-                                    <a href="{% url 'order_mng:order_detail' order_id=order.id %}">View Order</a>
+                                    <a href="{% url 'order_mng:ordered_detail' order_id=order.id %}" class="btn btn-primary mr-2>View Order</a>
 
                                 </form>
                                 {% else %}
@@ -92,8 +92,45 @@
                                 </div>
                                 
                             <div><span>{{ order.paymentMethod }}</span></div>
-                            <div><span class="font-lg font-weight-bolder text-dark">TOTAL : &#8377; {{ order.total }}</span></div>
+                            <div><span class="font-lg font-weight-bolder text-dark">TOTAL : &#8377; {{ order.order_total }}</span></div>
+                        </div> {% endcomment %}
+                        <div class="d-flex flex-row align-items-center justify-content-between mt-25">
+                            <div>
+                                <label for="orderID1"></label>
+                                <input type="number" id="orderID1" value="{{ order.id }}" hidden="hidden">
+                                {% if order.status == "Pending" or order.status == "Shipped" %}
+                                <form action="{% url 'order_mng:cancel_order' order.id %}" method="post" id="cancelOrderForm">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="cancellation_reason" id="cancellationReason">
+                                    <button type="button" onclick="confirmCancellation()" class="btn btn-outline-warning">
+                                        <i class="material-icons md-close"></i>
+                                        <span>Cancel Order</span>
+                                    </button>
+                                    <!-- In your template -->
+                                    <a href="{% url 'order_mng:ordered_detail' order_id=order.id %}" class="btn btn-primary mr-2">View Order</a>
+                                </form>
+                                {% else %}
+                        
+                                {% endif %}
+                            </div>
+                        
+                            <div><span>{{ order.paymentMethod }}</span></div>
+                            <div><span class="font-lg font-weight-bolder text-dark">TOTAL : &#8377; {{ order.order_total }}</span></div>
                         </div>
+                        
+                        <script>
+                            function confirmCancellation() {
+                                var cancellationReason = prompt("Please enter the reason for cancellation:");
+                                if (cancellationReason !== null) {
+                                    // Set the entered reason in the hidden field
+                                    document.getElementById('cancellationReason').value = cancellationReason;
+                                    // Submit the form
+                                    document.getElementById('cancelOrderForm').submit();
+                                }
+                            }
+                        </script>
+                        
+
                     </div>
                  
                 

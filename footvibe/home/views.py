@@ -16,6 +16,7 @@ from django.contrib.auth import update_session_auth_hash
 from home.forms import AddressForm
 from cart_management.models import *
 from django.db.models import Sum
+from order_management.models import *
 
 
 # Create your views here.
@@ -345,7 +346,8 @@ def user_profile(request):
     try:
         user_profile = Account.objects.get(email=request.user.email)
         addresses = AddressBook.objects.filter(user=user_profile)
-        print("Addresses found for user", addresses)
+        orders= Order.objects.filter(user=user_profile)
+       
     except Account.DoesNotExist:
         messages.error(request, "User profile not found.")
         return render(request, 'user/user_profile.html')
@@ -353,6 +355,7 @@ def user_profile(request):
     context = {
         'user_profile': user_profile,
         'addresses': addresses,
+        'orders':orders,
     }
     return render(request, 'user/user_profile.html', context)
 
@@ -455,35 +458,76 @@ def set_default_address(request, address_id):
 
 
 # @login_required(login_url='log:user_login')
+# def checkout(request):
+#     if request.method == 'POST':
+#         form = AddressForm(request.POST)
+
+#         if form.is_valid():
+#             new_address = form.save(commit=False)
+#             new_address.user = request.user
+#             new_address.save()
+#             messages.success(request, 'Address Added Successfully.')
+#             return redirect('log:checkout')
+#         else:
+#             messages.error(request, 'Error adding address. Please check the form.')
+#     else:
+#         form = AddressForm()
+
+#     address_list = AddressBook.objects.filter(user=request.user)
+
+#     user_cart, created = Cart.objects.get_or_create(user=request.user)
+
+#     cart_items = user_cart.cartitem_set.all()
+
+#     total = sum(item.subtotal() for item in cart_items)
+#     context = {
+#         'form': form,
+#         'address_list': address_list,
+#         'cart_items': cart_items,
+#         'total': total
+#     }
+
+#     return render(request, 'user/checkout.html',context)
+
+
 def checkout(request):
-    if request.method == 'POST':
-        form = AddressForm(request.POST)
+    try:
+        tax = 0
+        grand_total = 0
+        total = 0
+        quantity = 0
 
-        if form.is_valid():
-            new_address = form.save(commit=False)
-            new_address.user = request.user
-            new_address.save()
-            messages.success(request, 'Address Added Successfully.')
-            return redirect('log:checkout')
-        else:
-            messages.error(request, 'Error adding address. Please check the form.')
-    else:
-        form = AddressForm()
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(cart__user=request.user)
+            active_carts = Cart.objects.filter(cartitem__in=cart_items).distinct()
 
+            cart_items = CartItem.objects.filter(cart__in=active_carts)
+
+            for cart_item in cart_items:
+                total += (cart_item.product_variant.sale_price * cart_item.quantity)
+                quantity += cart_item.quantity
+
+            tax = (2 * total) / 100
+            grand_total = total + tax
+
+    except ObjectDoesNotExist:
+        pass
+
+    form = AddressForm(request.POST) if request.method == 'POST' else AddressForm()
     address_list = AddressBook.objects.filter(user=request.user)
 
     user_cart, created = Cart.objects.get_or_create(user=request.user)
-
     cart_items = user_cart.cartitem_set.all()
 
-    total = sum(item.subtotal() for item in cart_items)
     context = {
         'form': form,
         'address_list': address_list,
         'cart_items': cart_items,
-        'total': total
+        'total': total,
+        'quantity': quantity,
+        'tax': tax,
+        'grand_total': grand_total,
+        # 'cart_count': quantity,
     }
 
-    return render(request, 'user/checkout.html',context)
-
-
+    return render(request, 'user/checkout.html', context)

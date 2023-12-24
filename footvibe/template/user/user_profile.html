@@ -25,12 +25,6 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders"
-                                        role="tab" aria-controls="track-orders" aria-selected="false"><i
-                                            class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order</a>
-                                </li>
-
-                                <li class="nav-item">
                                     <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
                                         aria-controls="address" aria-selected="true"><i
                                             class="fi-rs-marker mr-10"></i>My Address</a>
@@ -71,7 +65,7 @@
                                                         {% if user %}
                                                         <p><strong>Phone:</strong> {{ user.phone }}</p>
                                                         {% endif %}
-                                                        {% for address in addresses %}
+                                                        {% comment %} {% for address in addresses %}
                                                         {% if address.is_default %}
                                                         <p><strong>Address:</strong><br> {{ address.house_name }} {{
                                                             address.streat_name }}<br> {{address.post_office}}, {{
@@ -80,7 +74,7 @@
                                                             address.pincode }}
                                                         </p>
                                                         {% endif %}
-                                                        {% endfor %}
+                                                        {% endfor %} {% endcomment %}
 
 
 
@@ -122,19 +116,31 @@
                                                         <th>Order</th>
                                                         <th>Date</th>
                                                         <th>Status</th>
+                                                        <th>Payment Method</th>
                                                         <th>Total</th>
                                                         <th>Actions</th>
+                                                        
+
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for order in orders %}
                                                     <tr>
-                                                        <td>{{order.order_id}}</td>
+                                                        <td>{{order.order_number}}</td>
                                                         <td>{{order.created_at}}</td>
                                                         <td>{{order.status}}</td>
+                                                        <td>{{order.payment.payment_method}}</td>
                                                         <td>{{order.order_total}}</td>
-                                                        <td><a href="{% url 'user_area:order_details' order.id %}"
+                                                        <td><a href="{% url 'order_mng:ordered_detail' order.id %}"
                                                                 class="btn-small d-block">View</a></td>
+                                                                <td>
+                                                                    {% if order.status != 'Cancelled' %}
+                                                                    <form method="post" action="{% url 'order_mng:cancel_order' order.id %}" style="display: inline;">
+                                                                        {% csrf_token %}
+                                                                        <button type="submit" class="btn-small d-block" style="font-size: 12px; padding: 1px;">Cancel Order</button>
+                                                                    </form>
+                                                                    {% endif %}
+                                                                </td>
                                                     </tr>
 
                                                     {% endfor %}
@@ -145,39 +151,7 @@
                                 </div>
                             </div>
 
-                            <div class="tab-pane fade" id="track-orders" role="tabpanel"
-                                aria-labelledby="track-orders-tab">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Orders tracking</h5>
-                                    </div>
-                                    <div class="card-body contact-from-area">
-                                        <p>To track your order please enter your OrderID in the box below and press
-                                            "Track" button. This was given to you on your receipt and in the
-                                            confirmation email you should have received.</p>
-                                        <div class="row">
-                                            <div class="col-lg-8">
-                                                <form class="contact-form-style mt-30 mb-50" action="#" method="post">
-                                                    <div class="input-style mb-20">
-                                                        <label>Order ID</label>
-                                                        <input name="order-id"
-                                                            placeholder="Found in your order confirmation email"
-                                                            type="text" class="square">
-                                                    </div>
-                                                    <div class="input-style mb-20">
-                                                        <label>Billing email</label>
-                                                        <input name="billing-email"
-                                                            placeholder="Email you used during checkout" type="email"
-                                                            class="square">
-                                                    </div>
-                                                    <button class="submit submit-auto-width"
-                                                        type="submit">Track</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            
 
                             <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                                 <div class="row">

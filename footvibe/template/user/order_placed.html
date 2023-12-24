@@ -51,9 +51,9 @@
         <div class="tick-symbol mx-auto mb-4">&#10004;</div> <!-- Display the tick symbol ✓ -->
         <h2 class="success-message">Order Placed Successfully!</h2>
         <p>Your order has been confirmed. Thank you for shopping with us.</p><br>
-        <a href="{% url 'order_mng:order_placed' %}">Order Placed</a>
+        <a href="{% url "order_mng:ordered_detail" order.id %}" class="btn btn-secondary">Order detail</a>
         <a href="{% url "log:index" %}" class="btn btn-secondary">Continue Shopping</a>
-        <a href="{% url "log:my_orders" %}" class="btn btn-secondary">My Orders</a>
+        {% comment %} <a href="{% url "log:my_orders" %}" class="btn btn-secondary">My Orders</a> {% endcomment %}
     </div>
     <div id="preloader-active">
         <div class="preloader d-flex align-items-center justify-content-center">

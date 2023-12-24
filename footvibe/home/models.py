@@ -85,6 +85,12 @@ class AddressBook(models.Model):
     def __str__(self):
         return self.address_line_1
     
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            # Set is_default=False for other addresses of the same user
+            AddressBook.objects.filter(user=self.user).exclude(
+                pk=self.pk).update(is_default=False)
+        super(AddressBook, self).save(*args, **kwargs)
 
 
 class UserProfile(models.Model):

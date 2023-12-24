@@ -19,7 +19,7 @@ def superadmin_required(view_func):
     return _wrapped_view
 
 
-@login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
+@login_required(login_url='admin_log:admin_login')  
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @superadmin_required
 def dashboard(request):
@@ -54,7 +54,7 @@ def admin_login(request):
 
 
 
-@login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
+@login_required(login_url='admin_log:admin_login') 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_logout(request):
 
@@ -63,14 +63,14 @@ def admin_logout(request):
     return redirect('admin_log:admin_login')
 
 
-@login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
+@login_required(login_url='admin_log:admin_login')  
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def order_list(request):
 
     return render(request,'admin_temp/order_list.html')
 
 
-@login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
+@login_required(login_url='admin_log:admin_login')  
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_list(request):
     if not request.user.is_authenticated:
@@ -81,7 +81,7 @@ def user_list(request):
     if search_query:
          users = Account.objects.filter(username__icontains=search_query)
     else:
-         users = Account.objects.all()
+         users = Account.objects.filter(is_staff = False)
          print("the users are :", users)
     context = {
         'users': users
@@ -90,7 +90,7 @@ def user_list(request):
     return render(request,'admin_temp/user_list.html',context)
 
 
-@login_required(login_url='admin_log:admin_login')  # Use the named URL pattern
+@login_required(login_url='admin_log:admin_login') 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def block_unblock_user(request,user_id):
     if not request.user.is_authenticated:

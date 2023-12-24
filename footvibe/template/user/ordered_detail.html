@@ -17,7 +17,7 @@
     </div>
     <section class="mt-50 mb-50">
         <div class="container">
-            <h3 class="text-center mb-10">Review Your Order And Make Payment</h3>
+            <h3 class="text-center mb-10">Review Your Order </h3>
             
             <div class="row">
                 <div class="col-md-6">
@@ -49,10 +49,10 @@
                                 <tbody>
                                     {% for ordered_product in ordered_products %}
                                     <tr>
-                                        <td class="image product-thumbnail"><img src="{{ordered_product.product.images.url }}" alt="#"></td>
+                                        <td class="image product-thumbnail"><img src="{{ordered_product.product_variant.thumbnail_image.url }}" alt="#"></td>
                                         <td>
                                             
-                                            <h5><a href="shop-product-full.html">{{ordered_product.product.product_name}}</a></h5> <span class="product-qty">x {{ordered_product.quantity}}</span>
+                                            <h5><a href="shop-product-full.html">{{ordered_product.product.product_name}}</a></h5> <span class="product-qty">Quantity: {{ordered_product.quantity}}</span>
                                             <p class="font-xs">
                                               
                                                 {% if ordered_product.variations.all %}
@@ -63,7 +63,7 @@
                                            
                                             </p>
                                         </td>
-                                        <td> &#8377  {{ordered_product.product_price}}</td>
+                                        <td> &#8377  {{ordered_product.product_variant.sale_price}}</td>
                                     </tr>
                                     {% endfor %}
                                     
@@ -87,7 +87,7 @@
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">Cart Subtotal</td>
-                                        <td class="cart_total_amount"><span class="font-lg fw-900 text-brand"> &#8377  {{order.total}}</span></td>
+                                        <td class="cart_total_amount"><span class="font-lg fw-900 text-brand"> &#8377  {{order.order_total}}</span></td>
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">Shipping</td>
@@ -95,7 +95,7 @@
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">Total</td>
-                                        <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand"> &#8377  {{order.total}}</span></strong></td>
+                                        <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand"> &#8377  {{order.order_total}}</span></strong></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -105,8 +105,8 @@
                         </div>
                     </div>
                     <div class="container mt-5">
-                        <a href="{% url "app:index" %}" class="btn btn-primary">Continue Shopping</a>
-                        <a href="{% url "orders:my_orders" %}" class="btn btn-primary">My Orders</a>
+                        <a href="{% url "log:index" %}" class="btn btn-primary">Continue Shopping</a>
+                        
                     </div>
 
                 {% comment %} <div class="bt-1 border-color-1 mt-30 mb-30"></div>
