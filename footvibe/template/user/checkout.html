@@ -20,7 +20,7 @@
                     <div class="panel-collapse collapse login_form" id="AddNewAddress">
                         <div class="panel-body">
                             <div class="login_wrap widget-taber-content bg-white background-white border-radius-5 p-4 mb-5 row">
-                                <form method="post" action="{% url "log:checkout" %}" >
+                                <form method="post" action="{% url 'log:add_address' source='checkout' %}" >
                                     {% csrf_token %}
                                     <div class="form-group container-custom">
                                         <input type="text" name="first_name" class="text-box" placeholder="First Name">
@@ -90,7 +90,7 @@
             </div>
         
 
-            <form method="post" action="{% url "order_mng:order_placed" %}">
+            <form method="post" action="{% url 'order_mng:order_placed' %}" id="orderForm">
 
                 {% csrf_token %}
 
@@ -109,145 +109,138 @@
                             </div>
                             <!-- LOOP -->
                             {% for address in address_list %}
-                            
-                                <div class="border border-dark rounded pt-15 pb-20 mb-15 table-responsive order_table text-center row" >
-                                    <div class="col-lg-11">
-                                        <div>
-                                            <div class="d-flex flex-column">
-
+                            <div class="border border-dark rounded pt-15 pb-20 mb-15 table-responsive order_table text-center row">
+                                <div class="col-lg-11">
+                                    <div>
+                                        <div class="d-flex flex-column">
                                             <span class="mr-5 bold font-lg">{{ address.first_name }} {{ address.last_name }}</span>
                                             <span class="ml-5 mr-5"></span>
                                             <span class="ml-5">{{ address.phone }}</span>
                                         </div>
-                                        </div>
-                                        <div class="d-flex flex-column">
-                                            <p>{{ address.address_line_1 }}</p>
-                                            <div>
-                                                <span>{{ address.city }}</span>
-                                                <span class="mr-5"></span>
-                                                <span>{{ address.state }}</span>
-                                                <span class="mr-5"></span>
-                                                <span>{{ address.country }}</span>
-                                            </div>
-                                            <span class="mr-5"></span>
-                                            <span>Pin code: {{ address.pincode }}</span>
-                                        </div>
                                     </div>
-                                    <div class="col-lg-1">
-                                        <label for="addressId"></label>
-                                        <input type="radio" class="" id="addressId" name="address" value="{{address.id}}" checked="">
-                                    </div>
-                                </div>
-                                {% endfor %}
-                                <!-- LOOP ENDS-->
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="order_review">
-                                <div class="mb-20">
-                                    <h4>Your Orders</h4>
-                            </div>
-                            <div class="table-responsive order_table text-center">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="2">Product</th>
-                                            <th>Price</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!--PRODUCT LOOP-->
-                                        {% for cart_item in cart_items %}
-                                        <tr>
-                                            <td class="image product-thumbnail">
-                                                <img src="{{cart_item.product_variant.thumbnail_image.url }}" alt="#">
-                                            </td>
-                                            <td>
-                                                <h5><a href="#">
-                                                    <span>{{ cart_item.product_variant.product.product_slug }}</span>
-                                                </a></h5>
-                                                <span class="product-qty"><strong>Quantity:</strong> {{ cart_item.quantity }}</span>
-
-                                                <div>
-                                                    {% for attribute in cart_item.product_variant.attribute_value.all %}
-                                                        {% if attribute.attribute.attribute_name == 'color' %}
-                                                            <p><strong>Color:</strong> {{ attribute.attribute_value }}</p>
-                                                        {% elif attribute.attribute.attribute_name == 'size' %}
-                                                            <p><strong>Size:</strong> {{ attribute.attribute_value }}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </div>
-                                                
-                                            </td>
-                                            <td><span> &#8377  {{ cart_item.product_variant.sale_price}}</span></td>
-                                        </tr>
-                                        {% endfor %}
-                                        <!--PRODUCT LOOP ENDS HERE-->
-
-                                        <tr>
-                                            <th>SubTotal</th>
-                                            <td class="product-subtotal" colspan="2">
-                                                <span></span>
-                                                <span class="total-amount-no-discount"> &#8377  {{ total|floatformat:1 }}</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Shipping</th>
-                                            <td colspan="2"><em>Free Shipping</em></td>
-                                        </tr>
-                                        <tr>
-                                            <th>Tax</th>
-                                            <td colspan="2"><em>{{tax}}</em></td>
-                                        </tr>
-                                    
-                                        <tr>
-                                            <th>Total</th>
-                                            <td colspan="2" class="product-subtotal">
-                                                <span class="font-xl text-brand fw-900"></span>
-                                                <span  class="total-amount-no-discount font-xl text-brand fw-900">&#8377; {{ grand_total }}</span>
-                                            </td>
-                                        </tr>
-                                        
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-                            <div class="payment_method">
-                                <div class="mb-25">
-                                    <h5>Payment</h5>
-                                </div>
-                                <div class="payment_option">
-                                    <div class="custome-radio">
-                                        <input class="form-check-input"  type="radio" value="CashOnDelivery" name="payment_option" id="exampleRadios3" checked="">
-                                            <label class="form-check-label" for="exampleRadios3" aria-controls="bankTranfer">
-                                                Cash On Delivery
-                                            </label>
+                                    <div class="d-flex flex-column">
+                                        <p>{{ address.address_line_1 }}</p>
                                         <div>
-                                            <input class="form-check-input"  type="radio" value="RAZORPAY" name="payment_option" id="exampleRadios4" >
-                                            <label class="form-check-label" for="exampleRadios4" aria-controls="bankTranfer">
-                                                Online Payment
-                                            </label>
+                                            <span>{{ address.city }}</span>
+                                            <span class="mr-5"></span>
+                                            <span>{{ address.state }}</span>
+                                            <span class="mr-5"></span>
+                                            <span>{{ address.country }}</span>
                                         </div>
-
-                                        {% comment %} <div>
-                                            <input class="form-check-input"  type="radio" value="Wallet" name="payment_option" id="exampleRadios5" >
-                                            <label class="form-check-label" for="exampleRadios5" aria-controls="bankTranfer">
-                                                Wallet
-                                            </label>
-                                        </div>  {% endcomment %}
-                                        
+                                        <span class="mr-5"></span>
+                                        <span>Pin code: {{ address.pincode }}</span>
                                     </div>
                                 </div>
+                                <div class="col-lg-1">
+                                    <label for="addressId{{ address.id }}"></label>
+                                    <input type="radio" class="address-radio" id="addressId{{ address.id }}" name="address" value="{{ address.id }}" {% if address.is_default %}checked{% endif %}>
+                                </div>
                             </div>
-
-
-                            <button type="submit" class="btn btn-brand btn-block mt-30"> <a style="color:white;"> Place Order </a></button>
-                        
+                            {% endfor %}
+                            <!-- LOOP ENDS-->
                         </div>
-                    
                     </div>
+                    <div class="col-md-6">
+                        <div class="order_review">
+                            <div class="mb-20">
+                                <h4>Your Orders</h4>
+                        </div>
+                        <div class="table-responsive order_table text-center">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Product</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!--PRODUCT LOOP-->
+                                    {% for cart_item in cart_items %}
+                                    <tr>
+                                        <td class="image product-thumbnail">
+                                            <img src="{{cart_item.product_variant.thumbnail_image.url }}" alt="#">
+                                        </td>
+                                        <td>
+                                            <h5><a href="#">
+                                                <span>{{ cart_item.product_variant.product.product_slug }}</span>
+                                            </a></h5>
+                                            <span class="product-qty"><strong>Quantity:</strong> {{ cart_item.quantity }}</span>
+
+                                            <div>
+                                                {% for attribute in cart_item.product_variant.attribute_value.all %}
+                                                    {% if attribute.attribute.attribute_name == 'color' %}
+                                                        <p><strong>Color:</strong> {{ attribute.attribute_value }}</p>
+                                                    {% elif attribute.attribute.attribute_name == 'size' %}
+                                                        <p><strong>Size:</strong> {{ attribute.attribute_value }}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            
+                                        </td>
+                                        <td><span> &#8377  {{ cart_item.product_variant.sale_price}}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                    <!--PRODUCT LOOP ENDS HERE-->
+
+                                    <tr>
+                                        <th>SubTotal</th>
+                                        <td class="product-subtotal" colspan="2">
+                                            <span></span>
+                                            <span class="total-amount-no-discount"> &#8377  {{ total|floatformat:1 }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Shipping</th>
+                                        <td colspan="2"><em>Free Shipping</em></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Tax</th>
+                                        <td colspan="2"><em>{{tax}}</em></td>
+                                    </tr>
+                                
+                                    <tr>
+                                        <th>Total</th>
+                                        <td colspan="2" class="product-subtotal">
+                                            <span class="font-xl text-brand fw-900"></span>
+                                            <span  class="total-amount-no-discount font-xl text-brand fw-900">&#8377; {{ grand_total }}</span>
+                                        </td>
+                                    </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                        <div class="payment_method">
+                            <div class="mb-25">
+                                <h5>Payment</h5>
+                            </div>
+                            <div class="payment_option">
+                                <div class="custome-radio">
+                                    <input class="form-check-input"  type="radio" value="CashOnDelivery" name="payment_option" id="exampleRadios3" checked="">
+                                        <label class="form-check-label" for="exampleRadios3" aria-controls="bankTranfer">
+                                            Cash On Delivery
+                                        </label>
+                                    <div>
+                                        <input class="form-check-input"  type="radio" value="RAZORPAY" name="payment_option" id="exampleRadios4" >
+                                        <label class="form-check-label" for="exampleRadios4" aria-controls="bankTranfer">
+                                            Online Payment
+                                        </label>
+                                    </div>
+
+                                    {% comment %} <div>
+                                        <input class="form-check-input"  type="radio" value="Wallet" name="payment_option" id="exampleRadios5" >
+                                        <label class="form-check-label" for="exampleRadios5" aria-controls="bankTranfer">
+                                            Wallet
+                                        </label>
+                                    </div>  {% endcomment %}
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-brand btn-block mt-30" onclick="placeOrder()"> <a style="color:white;"> Place Order </a></button>
+                    </div>
+                    
                 </div>
             </form>
         </div>
@@ -257,4 +250,46 @@
     <input type="hidden" id="csrf_token" value="{% csrf_token %}">
     
 </main>
+
+<script>
+    function placeOrder() {
+        // Handle the logic for placing the order here
+        document.getElementById('orderForm').submit();
+    }
+
+    // Add event listener to radio buttons to update the default address
+    const addressRadios = document.querySelectorAll('.address-radio');
+    addressRadios.forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            // Make an AJAX request to update the default address on the server
+            const addressId = this.value;
+            updateDefaultAddress(addressId);
+        });
+    });
+
+    function updateDefaultAddress(addressId) {
+        // Make an AJAX request to update the default address on the server
+        // You can use your framework's AJAX functions or the Fetch API
+        // Example using Fetch API
+        fetch(`/set_default_address/${addressId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({}),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                // You can handle the response as needed
+                console.log('Default address updated successfully');
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    }
+</script>
+
 {% endblock %}

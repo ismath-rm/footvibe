@@ -10,6 +10,7 @@
 </style>
 
 <section class="content-main">
+    {% include 'admin_temp/general-alerts/alerts.html' %}
     <div class="content-header">
         {% comment %} <div>
             <h2 class="content-title card-title">Product: {{product.get_product_name}}</h2>
@@ -68,7 +69,8 @@
                                 <thead>
                                     <tr>
                                         <th>Thumbnail image</th>
-                                        <th>Variant</th>                                   
+                                        <th>Variant</th>  
+                                        <th>Stock</th>                                 
                                         <th class="text-end">Is Active</th>
                                         <th class="text-end">Action</th> 
                                         
@@ -79,6 +81,7 @@
                                     <tr>
                                         <td><img src="{{ product_variant.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
                                         <td><a href="#"> <h6 class="mb-0">{{ product_variant.get_product_name }}</h6></a></td>
+                                        <td>{{product_variant.stock}}</td>
                                         <td class="text-end">
                                             <span class="badge rounded-pill {% if product_variant.is_active %} alert-success {% else %} alert-danger {% endif %}">
                                                 {% if product_variant.is_active %} Active {% else %}Inactive {% endif %} </span>

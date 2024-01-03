@@ -71,7 +71,7 @@
 
                                             <a class="dropdown-item" href="{% url "log:user_profile" %}"><i class="material-icons md-perm_identity"></i>Profile</a>
                                             {% comment %} <a class="dropdown-item" href="{% url 'order_mng:my_orders' %}"><i class="material-icons md-receipt"></i> My Order</a> {% endcomment %}
-                                            <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
+                                            {% comment %} <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a> {% endcomment %}
                                             
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger" href="{% url 'log:user_logout'%}"><i class="material-icons md-exit_to_app"></i>Logout</a>
@@ -105,7 +105,7 @@
                         <div class="header-action-right">
                             <div class="header-action-2">
                                 <div class="header-action-icon-2">
-                                    <a href="shop-wishlist.html">
+                                    <a href="#">
                                         <img class="svgInject" alt="Evara" src="{% static 'image/theme/icons/icon-heart.svg' %}">
                                         <span class="pro-count blue">0</span>
                                     </a>

@@ -17,7 +17,8 @@ from home.forms import AddressForm
 from cart_management.models import *
 from django.db.models import Sum
 from order_management.models import *
-
+from django.core.validators import validate_email, validate_integer
+from django.core.exceptions import ValidationError
 
 # Create your views here.
     
@@ -276,7 +277,6 @@ def product_detail(request, variant_slug=None):
     color = Attribute_Value.objects.filter(attribute = 10)
     size = Attribute_Value.objects.filter(attribute = 11)
 
-
     context = {
         'single_product': single_product,
         'product_images': product_images,
@@ -293,7 +293,7 @@ def product_detail(request, variant_slug=None):
 # ..........................................shop..........................................#
 
 def shop(request):
-    sort_by = request.GET.get('sort_by', 'name')  
+    sort_by = request.GET.get('sort_by', 'price_low_high')  
     print(f'Sort by: {sort_by}')
 
     variants = []
@@ -310,8 +310,7 @@ def shop(request):
         variants = sorted(variants, key=lambda x: x.sale_price)
     elif sort_by == 'price_high_low':
         variants = sorted(variants, key=lambda x: x.sale_price, reverse=True)
-    elif sort_by == 'name':
-        variants = sorted(variants, key=lambda x: x.product.product_name)
+    
 
 
     context = {
@@ -363,47 +362,54 @@ def user_profile(request):
 
 
 
-
 def edit_profile(request):
     if not request.user.is_authenticated:
         return redirect('log:index')
 
     user = request.user
+
     if request.method == 'POST':
         email = request.POST.get('email')
         username = request.POST.get('username')
         number = request.POST.get('number')
 
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
+        # Validate email format
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            messages.error(request, "Invalid email")
+            return render(request, "user/edit_profile.html", {'user': user})
 
-        if password1 == password2:
+        # Validate username format (only letters)
+        if not re.match(r'^[a-zA-Z]+$', username):
+            messages.error(request, "Invalid username. Use only letters.")
+            return render(request, "user/edit_profile.html", {'user': user})
 
-            user.email = email
-            user.username = username
-            user.phone = number
+        # Validate phone number format
+        if not re.match(r'^\d{10}$', number):
+            messages.error(request, "Invalid phone number. Please enter a 10-digit phone number.")
+            return render(request, "user/edit_profile.html", {'user': user})
 
-        
-            if password1:
-                user.set_password(password1)
-                update_session_auth_hash(request, user)
+        # Update user fields
+        user.email = email
+        user.username = username
+        user.phone = number
 
-            user.save()
+        # Save the user object
+        user.save()
 
-            messages.success(request, "Profile updated successfully")
-            return redirect('log:user_profile')  
-        else:
-            messages.error(request, "Passwords do not match. Please try again.")
+        messages.success(request, "Profile updated successfully")
+        return redirect('log:user_profile')
+
     return render(request, "user/edit_profile.html", {'user': user})
-
-
 
 
 #................................................Address..........................................................#
 
 
 
-def add_address(request):
+def add_address(request, source=None):
+    print(source)
+    
+    print(request.path)
     if request.method == 'POST':
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -412,9 +418,19 @@ def add_address(request):
             new_address.save()
 
             messages.success(request, 'Address added successfully.')
-            return redirect('log:user_profile')  
+
+            if source == 'user_profile':
+                return redirect('log:user_profile')
+            elif source == 'checkout':
+                return redirect ('log:checkout')
+                  
         else:
             messages.error(request, 'Error adding address. Please check the form.')
+
+            if source == 'user_profile':
+                return redirect('log:add_address',source)
+            elif source == 'checkout':
+                return redirect ('log:checkout')
 
     else:
         form = AddressForm()
@@ -457,37 +473,6 @@ def set_default_address(request, address_id):
     return redirect('log:user_profile')
 
 
-# @login_required(login_url='log:user_login')
-# def checkout(request):
-#     if request.method == 'POST':
-#         form = AddressForm(request.POST)
-
-#         if form.is_valid():
-#             new_address = form.save(commit=False)
-#             new_address.user = request.user
-#             new_address.save()
-#             messages.success(request, 'Address Added Successfully.')
-#             return redirect('log:checkout')
-#         else:
-#             messages.error(request, 'Error adding address. Please check the form.')
-#     else:
-#         form = AddressForm()
-
-#     address_list = AddressBook.objects.filter(user=request.user)
-
-#     user_cart, created = Cart.objects.get_or_create(user=request.user)
-
-#     cart_items = user_cart.cartitem_set.all()
-
-#     total = sum(item.subtotal() for item in cart_items)
-#     context = {
-#         'form': form,
-#         'address_list': address_list,
-#         'cart_items': cart_items,
-#         'total': total
-#     }
-
-#     return render(request, 'user/checkout.html',context)
 
 
 def checkout(request):
@@ -527,7 +512,8 @@ def checkout(request):
         'quantity': quantity,
         'tax': tax,
         'grand_total': grand_total,
-        # 'cart_count': quantity,
     }
+
+    
 
     return render(request, 'user/checkout.html', context)

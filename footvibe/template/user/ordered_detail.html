@@ -1,6 +1,6 @@
 {% extends 'user/base.html' %}
 {% load static %}
-{% block title %}Order Summary{% endblock title %}
+{% block title %}Order detail{% endblock title %}
 {% block body %}
 
 {% for message in messages %}
@@ -24,16 +24,16 @@
                     <div class="card">
                         <h5 class="card-header">Billing Address</h5>
                         <div class="card-body">
-                          <p class="card-text mb=0">{{order.first_name}}</p>
-                          <p class="card-text mb=0">{{order.last_name}}</p>   
-                          <p class="card-text mb=0">{{order.city}}, {{order.state}}</p>  
-                          <p class="card-text mb=0">{{order.country}}</p>
-                          {% comment %} <p class="card-text mb=0">{{order.email}}</p> {% endcomment %}
-                          <p class="card-text mb=0">{{order.phone}}</p>
-                          {% if order.order_note %}
-                            <b>Order Note:</b>{{order.order_note}}
-                          {% endif %}  
-                        </div>
+                            <p class="card-text mb=0">{{order.first_name}} {{order.last_name}}</p>
+                            <p class="card-text mb=0">{{order.address_line_1}}</p>   
+                            <p class="card-text mb=0">{{order.city}}, {{order.state}}</p>  
+                            <p class="card-text mb=0">{{order.country}}</p>
+                            {% comment %} <p class="card-text mb=0">{{order.email}}</p> {% endcomment %}
+                            <p class="card-text mb=0">{{order.phone}}</p>
+                            {% if order.order_note %}
+                              <b>Order Note:</b>{{order.order_note}}
+                            {% endif %}  
+                          </div>
                     </div>
                     <div class="card">
                         <h5 class="card-header">Review Products</h5>
@@ -82,12 +82,24 @@
                             <table class="table">
                                 <tbody>
                                     <tr>
+                                        <td class="cart_total_label">Order Id :</td>
+                                        <td class="cart_total_amount"><span class="font-xs fw-700 ">{{order.order_number}}</span></td>
+                                    </tr>
+                                    <tr>
                                         <td class="cart_total_label">Transaction Id :</td>
                                         <td class="cart_total_amount"><span class="font-xs fw-700 ">{{order.payment.payment_id}}</span></td>
                                     </tr>
                                     <tr>
+                                        <td class="cart_total_label">payment Method:</td>
+                                        <td class="cart_total_amount"><span class="font-xs fw-700 ">{{order.payment.payment_method}}</span></td>
+                                    </tr>
+                                    <tr>
                                         <td class="cart_total_label">Cart Subtotal</td>
-                                        <td class="cart_total_amount"><span class="font-lg fw-900 text-brand"> &#8377  {{order.order_total}}</span></td>
+                                        <td class="cart_total_amount"><span class="font-lg fw-900 text-brand"> &#8377  {{subtotal}}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="cart_total_label">tax</td>
+                                        <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> {{order.tax}}</td>
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">Shipping</td>
@@ -156,6 +168,5 @@
         </div>
     </section>
 </main>
-
 
 {% endblock %}

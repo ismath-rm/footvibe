@@ -1,0 +1,174 @@
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+{% block title %}Order Details{% endblock title %}
+{% block body %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order detail</h2>
+            <p>Details for Order ID: {{order.order_number}}</p>
+        </div>
+    </div>
+    <div class="card">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <span>
+                        <i class="material-icons md-calendar_today"></i> <b>{{order.created_at}}</b>
+                    </span> <br>
+                </div>
+                
+                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+
+                                {% if order.status == 'Cancelled' %}
+                                <span>{{order.order_number}} is cancelled</span>
+                                {% elif order.status == 'Return' %}
+                                <span>{{order.order_number}} is Returned</span>
+                                {% else %}
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </div>
+                                {% endif %}
+                            </form>
+                        </div>    
+                    </div>
+                </div>
+            
+            </div>
+        </header> <!-- card-header end// -->
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-6">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                {{order.user.username}} <br>{{order.user.email}} <br> {{order.user.phone}}
+                            </p>
+                           
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+                
+                <div class="col-md-6">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Deliver to</h6>
+
+                            
+                            <p class="card-text mb=0">{{order.first_name}} {{order.last_name}}</p>
+                            <p class="card-text mb=0">{{order.address_line_1}}</p>   
+                            <p class="card-text mb=0">{{order.city}}, {{order.state}}</p>  
+                            <p class="card-text mb=0">{{order.country}}</p>
+                            <p class="card-text mb=0">{{order.phone}}</p>
+                            {% if order.order_note %}
+                                <b>Order Note:</b>{{order.order_note}}
+                            {% endif %}  
+                              
+                           
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+            </div> <!-- row // -->
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order_item in ordered_products %}
+                                <tr>
+                                    <td>
+                                        <a class="itemside" href="#">
+                                            <div class="left">
+                                                <img src="{{ order_item.product_variant.thumbnail_image.url }}" width="40" height="40" class="img-xs" alt="Item">
+                                            </div>
+                                            <div class="info"> {{ order_item.product_variant.product_variant_slug }} </div>
+                                        </a>
+                                    </td>
+                                    <td>{{ order_item.product_variant.sale_price }} </td>
+                                    <td>{{ order_item.quantity }}</td>
+                                    <td class="text-end">{{ total}} </td>
+                                </tr>
+                                {% endfor %}  
+
+
+                                <tr>
+                                    <td colspan="4">
+
+                                        <article class="float-end">
+                                            <dl class="dlist">
+                                                <dt>Subtotal:</dt>
+                                                <dd>{{ total }}</dd>
+                                            </dl>
+                                           
+                                            <dl class="dlist">
+                                                <dt>tax:</dt>
+                                                <dd>{{ tax }}</dd>
+                                            </dl>
+
+                                            <dl class="dlist">
+                                                <dt>Grand total:</dt>
+                                                <dd> <b class="h5">{{order.order_total}}</b> </dd>
+                                            </dl>
+                                           
+                                        </article>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div> <!-- table-responsive// -->
+                </div> <!-- col// -->
+                <div class="col-lg-1"></div>
+                <div class="col-lg-4">
+                    <div class="box shadow-sm bg-light">
+                        <h6 class="mb-15">Payment info</h6>
+                        <p>
+                           {{order.payment.payment_method}}
+                        </p>
+                    </div>
+                    <div class="box shadow-sm bg-light">
+                        <h6 class="mb-15">Status</h6>
+                        <p><span class="badge rounded-pill 
+                            {% if order.status == 'Conformed' %} 
+                            bg-primary 
+                        {% elif order.status == 'Shipped' %}
+                            bg-info
+                        {% elif order.status == 'Delivered' %}
+                            bg-success
+                        {% elif order.status == 'Cancelled' %}
+                            bg-danger
+                        {% else %}
+                        bg-secondary
+                        {% endif %}
+                    ">    
+                        <span>{{order.status}}</span>
+                        </p>
+                    </div>
+                    
+                </div> <!-- col// -->
+            </div>
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+</section>
+
+{% endblock %}

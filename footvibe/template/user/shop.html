@@ -21,10 +21,7 @@
                                     </a>
                                 </div>
                                 <div class="product-action-1">
-                                    <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
-<i class="fi-rs-search"></i></a>
-                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                    <a aria-label="Compare" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-shuffle"></i></a>
+                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>                                 
                                 </div>
                                 <div class="product-badges product-badges-position product-badges-mrg">
                                     <span class="hot">Hot</span>
@@ -44,9 +41,7 @@
                                     <span>{{product.sale_price}} </span>
                                     <span class="old-price">{{product.max_price}}</span>
                                 </div>
-                                <div class="product-action-1 show">
-                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
-                                </div>
+                               
                             </div>
                         </div>
                     </div>
@@ -83,7 +78,6 @@
                     <div class="form-group">
                         <label for="sort_by"><strong>Sort by</strong>:</label>
                         <select name="sort_by" id="sort_by">
-                            <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
                             <option value="price_low_high" {% if current_sort == 'price_low_high' %}selected{% endif %}>Price: Low to High</option>
                             <option value="price_high_low" {% if current_sort == 'price_high_low' %}selected{% endif %}>Price: High to Low</option>
                         </select>

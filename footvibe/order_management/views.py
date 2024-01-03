@@ -103,7 +103,9 @@ def order_placed(request, total=0, quantity=0):
                     product_variant=cart_item.product_variant,
                 )
                 ordered_products.append(ordered_product)
-
+                cart_item.product_variant.stock -= cart_item.quantity
+                cart_item.product_variant.save()
+                
             cart_items.delete()
             variant = ProductVariant.objects.filter(product = ordered_product.product)
             context = {
@@ -114,27 +116,26 @@ def order_placed(request, total=0, quantity=0):
                 'ordered_products': ordered_products,
                 'variant': variant,
             }
-
+            
             request.session['order_id'] = data.id
 
         
             return render(request, "user/order_placed.html", context)
 
         elif selected_payment_option == "RAZORPAY":
-                # Initialize Razorpay client with your API key and secret
+                # Initialize Razorpay client with API key and secret
                 client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY, settings.SECRET_KEY))
 
                 # Create a Razorpay order
-                order_amount_paise = int(data.order_total * 100)  # Convert order total to paise
-                order_currency = 'INR'  # Change this if you are using a different currency
-                order_receipt = f'order_{data.order_number}'  # You can customize the order receipt
+                order_amount_paise = int(data.order_total * 100) 
+                order_currency = 'INR'  
+                order_receipt = f'order_{data.order_number}' 
 
                 razorpay_order = client.order.create({
                     'amount': order_amount_paise,
                     'currency': order_currency,
                     'receipt': order_receipt,
                     
-                    # Add other optional parameters as needed
                 })
 
                 print(razorpay_order)
@@ -164,7 +165,7 @@ def payment(request):
     payment_id = request.GET.get('payment_id')
     payment_order_id = request.GET.get('payment_order_id')
     order_id = request.GET.get('order_id')
-
+    print(order_id, current_user)
 
   
     if not current_user.is_authenticated:
@@ -173,10 +174,6 @@ def payment(request):
     # Get order details
     try:
 
-        order_id_session = request.session.get('order_id')
-        if not order_id_session:
-            raise Order.DoesNotExist
-
         order = Order.objects.get(order_number=order_id, user=current_user)
     except Order.DoesNotExist:
         return HttpResponse("Order not found")
@@ -184,7 +181,7 @@ def payment(request):
     # Get ordered products for the order
     ordered_products = OrderProduct.objects.filter(order=order)
 
-    # Calculate total amount (you might need to adjust this based on your models)
+    # Calculate total amount 
     total_amount = order.order_total
     print(f"Debug: Total amount in payment view: {total_amount}")
 
@@ -218,7 +215,7 @@ def payment(request):
     cart_items.delete()
 
 
-    # You can pass additional context data if needed
+    #pass additional context data 
     context = {
         'order': order,
         'ordered_products': ordered_products,
@@ -246,86 +243,14 @@ def ordered_detail(request, order_id):
         return HttpResponse("Order not found")
 
     ordered_products = OrderProduct.objects.filter(order=order)
-
+    subtotal = order.order_total - order.tax
     context = {
         'order': order,
         'ordered_products': ordered_products,
-
+        'subtotal': subtotal
     }
     return render(request, 'user/ordered_detail.html', context)
 
-
-
-
-
-
-# @login_required(login_url='log:user_login')
-# def my_orders(request):
-
-#     if not request.user.is_authenticated:
-#         return redirect('log:index')
-    
-#     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
-#     order_products = OrderProduct.objects.filter(order__in=orders)
-#     context = {
-#         'orders': orders,
-#         "order_products":order_products
-#     }
-  
-#     return render(request, 'user/order.html', context)
-
-
-
-
-# @login_required(login_url='log:user_login')
-# def cancel_order(request, order_id):
-#     order = Order.objects.get(id=order_id)
-
-#     if order.status == 'Delivered':
-#         # Update the order status to 'Cancelled'
-#         order.status = 'Cancelled'
-#         order.save()
-
-#         # Optional: Implement stock adjustments if needed
-#         # Example: Increment stock for variations
-#         for order_product in order.orderproduct_set.all():
-#             if order_product.variations.exists():
-#                 for variation in order_product.variations.all():
-#                     variation.stock += order_product.quantity
-#                     variation.save()
-
-#         messages.warning(request, 'Cancel request has been sent.')
-
-#     else:
-#         messages.warning(request, 'Cancel request cannot be processed.')
-
-#     return redirect('order_mng:order')
-
-
-
-# @login_required(login_url='log:user_login')
-# def cancel_order(request, order_id):
-#     order = get_object_or_404(Order, id=order_id)
-
-#     if order.status == 'Delivered':
-#         # Update the order status to 'Cancelled'
-#         order.status = 'Cancelled'
-#         order.save()
-
-#         # Optional: Implement stock adjustments if needed
-#         # Example: Increment stock for variations
-#         for order_product in order.orderproduct_set.all():
-#             if order_product.variations.exists():
-#                 for variation in order_product.variations.all():
-#                     variation.stock += order_product.quantity
-#                     variation.save()
-
-#         messages.warning(request, 'Cancel request has been sent.')
-
-#     else:
-#         messages.warning(request, 'Cancel request cannot be processed.')
-
-#     return redirect('order_mng:order')
 
 
 
@@ -334,20 +259,21 @@ def cancel_order(request, order_id):
     try:
         # Fetch the order
         order = Order.objects.get(id=order_id, user=request.user)
-
+        orders = OrderProduct.objects.filter(order=order)
         # If the order is not already canceled, proceed with cancellation
         if order.status != 'Cancelled':
             # Update the order status to 'Cancelled'
             order.status = 'Cancelled'
             order.save()
-
+            for item in orders:
+                item.product_variant.stock += item.quantity
+                item.product_variant.save()
             # Check if the order has associated payment
             if order.payment:
                 # Update the payment status to 'Cancelled'
                 order.payment.status = 'Cancelled'
                 order.payment.save()
 
-            # You may want to handle the cancellation of ordered products here if needed
 
             # Redirect to the referring page or a default page
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
@@ -361,18 +287,6 @@ def cancel_order(request, order_id):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
-def update_status(request):
-    if request.method == "POST":
-        order_id = request.POST.get('OrderID')
-        status = request.POST.get('status')
-        order = get_object_or_404(Order, id=order_id)
-
-        # Update the order status
-        order.status = status
-        order.save()
-        print(order.status, order.order_number)
-    # return redirect('orders:admn_product_order')
-        return redirect('log:order')
 
 
 

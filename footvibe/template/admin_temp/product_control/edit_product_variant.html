@@ -3,17 +3,27 @@
 {% block title %} Add product Variant {% endblock %}
 {% block body %}
 
+<style>
+    .additional-images-container {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    .existing-image {
+        margin-bottom: 5px;
+    }
+</style>
 
 <section class="content-main">
     {% include 'admin_temp/general-alerts/alerts.html' %}
     <div class="row">
         <div class="col-9">
             <div class="content-header">
-                <h2 class="content-title">Edit Product Variant</h2>
-                <div>
-
-
-                </div>
+                <h2 class="content-title mb-4">Edit Product Variant</h2>
+                
             </div>
         </div>
         <div class="col-lg-6">
@@ -24,81 +34,59 @@
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        <input type="hidden" name="product" value="{{ product_variant.product.id }}">
                         <div class="row">
                             <div class="col-lg-6">
 
                                 <div class="mb-4">
-
-
-
                                     <label for="{{form.product_name.id_for_label}}" class="form-label">Product name</label>
-                                    {% if product %}
-                                    <input value="{{product.product_name}}" type="text" class="form-control" readonly>
-                                    {% else %}
-                                    {{form.product}}
-                                    {% endif %}
-                                    <div class="row gx-2">
+                                    <input value="{{product_variant.product.get_product_name}}" type="text" class="form-control" readonly>                   
+                                </div>
 
-                                    </div>
-                                </div>
                                 <div class="mb-4">
-                                    <label for="{{form.sku_id.id_for_label}}" class="form-label">SKU Id</label>
-                                    {{form.sku_id}}
+                                    <label for="{{ form.sku_id.id_for_label }}" class="form-label">SKU ID</label>
+                                    <input type="text" class="form-control" name="{{ form.sku_id.name }}" value="{{ form.sku_id.value }}" readonly>
                                 </div>
+                                
                             </div>
                         </div>
 
 
-                        <div class="mb-4">
-                            {% comment %} <label for="{{ form.Attribute_value.id_for_label }}"
-                                class="form-label">Attribute value</label>
-                            {{form.attribute_value}} {% endcomment %}
-                            {% comment %} <select class="form-select" name="Attribute_value" required="True">
-                                {% for attribute_value in form.Attribute_Value %}
-                                <option value="{{attribute_value}}">{{attribute_value}}</option>
-                                {% endfor %}
-                            </select> {% endcomment %}
-                            {% for attribute_name, attribute_values in attribute_dict.items %}
-                            <div class="col-3">
-                                <label class="form-label">{{attribute_name}}</label>
-                                <select name="attributes_{{ forloop.counter }}" class="form-control" 
-                                {% if not attribute_values %} disabled {% endif %}>
-                                    {% if not attribute_values %}
-                                    <option value="None">Empty</option>
-                                    {% else %}
-                                    <option value="None">Select</option>
-                                    {% endif %}
-
-                                    {% for value in attribute_values %}
-                                    <option value="{{ value.id }}">{{ value.attribute_value }}</option>
+                        {% for attribute_name, attribute_values in attribute_dict.items %}
+                            <div class="mb-4">
+                                <label for="attributes_{{ forloop.counter }}" class="form-label">{{ attribute_name }}</label>
+                                <select class="form-select" name="attributes_{{ forloop.counter }}">
+                                    <option value="None">---------</option>
+                                    {% for attribute_value in attribute_values %}
+                                        <option value="{{ attribute_value.id }}" {% if attribute_value.id in selected_attribute_values %}selected{% endif %}>
+                                            {{ attribute_value.attribute_value }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            {% endfor %}
-
-                        </div>
+                        {% endfor %}
 
                         <div class="mb-4">
                             <label for="{{form.max_price.id_for_label}}" class="form-label">max Price</label>
-                            <input placeholder="Type here" class="form-control" rows="2" name="max_price"></textarea>
+                            {{form.max_price}}
+                        </div>
+                        <div class="mb-4">
+                            <label for="{{form.sale_price.id_for_label}}" class="form-label">Sale Price</label>
+                            <input value="{{ form.sale_price.value }}" placeholder="Type here" class="form-control" rows="4" name="sale_price">
                         </div>
 
+                        <div class="mb-4">
+                            <label for="{{form.stock.id_for_label}}" class="form-label">Stock</label>
+                            <input value="{{ form.stock.value }}" placeholder="Type here" class="form-control" rows="4" name="stock">
+                        </div>
 
                 </div>
-            </div> <!-- card end// -->
+            </div>
 
         </div>
         <div class="col-lg-4">
 
-            <div class="mb-4">
-                <label for="{{form.sale_price.id_for_label}}" class="form-label">Sale Price</label>
-                <input placeholder="Type here" class="form-control" rows="4" name="sale_price"></textarea>
-            </div>
-
-            <div class="mb-4">
-                <label for="{{form.stock.id_for_label}}" class="form-label">Stock</label>
-                <input placeholder="Type here" class="form-control" rows="4" name="stock"></textarea>
-            </div>
+           
 
 
             <div class="card mb-4">
@@ -107,87 +95,123 @@
                 </div>
                 <div class="card-body">
                     <div class="input-upload">
-                        <input class="form-control" type="file" required="True" name="thumbnail_image"
-                            accept=".jpg,.jpeg,.webp,.png">
+                        <input class="form-control" type="file" name="thumbnail_image" accept=".jpg,.jpeg,.webp,.png">
+                        {% if product_variant.thumbnail_image %}
+                            <div class="existing-thumbnail">
+                                <img src="{{ product_variant.thumbnail_image.url }}" alt="Thumbnail" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                <button type="button" class="btn btn-sm btn-danger remove-thumbnail">Remove</button>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
+            </div>
 
-            </div> <!-- card end// -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h4>Additional images</h4>
                 </div>
                 <div class="card-body">
                     <div class="input-upload">
-                        <input class="form-control" multiple type="file" required="True" name="additional_images"
-                            accept=".jpg,.jpeg,.webp,.png">
+                        <input class="form-control" multiple type="file" name="additional_images" accept=".jpg,.jpeg,.webp,.png">
+                    </div>
+            
+                    <!-- Container for Additional Images with scrollbar -->
+                    <div class="additional-images-container">
+                        {% if current_additional_images %}
+                            <h5>Current Additional Images</h5>
+                            {% for image in current_additional_images %}
+                                <div class="existing-image">
+                                    <img src="{{ image.image.url }}" alt="Additional Image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                    <button type="button" class="btn btn-sm btn-danger remove-additional-image" data-image-id="{{ image.id }}">Remove</button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
-
-            </div> <!-- card end// -->
+            </div>
+             
 
             <div class=" card mb-4">
                 <div class="mb-4">
-                    <button type="submit" class="btn btn-primary btn-sm rounded col-lg-12">Add
-                        Product</button>
+                    <button type="submit" class="btn btn-primary btn-sm rounded col-lg-12">Update Product Variant</button>
                 </div>
             </div>
-            </form>
+        </form>
         </div>
-
     </div>
 </section>
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 <script>
-
-    // Function to retrieve the CSRF token from the cookie
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+    // Add this script to handle the remove thumbnail click
+    $(document).ready(function() {
+        // Handle remove thumbnail click
+        $('.remove-thumbnail').on('click', function() {
+            var confirmation = confirm('Are you sure you want to remove the thumbnail?');
+            if (confirmation) {
+                // Navigate to the container and remove only the image and related elements
+                var thumbnailContainer = $(this).closest('.existing-thumbnail');
+                thumbnailContainer.find('img').remove();
+                thumbnailContainer.find('button').remove();
             }
-        }
-        return cookieValue;
-    }
-
-
-    function send_data(inputid, variant_slug, image_id='thumbnail') {
-    url = `/admin-control/product/variant/update/additional-images/${variant_slug}/`
-    var formData = new FormData();
-    var files = $('#photo'+ inputid)[0].files[0]
-    formData.append('file', files);
-    formData.append('image_id', image_id);
-
-    $.ajax({
-      type: "POST",
-      url: url,  // Replace with the actual URL for your view
-      dataType: "json", 
-      data: formData,
-      processData: false,
-      contentType: false,
-      headers: {
-          // "X-Requested-With": "XMLHttpRequest",
-          "X-CSRFToken": getCookie("csrftoken"), 
-        },
-      success: (data) => {
-        console.log(data);
-        document.getElementById('image'+ inputid).setAttribute('src', data['new_image'])
-        },
-      error: (error) => {
-          console.log(error);
-          alert(error)
-        }
+        });
     });
-  }
-
 </script>
 
+
+<script>
+    $(document).ready(function() {
+        // Handle remove additional image click
+        $('.remove-additional-image').on('click', function() {
+            console.log('Remove additional image button clicked');
+            var confirmation = confirm('Are you sure you want to remove this additional image?');
+            if (confirmation) {
+                var imageId = $(this).data('image-id');
+                
+                // Construct the URL for the image removal endpoint
+                var productVariantSlug = "{{ product_variant.product_variant_slug }}";  // Assuming you have this variable available in your template
+                var removeImageUrl = 'edit-product-variant/' + product_variant_slug + '/' + imageId + '/';
+    
+                // Get the CSRF token from the cookie
+                var csrfToken = getCookie('csrftoken');
+    
+                // Make the AJAX request
+                $.ajax({
+                    url: removeImageUrl,
+                    type: 'POST',
+                    headers: { "X-CSRFToken": csrfToken },
+                    success: function(response) {
+                        console.log(response);
+                        console.log('Image removal successful:', response);
+                        // Remove the container for the removed image
+                        $(this).closest('.existing-image').remove();
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            }
+        });
+    
+        // Function to get the CSRF token from the cookie
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
 
 
 

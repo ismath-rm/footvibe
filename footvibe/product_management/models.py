@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+import uuid
 from django.urls import reverse
 
 # Create your models here.
@@ -17,7 +18,9 @@ class Category(models.Model):
             verbose_name_plural = 'categories'
 
         def save(self, *args, **kwargs):
-            self.slug = slugify(self.category_name)
+            if not self.slug:
+                unique_identifier = str(uuid.uuid4())[:8]
+                self.slug = f"{slugify(self.category_name)}-{unique_identifier}"
             super(Category, self).save(*args, **kwargs)
 
         def __str__(self):

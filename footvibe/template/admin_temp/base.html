@@ -18,9 +18,11 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/imgs/theme/favicon.svg' %} ">
     <!-- Template CSS -->
     <link href="{% static 'admin/css/main.css' %}" rel="stylesheet" type="text/css" />
+    
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <!-- Include SweetAlert CSS and JS files -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+    {% comment %} <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11"> {% endcomment %}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -74,6 +76,11 @@
                         <a href=" {% url "admin_log:user_list" %} ">User login</a>
                     </div>
                 </li>
+                <li class="menu-item ">
+                    <a class="menu-link" href="{% url "admin_log:sales_report" %}"> <i class="icon material-icons md-pie_chart"></i>
+                        <span class="text">Sales Report</span>
+                    </a>
+                </li>
                 {% comment %} <li class="menu-item">
                     <a class="menu-link" href="page-reviews.html"> <i class="icon material-icons md-comment"></i>
                         <span class="text">Reviews</span>
@@ -115,19 +122,19 @@
             <div class="col-nav">
                 <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i class="material-icons md-apps"></i> </button>
                 <ul class="nav">
-                    <li class="nav-item">
+                    {% comment %} <li class="nav-item">
                         <a class="nav-link btn-icon" href="#">
                             <i class="material-icons md-notifications animation-shake"></i>
                             <span class="badge rounded-pill">3</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
+                    </li> {% endcomment %}
+                    {% comment %} <li class="nav-item">
                         <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i> </a>
                     </li>
                     <li class="nav-item">
                         <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-cast"></i></a>
-                    </li>
-                    <li class="dropdown nav-item">
+                    </li> {% endcomment %}
+                    {% comment %} <li class="dropdown nav-item">
                         <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage" aria-expanded="false"><i class="material-icons md-public"></i></a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguag3q1e">
                             <a class="dropdown-item text-brand" href="#"><img src="{% static 'admin/imgs/theme/flag-us.png' %}" alt="Flag"></a>
@@ -135,16 +142,14 @@
                             <a class="dropdown-item" href="#"><img src="{% static '/imgs/theme/flag-jp.png' %}" alt="Français">日本語</a>
                             <a class="dropdown-item" href="#"><img src="{% static 'admin/imgs/theme/flag-cn.png' %}" alt="Français">中国人</a>
                         </div>
-                    </li>
+                    </li> {% endcomment %}
                     <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="{% static 'admin/imgs/people/avatar2.jpg' %}" alt="User"></a>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                            <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit Profile</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-                            <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
-                            <div class="dropdown-divider"></div>
+                        {% if request.user.is_authenticated %}
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">{{ request.user.username }}</a>
+                        {% endif %}
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount"> 
+                            
+                            <div class="dropdown-divider"></div> 
                             <a class="dropdown-item text-danger" href="{% url 'admin_log:admin_logout'%}"><i class="material-icons md-exit_to_app"></i>Logout</a>
                         </div>
                     </li>
@@ -175,17 +180,7 @@
             </div>
         </footer>
     </main>
-    <script>
-		{% comment %} alertify.set('notifier','position', 'top-center'); 
-		{% for msg in messages %}
-        {% if msg.tags == 'success' %}
-            alertify.success('{{ msg }}');
-        {% elif msg.tags == 'error' %}
-            alertify.error('{{ msg }}');
-        {% endif %}
-		{%endfor%} {% endcomment %}
-		  
-	</script>
+    
     <script src="{% static 'admin/js/vendors/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'admin/js/vendors/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'admin/js/vendors/select2.min.js' %}"></script>

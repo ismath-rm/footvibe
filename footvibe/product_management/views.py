@@ -2,6 +2,8 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpRequest,HttpResponse,HttpResponseRedirect, JsonResponse
 from .models import Category,Brand,Attribute,Attribute_Value,Product,ProductVariant, ProductImage
 from .forms import CreateProductForm
+from django.utils.text import slugify
+from django.db import IntegrityError
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from .forms import ProductVariantForm 
@@ -128,10 +130,19 @@ def edit_category(request,category_id):
         cat_name = request.POST['category_name']
         cat_desc = request.POST['description']
         
+
+        new_slug = slugify(cat_name)
+        if Category.objects.filter(slug=new_slug).exclude(id=category_list.id).exists():
+            messages.error(request, 'Category with this name already exists. Please choose a different name.')
+            return render(request, 'admin_temp/edit_category.html', content)
+
+
         category_list.category_name=cat_name
+        category_list.slug = new_slug  
         category_list.description=cat_desc
         category_list.save()
 
+        messages.success(request, 'Category updated successfully')
         return redirect('product_mng:category')
 
     return render(request,'admin_temp/edit_category.html',content)
@@ -223,12 +234,17 @@ def edit_brand(request, brand_id):
     
     if request.method == "POST":
         brand_name = request.POST['brand_name']
-        brand.brand_name = brand_name
-        brand.save()
 
-        messages.success(request, f"Brand '{brand_name}' updated successfully!")
+        try:
+            brand.brand_name = brand_name
+            brand.save()
 
-        return redirect('product_mng:brands')
+            messages.success(request, f"Brand '{brand_name}' updated successfully!")
+            return redirect('product_mng:brands')
+        
+        except IntegrityError:
+            messages.error(request, f"Brand '{brand_name}' already exists. Choose a different name.")
+            return redirect('product_mng:edit_brand', brand_id=brand_id)
 
     content = {
         'brand_id': brand.id,
@@ -321,13 +337,18 @@ def edit_attribute(request, attribute_id):
     
     if request.method == "POST":
         attribute_name = request.POST['attribute_name']
-        attribute.attribute_name = attribute_name
-        attribute.save()
 
-        # Add a success message if needed
-        messages.success(request, f"Attribute '{attribute_name}' updated successfully!")
+        try:
 
-        return redirect('product_mng:attribute')
+            attribute.attribute_name = attribute_name
+            attribute.save()
+            messages.success(request, f"Attribute '{attribute_name}' updated successfully!")
+            return redirect('product_mng:attribute')
+        
+        except IntegrityError:
+            messages.error(request, f"Attribute '{attribute_name}' already exists. Choose a different name.")
+            return redirect('product_mng:edit_attribute', attribute_id=attribute_id)
+
 
     content = {
         'attribute': attribute,
@@ -446,13 +467,18 @@ def edit_attribute_value(request, attribute_value_id):
 
         attribute = Attribute.objects.get(attribute_name=attribute_name)
 
-        attribute_value.attribute_value = attribute_value_name
-        attribute_value.attribute_id = attribute.id
-        attribute_value.save()
+        try:
+            attribute_value.attribute_value = attribute_value_name
+            attribute_value.attribute_id = attribute.id
+            attribute_value.save()
 
-        messages.success(request, f"Attribute value '{attribute_value_name}' updated successfully!")
+            messages.success(request, f"Attribute value '{attribute_value_name}' updated successfully!")
+            return redirect('product_mng:attribute_value')
+        
+        except IntegrityError:
+            messages.error(request, f"Attribute value '{attribute_value_name}' already exists. Choose a different name.")
+            return redirect('product_mng:edit_attribute_value', attribute_value_id=attribute_value_id)
 
-        return redirect('product_mng:attribute_value')
 
     content = {
         'attribute_value': attribute_value,
@@ -477,9 +503,9 @@ def products_list(request):
 
     product_values = Product.objects.all().order_by('-created_at')
     
-    for product in product_values:
-        total_stock = sum([variant.stock for variant in product.productvariant_set.all()])
-        product.total_stock = total_stock
+    # for product in product_values:
+    #     total_stock = sum([variant.stock for variant in product.productvariant_set.all()])
+    #     product.total_stock = total_stock
 
 
     context = {
@@ -554,9 +580,12 @@ def variant_list(request, product_id):
     except Exception as e:
         print(e)
     variants = ProductVariant.objects.filter(product = product).order_by('-is_active')
+    success_message = request.GET.get('message', None)
+
     context = {
         'variants': variants,
         'product': product,
+        'success_message': success_message, 
     }
     return render(request, 'admin_temp/product_control/variant_list.html', context)
 
@@ -675,77 +704,69 @@ def add_product_variant(request, product_id = None):
 
 
 
-
 def edit_product_variant(request, product_variant_slug):
-    print(f"Attempting to retrieve ProductVariant with slug: {product_variant_slug}")
-
     try:
         product_variant = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
-        print(f"Retrieved ProductVariant: {product_variant}")
     except ProductVariant.DoesNotExist:
-        print("ProductVariant not found.")
-        
-        return redirect('product_mng:variant_list')  
-    except Exception as e:
-        print(f"Error retrieving ProductVariant: {e}")
- 
-        return redirect('product_mng:variant_list')
-
-
-    if not product_variant:
-        
         messages.error(request, "Product variant not found.")
-        return redirect('product_mng:variant_list', product_variant.product.id) 
+        return redirect('product_mng:variant_list', product_variant.product.id)
 
-    product_variant_form = ProductVariantForm(instance=product_variant)
     current_additional_images = product_variant.product_images.all()
 
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    attributes = Attribute.objects.prefetch_related('attribute_value_set')
+    attribute_dict = {attribute.attribute_name: attribute.attribute_value_set.filter(is_active=True) for attribute in attributes}
+
+    selected_attribute_values = None
 
     if request.method == 'POST':
-        if is_ajax:
-            image = request.FILES.get('file')
-            image_id = request.POST.get('image_id')
+        form = ProductVariantForm(request.POST, instance=product_variant)
+        if form.is_valid():
+            form.instance.product_id = request.POST.get('product')
 
-            if image_id == 'thumbnail':
-                image_id = None
-
-            try:
-                if image and image_id:
-                    additional_image = ProductImage.objects.get(id=image_id)
-                    additional_image.image = image
-                    additional_image.save()
-                    return JsonResponse({"status": "success", 'new_image': additional_image.image.url})
-                elif image and not image_id:
-                    product_variant.thumbnail_image = image
+            if 'remove_thumbnail' in request.POST:
+                if product_variant.thumbnail_image:
+                    product_variant.thumbnail_image.delete()
+                    product_variant.thumbnail_image = None
                     product_variant.save()
-                    return JsonResponse({"status": "success", 'new_image': product_variant.thumbnail_image.url})
-                else:
-                    return JsonResponse({"status": "error", "message": "image send error !"})
-            except Exception as e:
-                print(e)
 
-        product_variant_form = ProductVariantForm(request.POST, instance=product_variant)
-        if product_variant_form.is_valid():
-            variant = product_variant_form.save()
+            remove_additional_images_ids = request.POST.getlist('remove_additional_images')
+            for image_id in remove_additional_images_ids:
+                try:
+                    image = ProductImage.objects.get(id=image_id)
+                    image.delete()
+                except ProductImage.DoesNotExist:
+                    pass
+
+            form.save()
             messages.success(request, "Variant Updated")
-            return redirect('product_mng:variant_list', product_variant.product.id)
+            success_message = "Variant Updated"
+
+            # Check for X-Requested-With header to determine AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': success_message})
+
+            return redirect('product_mng:variant_list', product_id=product_variant.product.id)
         else:
-            messages.error(request, product_variant_form.errors)
-            context = {
-                'form': product_variant_form,
-                'product_variant_slug': product_variant_slug,
-                'product_variant': product_variant,
-                'current_additional_images': current_additional_images,
-            }
-            return render(request, 'admin_temp/product_control/edit_product_variant.html', context)
+            # Check for X-Requested-With header to determine AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'errors': form.errors.as_json()}, status=400)
+
+            messages.error(request, form.errors)
+
+    else:
+        form = ProductVariantForm(instance=product_variant)
+        selected_attribute_values = product_variant.attribute_value.all().values_list('id', flat=True)
 
     context = {
-        'form': product_variant_form,
+        'product_variant': product_variant.product,
+        'form': form,
         'product_variant_slug': product_variant_slug,
         'product_variant': product_variant,
         'current_additional_images': current_additional_images,
+        'attribute_dict': attribute_dict,
+        'selected_attribute_values': selected_attribute_values,
     }
+
     return render(request, 'admin_temp/product_control/edit_product_variant.html', context)
 
 

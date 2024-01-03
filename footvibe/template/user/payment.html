@@ -31,48 +31,7 @@
                         </div>
                     </div>
                     
-                    <div class="card">
-                        <h5 class="card-header">Review Products</h5>
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Product</th>
-                                        <th>Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for ordered_product in ordered_products %}
-                                    <tr>
-                                        {{ordered_product.product_variant}}
-                                        <td class="image product-thumbnail">
-                                            <img src="{{ordered_product.product_variant.thumbnail_image.url }}" alt="#">
-                                        </td>
-                                        <td>
-                                            <h5><a href="#">
-                                                <span>{{ ordered_product.product_variant.product.product_slug }}</span>
-                                            </a></h5>
-                                            <span class="product-qty"><strong>Quantity:</strong> {{ ordered_product.quantity }}</span>
-
-                                            <div>
-                                                {% for attribute in ordered_product.product_variant.attribute_value.all %}
-                                                    {% if attribute.attribute.attribute_name == 'color' %}
-                                                        <p><strong>Color:</strong> {{ attribute.attribute_value }}</p>
-                                                    {% elif attribute.attribute.attribute_name == 'size' %}
-                                                        <p><strong>Size:</strong> {{ attribute.attribute_value }}</p>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            
-                                        </td>
-                                        <td><span> &#8377  {{ ordered_product.product_variant.sale_price}}</span></td>
-                                    </tr>
-                                    {% endfor %}
-                                    
-                                </tbody>
-                            </table> 
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="col-md-6">
                     <!-- Cart Total -->
@@ -190,7 +149,7 @@
         "currency": "INR",
         "name": "Footvibe",
         "description": "Purchases",
-        "image": "https://example.com/your_logo",
+        "image": "https://example.com/image/home images/footvibe logo - 2.png",
         "order_id": "{{razorpay_order.id}}", 
         "handler": function (response){
             //console.log(response)

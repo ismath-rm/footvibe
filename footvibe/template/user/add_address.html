@@ -12,7 +12,7 @@
                     <div class="heading_s1">
                         <h3 class="mb-30">Add Address</h3>
                     </div>
-                    <form method="post" action="{% url 'log:add_address' %}">
+                    <form method="post" action="{% url 'log:add_address' source='user_profile' %}">
                         {% csrf_token %}
 
                         <div class="form-group container-custom">

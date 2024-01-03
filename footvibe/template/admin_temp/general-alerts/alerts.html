@@ -1,7 +1,7 @@
 {% if messages %}
     {% for message in messages %}
     <div id="message" class="container-fluid p-0">
-        <div {% if message.tags %} class="alert alert-{% if message.tags == 'error'%}danger{% else %}{{ message.tags }}{% endif %}"{% endif %} role="alert">
+        <div {% if message.tags %} class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}"{% endif %} role="alert">
             {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
             {{ message }}
             <button type="button" class="btn-close float-end" data-dismiss="alert"></button>
@@ -10,9 +10,11 @@
     {% endfor %}
 {% endif %}
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
-
-setTimeout(function(){
-    $('#message').fadeOut('slow')
-}, 4000)
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('#message').fadeOut('slow');
+        }, 4000);
+    });
 </script>
