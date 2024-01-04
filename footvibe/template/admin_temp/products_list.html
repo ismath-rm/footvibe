@@ -73,36 +73,42 @@
                                 </thead>
                                 <tbody>
                                     {% for product in product_values %}
-                                    <tr>
-                                        <td><img src="{{ product.productvariant_set.all.0.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
-                                        <td><a href="#"> <h6 class="mb-0">{{ product.get_product_name }}</h6></a></td>
-                                       
-                                        <td class="text-end">
-                                            <span class="badge rounded-pill {% if product.is_active %} alert-success {% else %} alert-danger {% endif %}">
-                                                {% if product.is_active %} Active {% else %}Inactive {% endif %} </span>
-                                        </td>
-                                        <td class="text-end" >
-                                            <div class="dropdown">
-                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm text-secondary fw-bold font-sm"> 
-                                                    More
-                                                </a>
-                                                <div class="dropdown-menu dropdown-custom">
-                                                    {% comment %} <a class="dropdown-item" href="#">View detail</a> {% endcomment %}
-                                                    <a class="dropdown-item" href="{% url 'product_mng:edit_product' product.id %}">edit_info</a>
-                                                    <a class="dropdown-item" href="{% url 'product_mng:variant_list' product.id %}">Available variants</a>
-                                                    <a class="dropdown-item" href="{% url 'product_mng:add_product_variant' product.id %}">Add Variant</a>
-                                                    <a class="dropdown-item" href="{% url 'product_mng:product_control' product.id %}">{% if not product.is_active %}Enable {% else %}Disable{% endif %}</a>
-                                                </div>
-                                            </div> <!-- dropdown //end -->
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            {% with product_variant=product.productvariant_set.first %}
+                                                <td>
+                                                    {% if product_variant and product_variant.thumbnail_image %}
+                                                        <img src="{{ product_variant.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image">
+                                                    {% else %}
+                                                        <span>No Image Available</span>
+                                                    {% endif %}
+                                                </td>
+                                            {% endwith %}
+                                            <td><a href="#"> <h6 class="mb-0">{{ product.get_product_name }}</h6></a></td>
+                                            <td class="text-end">
+                                                <span class="badge rounded-pill {% if product.is_active %} alert-success {% else %} alert-danger {% endif %}">
+                                                    {% if product.is_active %} Active {% else %}Inactive {% endif %}
+                                                </span>
+                                            </td>
+                                            <td class="text-end" >
+                                                <div class="dropdown">
+                                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm text-secondary fw-bold font-sm"> 
+                                                        More
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-custom">
+                                                        <a class="dropdown-item" href="{% url 'product_mng:edit_product' product.id %}">edit_info</a>
+                                                        <a class="dropdown-item" href="{% url 'product_mng:variant_list' product.id %}">Available variants</a>
+                                                        <a class="dropdown-item" href="{% url 'product_mng:add_product_variant' product.id %}">Add Variant</a>
+                                                        <a class="dropdown-item" href="{% url 'product_mng:product_control' product.id %}">
+                                                            {% if not product.is_active %}Enable {% else %}Disable{% endif %}
+                                                        </a>
+                                                    </div>
+                                                </div> <!-- dropdown //end -->
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-            
-                        
-        
              <!-- itemlist  .// -->
         </div> <!-- card-body end// -->
     </div> <!-- card end// -->

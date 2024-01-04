@@ -13,8 +13,9 @@
             <h4>Your shopping cart is empty !!!!!</h4>
         </div>
         <div class="text-center mb-10">
-            <a href="{% url 'log:index' %}" class="btn">Continue Shopping</a>
-        </div>
+            <a href="{% url 'log:index' %}" class="btn btn-secondary">Continue Shopping</a>
+            
+            </div>
     </div>
     {% else %}
     <section class="mt-50 mb-50">
@@ -46,20 +47,6 @@
                                   
                                     <td class="price" data-title="Price"><span>{{ cart_item.product_variant.sale_price }}</span></td>
                             
-                                    {% comment %} <td class="text-center" data-title="Stock">
-                                        <div class="row">
-                                            <div class="col-lg-4">
-                                                <a type="button" href="#" class="btn" id="button-minus"><i class="fi-rs-angle-small-up"></i></a>
-                                                <a type="button" href="#" class="btn" id="button-plus"><i class="fi-rs-angle-small-down"></i></a>
-
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <span class="qyt-val">{{ cart_item.quantity }}</span>
-                                            </div>
-                                            
-                                        </div>
-                                    </td> {% endcomment %}
-
 
 
                                     <td class="text-center" data-title="Stock">
@@ -81,7 +68,7 @@
 
 
                                     <td class="text-right" data-title="Cart">
-                                        <span id='sub'>{{ cart_item.subtotal }}</span>
+                                        <span id='sub_total'>{{ cart_item.subtotal }}</span>
                                     </td>
                                     <td class="action" data-title="Remove"> <a href="#" class="text-muted remove-cart-item" data-cart-item-id="{{ cart_item.id }}">
                                         <i class="fi-rs-trash"></i>
@@ -90,11 +77,11 @@
                                 </tr>
                             {% endfor %}
                         
-                                <tr>
+                                {% comment %} <tr>
                                     <td colspan="6" class="text-end">
-                                        {% comment %} <a href="#" class="text-muted"><i class="fi-rs-cross-small"></i> Clear Cart</a> {% endcomment %}
+                                    
                                     </td>
-                                </tr>
+                                </tr> {% endcomment %}
                             </tbody>
                         </table>
                     </div>
@@ -161,15 +148,17 @@
             // Handle button clicks
             $(document).on('click', '.button-plus', function(e) {
                 e.preventDefault();
+                console.log('ytfguhjk');
+                console.log($(this).closest('td'));
     
                 // Get the product ID, cart item ID, and quantity from the DOM
                 var productId = $(this).closest('td').find('#product_id').val();
-                console.log($(this).closest('td').find('#product_id'))
                 var itemCounter = parseInt($(this).closest('td').find('#item_counter').val(), 10); // Convert to integer
                 var cartItemId = $(this).closest('td').find('#cart_id').val();
                 var qytInput = $(this).closest('td').find('.qyt');
                 var subTotalField = $(this).closest('tr').find('td.sub_total');
-                var sub_total = $(this).closest('td').find('.sub_total');
+                var sub_total = document.getElementById('sub_total');
+                
     
                 // Make an AJAX request to update the cart item quantity
                 $.ajax({
@@ -184,17 +173,18 @@
                     },
                     success: function(response) {
                         if (response.status === "success") {
+                            console.log(sub_total);
+                            console.log(response);
                             // Update the displayed quantity
                             qytInput.val(parseInt(response.new_quantity, 10));
-                            sub_total.text("₹" + response.sub_total);
-    
+                            sub_total.innerText= "₹" + response.sub_total;
+
                             // Update the subtotal for this specific cart item
                             subTotalField.html("₹" + response.sub_total);
     
-                            // Update total, grand total, and tax as needed
-                            $('.total').text("₹" + response.total);
-                            $('.grand_total').text("₹" + response.grand_total);
-                            $('.tax').text("₹" + response.tax);
+                            $('#cartsub').text("₹" + response.total);
+                            $('#grandTotal').text("₹" + response.grand_total);
+                            $('#tax').text("₹" + response.tax);
                         } else if (response.status === "error") {
                             alert(response.message);
                         }
@@ -214,6 +204,7 @@
                 var cartItemId = $(this).closest('td').find('#cart_id').val();
                 var qytInput = $(this).closest('td').find('.qyt');
                 var subTotalField = $(this).closest('tr').find('td.sub_total');
+                var sub_total = document.getElementById('sub_total');
     
                 $.ajax({
                     method: "POST",
@@ -228,11 +219,15 @@
                     success: function(response) {
                         if (response.status === "success") {
                             qytInput.val(parseInt(response.new_quantity, 10));
+                            sub_total.innerText= "₹" + response.sub_total;
+                            console.log(sub_total);
+                
+            
                             subTotalField.html("₹" + response.sub_total);
     
-                            $('.total').text("₹" + response.total);
-                            $('.grand_total').text("₹" + response.grand_total);
-                            $('.tax').text("₹" + response.tax);
+                            $('#cartsub').text("₹" + response.total);
+                            $('#grandTotal').text("₹" + response.grand_total);
+                            $('#tax').text("₹" + response.tax);
                         } else if (response.status === "error") {
                             alert(response.message);
                         }
@@ -245,6 +240,9 @@
         });
     </script>
     
+
+
+
     <script>
         $(document).ready(function () {
             var token = $('input[name=csrfmiddlewaretoken]').val();
@@ -269,7 +267,7 @@
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonText: "Yes, remove it!",
-                    cancelButtonText: "No, cancel!",
+                    cancelButtonText: "cancel!",
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -312,45 +310,20 @@
             });
         });
     </script>
-    
+<script>
+    $(document).ready(function () {
+        // Continue Shopping button click event handler
+        $('.cart-action a.btn').click(function (e) {
+            // Prevent the default behavior of the anchor tag
+            e.preventDefault();
 
-// Click event for the remove button
-
-{% comment %} <script>
-    $(".btn-remove-cart1").click(function (e) {
-        e.preventDefault();
-
-        var productId = $(this).data("product-id");
-        var cartItemId = $(this).data("cart-item-id");
-        //var removeButton = $(this);
-
-        // Show a SweetAlert confirmation dialog
-        Swal.fire({
-            title: 'Confirm Removal',
-            text: 'Are you sure you want to remove this item?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, remove it!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // If the user confirms, proceed with removal
-                var url = `/remove-cart-item/${productId}/${cartItemId}/`;
-
-                // Perform a full page reload
-                window.location.href = url;
-            }
+            // Add your logic here to handle the click event
+            // For example, you can redirect the user to the index page
+            window.location.href = "{% url 'log:index' %}";
         });
     });
-</script> {% endcomment %}
-{% comment %} <script>
-        alertify.set('notifier','position', 'top-center');
-        {% for msg in messages %}
+</script>
     
-            alertify.success('{{msg}}');
-        {%endfor%}
-
-</script> {% endcomment %}
 
 
 {% endblock %}

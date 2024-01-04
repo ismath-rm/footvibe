@@ -98,7 +98,7 @@ class ProductVariant(models.Model):
     updated_at = models.DateTimeField(auto_now=True)    
     objects = models.Manager()
     
-    def __str__(self) -> str:
+    def __str__(self):
         attribute_values = ', '.join([str(value) for value in self.attribute_value.all()])
         return f"{self.product.product_name} {attribute_values}"
 
@@ -106,9 +106,7 @@ class ProductVariant(models.Model):
     
     
     def save(self, *args, **kwargs):
-        # Fetch the related objects from the database
-        self.product.refresh_from_db()
-
+        
         # Build the slug using the fetched values
         product_variant_slug_name = f'{self.product.product_brand.brand_name}-{self.product.product_name}-{self.product.product_catg.category_name}-{self.sku_id}'
         base_slug = slugify(product_variant_slug_name)
@@ -144,10 +142,3 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return self.image.url        
-
-
-
-
-
-
-       

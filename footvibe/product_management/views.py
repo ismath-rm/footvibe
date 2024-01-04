@@ -516,7 +516,6 @@ def products_list(request):
 
 
 
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_product(request):
     if not request.user.is_superuser:
@@ -591,12 +590,6 @@ def variant_list(request, product_id):
 
 
 
-
-
-
-
-
-
 def product_variant_control(request, product_variant_id):
     try:
         product_variant = ProductVariant.objects.get(id = product_variant_id)
@@ -609,9 +602,6 @@ def product_variant_control(request, product_variant_id):
     product_variant.save()
     print("h112345678")
     return redirect('product_mng:variant_list', product_variant.product.id )
-
-
-
 
 
 
@@ -674,10 +664,9 @@ def add_product_variant(request, product_id = None):
         image_objects = []
 
         for image in additional_images:
-            image_objects.append(ProductImage(product_variant = product_variant, image = image))
+            variant_image = ProductImage.objects.create(product_variant = product_variant, image = image)
+            variant_image.save()
 
-
-        ProductImage.objects.bulk_create(image_objects)
         product_variant.attribute_value.set(attribute_ids)
 
         product_variant.save()
@@ -699,11 +688,6 @@ def add_product_variant(request, product_id = None):
 
 
 
-
-
-
-
-
 def edit_product_variant(request, product_variant_slug):
     try:
         product_variant = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
@@ -713,49 +697,36 @@ def edit_product_variant(request, product_variant_slug):
 
     current_additional_images = product_variant.product_images.all()
 
+    
     attributes = Attribute.objects.prefetch_related('attribute_value_set')
     attribute_dict = {attribute.attribute_name: attribute.attribute_value_set.filter(is_active=True) for attribute in attributes}
 
     selected_attribute_values = None
-
+    print(product_variant)
     if request.method == 'POST':
-        form = ProductVariantForm(request.POST, instance=product_variant)
+        form = ProductVariantForm(request.POST,request.FILES, instance=product_variant)
         if form.is_valid():
             form.instance.product_id = request.POST.get('product')
-
-            if 'remove_thumbnail' in request.POST:
-                if product_variant.thumbnail_image:
-                    product_variant.thumbnail_image.delete()
-                    product_variant.thumbnail_image = None
-                    product_variant.save()
-
-            remove_additional_images_ids = request.POST.getlist('remove_additional_images')
-            for image_id in remove_additional_images_ids:
-                try:
-                    image = ProductImage.objects.get(id=image_id)
-                    image.delete()
-                except ProductImage.DoesNotExist:
-                    pass
-
             form.save()
-            messages.success(request, "Variant Updated")
-            success_message = "Variant Updated"
 
-            # Check for X-Requested-With header to determine AJAX request
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'message': success_message})
+            multi_image = request.FILES.getlist('additional_images')
+            for image in multi_image:
+                variant_image = ProductImage.objects.create(product_variant=product_variant,image=image)
+                variant_image.save()
+
+            messages.success(request, "Variant Updated")
 
             return redirect('product_mng:variant_list', product_id=product_variant.product.id)
         else:
-            # Check for X-Requested-With header to determine AJAX request
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'errors': form.errors.as_json()}, status=400)
+            
 
             messages.error(request, form.errors)
 
     else:
         form = ProductVariantForm(instance=product_variant)
         selected_attribute_values = product_variant.attribute_value.all().values_list('id', flat=True)
+    
+    # Check if remove_thumbnail is present in request.POST
 
     context = {
         'product_variant': product_variant.product,
@@ -769,9 +740,14 @@ def edit_product_variant(request, product_variant_slug):
 
     return render(request, 'admin_temp/product_control/edit_product_variant.html', context)
 
-
-
-
+def delete_product_variant_images(request,id,product_variant_slug):
+    variant_image = ProductImage.objects.get(id=id)
+    variant_image.delete()
+    print(product_variant_slug)
+    product_variant = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
+    messages.success(request, "Variant Updated")
+    product_variant_slug = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
+    return redirect('product_mng:product_variant_update', product_variant_slug=product_variant.product_variant_slug)
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

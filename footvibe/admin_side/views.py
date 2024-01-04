@@ -12,7 +12,8 @@ from order_management.forms import OrderForm
 from datetime import timedelta, datetime
 from django.db.models import Sum
 from django.db.models import Count
-from django.db.models.functions import TruncMonth, TruncYear
+from django.db.models.functions import TruncMonth, TruncYear,TruncDate
+
 
 
 # Create your views here. 
@@ -60,15 +61,25 @@ def dashboard(request):
     end_date = datetime.now()
     start_date = end_date - timedelta(days=7)
 
+    # daily_order_counts = (
+    #     Order.objects
+    #     .filter(created_at__range=(start_date, end_date), is_ordered=True)
+    #     .values('created_at')
+    #     .annotate(order_count=Count('id'))
+    #     .order_by('created_at')
+    # )
+    
     daily_order_counts = (
         Order.objects
         .filter(created_at__range=(start_date, end_date), is_ordered=True)
-        .values('created_at')
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
         .annotate(order_count=Count('id'))
-        .order_by('created_at')
+        .order_by('date')
     )
 
-    dates = [entry['created_at'].strftime('%Y-%m-%d') for entry in daily_order_counts]
+    print(daily_order_counts)
+    dates = [entry['date'].strftime('%Y-%m-%d') for entry in daily_order_counts]
     counts = [entry['order_count'] for entry in daily_order_counts]
 
     monthly_order_counts = (

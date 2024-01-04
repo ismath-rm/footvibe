@@ -91,7 +91,7 @@
                         <div class="card mb-4">
                             <article class="card-body">
                                 <h5 class="card-title">Daily Sale Report</h5>
-                                <canvas id="myChart"></canvas>
+                                <canvas id="daily_Chart"></canvas>
                             </article>
                         </div>
                     </div>
@@ -213,20 +213,20 @@
 <script>
 
 
-    const date = {{ dates|safe }};
+    const dates = {{ dates|safe }};
    
-    const count = {{ counts|safe }};
+    const counts = {{ counts|safe }};
   
   
-  const ctx = document.getElementById('myChart');
+  const dctx = document.getElementById('daily_Chart');
 
-  new Chart(ctx, {
+  new Chart(dctx, {
     type: 'line',
     data: {
-    labels: date,
+    labels: dates,
     datasets: [{
         label: 'Daily Sales Report',
-        data: count,
+        data: counts,
         borderWidth: 1
     }]
 },
@@ -241,10 +241,10 @@
 </script>
 
 <script>
+    
 
-
-    const monthlydates = {{ monthlyDates|safe }};
-    const monthlycounts = {{ monthlyCounts|safe }};
+  const monthlydates = {{ monthlyDates|safe }};
+  const monthlycounts = {{ monthlyCounts|safe }};
   
   const mctx = document.getElementById('monthlyChart');
 
@@ -271,9 +271,9 @@
 
 
     const yearlydates = {{ yearlyDates|safe }};
-    console.log(yearlydates)
+    
     const yearlycounts = {{ yearlyCounts|safe }};
-    console.log(yearlycounts);
+    
   
   const yctx = document.getElementById('yearlyChart');
 

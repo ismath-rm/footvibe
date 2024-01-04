@@ -103,6 +103,8 @@ def add_cart(request, id):
 
 
 def newcart_update(request):
+    print('newcart_update view is called')
+
     new_quantity = 0
     total = 0
     tax = 0

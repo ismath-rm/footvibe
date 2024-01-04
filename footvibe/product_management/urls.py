@@ -47,6 +47,8 @@ urlpatterns = [
     path('add_product_variant', views.add_product_variant, name = 'add_product_variant'),
     path('add_product_variant/<int:product_id>/', views.add_product_variant, name = 'add_product_variant'),
     path('edit-product-variant/<str:product_variant_slug>/', views.edit_product_variant, name='product_variant_update'),
+    path('delete-product-variant/<int:id>/<str:product_variant_slug>/', views.delete_product_variant_images, name='delete_product_variant_images'),
+
 
     path('variants/product-variant-control/<int:product_variant_id>/', views.product_variant_control, name='product_variant_control'),
     path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
