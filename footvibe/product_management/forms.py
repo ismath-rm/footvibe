@@ -18,6 +18,6 @@ class ProductVariantForm(forms.ModelForm):
             'max_price': forms.TextInput(attrs={'class': 'form-control'}),
             'sale_price': forms.TextInput(attrs={'class': 'form-control'}),
             'stock': forms.TextInput(attrs={'class': 'form-control'}),
-           'thumbnail_image': forms.ClearableFileInput(attrs={'class': 'form-control'})
+           'thumbnail_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
         

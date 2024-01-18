@@ -113,7 +113,7 @@ def newcart_update(request):
     counter = 0
 
     if request.method == 'POST' and request.user.is_authenticated:
-        print('ismath is going to impliment ajax')
+        print('impliment ajax')
         prod_id = int(request.POST.get('product_id'))
         cart_item_id = int(request.POST.get('cart_id'))
         qyt = int(request.POST.get('qyt'))
@@ -130,7 +130,7 @@ def newcart_update(request):
                 sub_total = cart_item.subtotal()
                 new_quantity = cart_item.quantity
             else:
-                return JsonResponse({'status': 'error', 'message': 'Out of stock'})
+                return JsonResponse({'status': 'error', 'message': 'Stoke limit reached.Cannot add more to cart'})
 
         cart_items = CartItem.objects.filter(cart=cart)
         for cart_item in cart_items:

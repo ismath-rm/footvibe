@@ -5,7 +5,8 @@
 
 <section class="content-main">
     <div class="content-header">
-        
+        {% include 'admin_temp/general-alerts/alerts.html' %}
+
         
     </div>
     <div class="card mb-4">
@@ -54,7 +55,7 @@
                             <td>{{order.order_number}}</td>
                             <td><b>{{order.user.username}}</b></td>
                             <td>{{order.user.email}}</td>
-                            <td>${{order.order_total}}</td>
+                            <td>{{order.order_total}}</td>
                             <td><span class="badge rounded-pill  
                                 {% if order.status == 'Conformed' %} 
                                     bg-primary 

@@ -3,6 +3,12 @@
 {% block title %} Checkout {% endblock %}
 {% block body %}
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+<!-- Default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 <main class="main">
     <section class="mt-50 mb-50">
         <div class="container">
@@ -75,18 +81,19 @@
                     <div class="panel-collapse collapse coupon_form " id="coupon">
                         <div class="panel-body">
                             <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                            {% comment %} <form method="post" action="{% url "orders:apply_coupon" %}"> {% endcomment %}
+                            <form method="post" action="{% url 'log:apply_coupon' %}" id="coupon-form">
                                 <div class="form-group">
                                     <label for="coupon-field"></label>
                                     <input type="text" id="coupon-field" placeholder="Enter Coupon Code..." name="coupon_field">
                                 </div>
                                 <div class="form-group">
-                                    <button id="coupon-btn" class="btn btn-md" type="submit" name="login">Apply Coupon</button>
+                                    <button id="coupon-btn" class="btn btn-md" type="button" name="login">Apply Coupon</button>
                                 </div>
-                            {% comment %} </form> {% endcomment %}
+                            </form>
                         </div>
                     </div>
                 </div>
+                
             </div>
         
 
@@ -186,7 +193,7 @@
                                         <th>SubTotal</th>
                                         <td class="product-subtotal" colspan="2">
                                             <span></span>
-                                            <span class="total-amount-no-discount"> &#8377  {{ total|floatformat:1 }}</span>
+                                            <span id="sub_total" class="total-amount-no-discount"> &#8377 {{ total|floatformat:1 }}</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -195,14 +202,16 @@
                                     </tr>
                                     <tr>
                                         <th>Tax</th>
-                                        <td colspan="2"><em>{{tax}}</em></td>
+                                        <td id="tax" colspan="2">
+                                            <em>{{tax}}</em>
+                                        </td>
                                     </tr>
                                 
                                     <tr>
                                         <th>Total</th>
                                         <td colspan="2" class="product-subtotal">
                                             <span class="font-xl text-brand fw-900"></span>
-                                            <span  class="total-amount-no-discount font-xl text-brand fw-900">&#8377; {{ grand_total }}</span>
+                                            <span id="total_amount" class=" font-xl text-brand fw-900">&#8377; {{ grand_total }}</span>
                                         </td>
                                     </tr>
                                     
@@ -228,12 +237,12 @@
                                         </label>
                                     </div>
 
-                                    {% comment %} <div>
+                                    <div>
                                         <input class="form-check-input"  type="radio" value="Wallet" name="payment_option" id="exampleRadios5" >
                                         <label class="form-check-label" for="exampleRadios5" aria-controls="bankTranfer">
                                             Wallet
                                         </label>
-                                    </div>  {% endcomment %}
+                                    </div>
                                     
                                 </div>
                             </div>
@@ -252,6 +261,7 @@
 </main>
 
 <script>
+
     function placeOrder() {
         // Handle the logic for placing the order here
         document.getElementById('orderForm').submit();
@@ -290,6 +300,99 @@
                 console.error('There was a problem with the fetch operation:', error);
             });
     }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $(document).ready(function () {
+        var token = $('input[name=csrfmiddlewaretoken]').val();
+        $('#coupon-btn').on('click', function (e) {
+            console.log('Button clicked!');
+            e.preventDefault();
+
+            const couponCode = $('#coupon-field').val();
+            let totalAmount = document.getElementById("total_amount")
+            let sub_total = document.getElementById("sub_total")
+            let tax = document.getElementById("tax")
+
+
+            let totalAmount_value = parseFloat(totalAmount.innerHTML.slice(1, totalAmount.length).slice(1, totalAmount.length))
+            let sub_total_value = parseFloat(sub_total.innerHTML.slice(1, sub_total.length).slice(1, sub_total.length))
+            let tax_value = parseFloat(tax.firstElementChild.innerHTML)
+            console.log(totalAmount_value);
+
+
+
+
+            $.ajax({
+                type: 'post',
+                url: "{% url 'log:apply_coupon' %}",
+                dataType: "json",
+                data: { total: sub_total_value, couponCode: couponCode },
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+
+                success: (response) => {
+                    console.log("\n\n responce :", response)
+                    if (response.success) {
+                        console.log(response.success);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+
+                        // Update your DOM as needed
+                        sub_total_final = Math.ceil(sub_total_value - ((response.coupon / 100) * sub_total_value));
+                        tax_value = sub_total_final * 0.02
+                        console.log(tax_value);
+                        console.log(sub_total_final);
+                        $('.total-amount-no-discount')
+                            .css("text-decoration", "line-through")
+                            .prev()
+                            .text('\u20B9' + sub_total_final);
+                        totalAmount.innerHTML = (sub_total_final + tax_value)
+                        tax.firstElementChild.innerHTML = tax_value
+
+
+                    } else {
+                        console.log('thi si error');
+                        console.log(response.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error,
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log('error :')
+                    console.log(error);
+                }
+            });
+        });
+    });
 </script>
 
 {% endblock %}

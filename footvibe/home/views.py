@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.models import User,auth
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound,HttpResponseRedirect
 from django.contrib import messages
 from home.models import Account,AddressBook
 from django.contrib.auth import login,logout,authenticate
@@ -19,20 +19,28 @@ from django.db.models import Sum
 from order_management.models import *
 from django.core.validators import validate_email, validate_integer
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.http import JsonResponse
+from admin_side.models import *
+from django.utils import timezone
+from django.contrib.auth.hashers import check_password
+
 
 # Create your views here.
     
 def index(request):
     variants = []
     products = Product.objects.filter(is_active = True)
+    main_slid = HomeMainSlide.objects.all()
 
     for product in products:
         prod_variants = ProductVariant.objects.filter(product = product, is_active = True)
         if prod_variants:
             variants.append(prod_variants[0])
-
+    
     context = {
         'products': variants,
+        'main_slid':main_slid,
     }
 
     return render(request, 'user/index.html',context)
@@ -268,12 +276,7 @@ def product_detail(request, variant_slug=None):
 
     product_images = [image.image for image in single_product.product_images.all()]
     product_images.insert(0, single_product.thumbnail_image)
-    # print(attribute_values)
-
-    # Extract colors and sizes from attribute values.
-    # color = [i[0] for i in attribute_values]
-    # print("asdfads", color)
-    # size = [i[0] for i in attribute_values]
+   
     color = Attribute_Value.objects.filter(attribute = 10)
     size = Attribute_Value.objects.filter(attribute = 11)
 
@@ -284,6 +287,7 @@ def product_detail(request, variant_slug=None):
         'attribute_values': attribute_values,
         'color': color,
         'size': size,
+        
     }
     return render(request, 'user/product_detail.html', context)
 
@@ -295,11 +299,17 @@ def product_detail(request, variant_slug=None):
 def shop(request):
     sort_by = request.GET.get('sort_by', 'price_low_high')  
     print(f'Sort by: {sort_by}')
+    brand_filter = request.GET.get('brand', None) 
 
     variants = []
     products = Product.objects.filter(is_active = True)
+
+    if brand_filter:
+        products = products.filter(product_brand__brand_name=brand_filter)
+        print(products)
+
     categories = Category.objects.all()
-    print(products)
+    
 
     for product in products:
         prod_variants = ProductVariant.objects.filter(product = product, is_active = True)
@@ -317,6 +327,8 @@ def shop(request):
         'products': variants,
         'categories': categories,
         'current_sort': sort_by,
+        'selected_brand': brand_filter,
+        'brands': Brand.objects.all(), 
     }
 
     return render(request,'user/shop.html',context)
@@ -344,9 +356,11 @@ def shop_category(request,slug):
 def user_profile(request):
     try:
         user_profile = Account.objects.get(email=request.user.email)
+        wallet,created = Wallet.objects.get_or_create(user=user_profile)
+        wallethistory = WalletHistory.objects.filter(wallet=wallet)
         addresses = AddressBook.objects.filter(user=user_profile)
         orders= Order.objects.filter(user=user_profile)
-       
+
     except Account.DoesNotExist:
         messages.error(request, "User profile not found.")
         return render(request, 'user/user_profile.html')
@@ -355,6 +369,8 @@ def user_profile(request):
         'user_profile': user_profile,
         'addresses': addresses,
         'orders':orders,
+        'wallet':wallet,
+        'wallethistory':wallethistory,
     }
     return render(request, 'user/user_profile.html', context)
 
@@ -387,17 +403,29 @@ def edit_profile(request):
         if not re.match(r'^\d{10}$', number):
             messages.error(request, "Invalid phone number. Please enter a 10-digit phone number.")
             return render(request, "user/edit_profile.html", {'user': user})
+        
+        # Check if the new username already exists
+        if Account.objects.filter(username=username).exclude(id=user.id).exists():
+            messages.error(request, "Username already exists. Please choose a different one.")
+            return render(request, "user/edit_profile.html", {'user': user})
+
+        # Check if the new email already exists
+        if Account.objects.filter(email=email).exclude(id=user.id).exists():
+            messages.error(request, "Email address already exists. Please choose a different one.")
+            return render(request, "user/edit_profile.html", {'user': user})
 
         # Update user fields
         user.email = email
         user.username = username
         user.phone = number
 
-        # Save the user object
-        user.save()
-
-        messages.success(request, "Profile updated successfully")
-        return redirect('log:user_profile')
+        try:
+            user.save()
+            messages.success(request, "Profile updated successfully")
+            return redirect('log:user_profile')
+        except IntegrityError:
+            messages.error(request, "Error updating profile. Please try again.")
+            return render(request, "user/edit_profile.html", {'user': user})
 
     return render(request, "user/edit_profile.html", {'user': user})
 
@@ -473,6 +501,94 @@ def set_default_address(request, address_id):
     return redirect('log:user_profile')
 
 
+@login_required(login_url='log:user_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def reset_password(request,user_id):
+
+    user=Account.objects.get(id=user_id)
+    if request.method == 'POST':
+        
+        old_pass=request.POST.get('pass')
+        pass1=request.POST.get('npass')
+        pass2=request.POST.get('cpass')
+
+        try:
+            if check_password(old_pass, user.password):
+                if pass1 == pass2: 
+                    user.set_password(pass1)
+                    user.save()
+                    messages.success(request, 'Password changed successfully.')
+                    return redirect('log:user_login')
+                else:
+                    messages.error(request, 'New passwords do not match.')
+                    
+            else:
+                messages.error(request, 'Incorrect old password.')
+                
+        except Account.DoesNotExist:
+             messages.error(request, 'User not found.')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            # Log the exception for debugging
+            print(f'An error occurred: {str(e)}')
+            
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+#....................................wishlist...................................#
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def wishlist(request):
+    if not request.user.is_authenticated:
+        messages.info(request, 'Login to access wishlist')
+        return redirect('log:user_login')
+    else:
+     
+        
+        print("HAIIIIIIIIIIIII")
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        wishlist_items = WishlistItems.objects.filter(wishlist=wishlist)
+        for item in wishlist_items:
+            print(item.product_variant.product_variant_slug)
+       
+
+        context = {
+            'wishlist_items': wishlist_items,
+            
+        }
+        
+    return render(request, 'user/wishlist.html', context)
+
+
+
+def add_wishlist(request, product_id):
+    if not request.user.is_authenticated:
+        messages.info(request, 'Login to access wishlist')
+        return redirect('log:user_login')
+    else:
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        product_variant = get_object_or_404(ProductVariant, id=product_id)
+       
+
+        if WishlistItems.objects.filter(wishlist=wishlist, product_variant=product_variant).exists():
+                
+                print('Product is already in your wishlist')
+                messages.error(request, 'Product is already in your wishlist')
+                
+        else:
+            WishlistItems.objects.create(wishlist=wishlist, product_variant=product_variant)
+            messages.success(request, 'Product added to your wishlist successfully')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
+def delete_wishlist(request, list_id):
+    print(list_id)
+    item = get_object_or_404(WishlistItems, pk=list_id)
+    item.delete()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 
 
 def checkout(request):
@@ -514,6 +630,59 @@ def checkout(request):
         'grand_total': grand_total,
     }
 
-    
-
     return render(request, 'user/checkout.html', context)
+
+
+
+def apply_coupon(request):
+    if request.method == "POST":
+        coupon_code = request.POST.get("couponCode").strip()
+        total = request.POST.get("total")
+        user = request.user
+
+
+        if not coupon_code:
+            return JsonResponse({'error': "Coupon code is empty.", 'message': 'Coupon code is empty.'})
+
+
+        try:
+            coupons = Coupon.objects.filter(coupon_code=coupon_code)
+            if coupons:
+
+                if coupons[0].Is_Redeemed_By_User_New(request, user):
+                    
+                    return JsonResponse({'error': "User Already Used The Coupon"})
+                else:
+                    try:
+                        redeemed_details = Coupon_Redeemed_Details(coupon=coupons[0], user=user)
+                        print("onnum nadakkunnilla", redeemed_details)
+                        redeemed_details.save()
+                    except Exception as e:
+                        print(e)
+                    return JsonResponse({
+                                         'success': True,
+                                         'coupon': coupons[0].discount,
+                                         'message': 'Coupon Applied Successfully'})
+            else:
+                    print(f"No coupon found for code: {coupon_code}")
+                    return JsonResponse({'error': "Invalid coupon code or expired.", 'message': 'Invalid coupon code or expired.'})
+        except Exception as e:
+            print("Error applying coupon:", e)
+            return JsonResponse({'error': "Error applying coupon.", 'message': 'Error applying coupon.'})
+
+    return redirect('log:checkout')
+
+
+
+
+
+
+
+
+def contact(request):
+
+    return render(request, 'user/contact.html')
+
+def about(request):
+
+    return render(request, 'user/about.html')

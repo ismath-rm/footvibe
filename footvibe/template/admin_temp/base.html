@@ -30,7 +30,7 @@
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
-            <a href="index.html" class="brand-wrap">
+            <a href="#" class="brand-wrap">
                 <img src="{% static 'image\home images\footvibe logo - 2.png' %}" alt="logo">
             </a>
             <div>
@@ -39,9 +39,14 @@
         </div>
         <nav>
             <ul class="menu-aside">
-                <li class="menu-item active">
+                <li class="menu-item ">
                     <a class="menu-link" href="{% url "admin_log:dashboard" %}"> <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item ">
+                    <a class="menu-link" href="{% url "admin_log:home_main_slider" %}"> <i class="icon material-icons md-image"></i>
+                        <span class="text">Banner management </span>
                     </a>
                 </li>
                 <li class="menu-item has-submenu">
@@ -73,7 +78,7 @@
                         <span class="text">User</span>
                     </a>
                     <div class="submenu">
-                        <a href=" {% url "admin_log:user_list" %} ">User login</a>
+                        <a href=" {% url "admin_log:user_list" %} ">User list</a>
                     </div>
                 </li>
                 <li class="menu-item ">
@@ -81,21 +86,13 @@
                         <span class="text">Sales Report</span>
                     </a>
                 </li>
-                {% comment %} <li class="menu-item">
-                    <a class="menu-link" href="page-reviews.html"> <i class="icon material-icons md-comment"></i>
-                        <span class="text">Reviews</span>
+
+                <li class="menu-item ">
+                    <a class="menu-link" href="{% url "admin_log:coupon" %}"> <i class="icon material-icons md-local_offer"></i>
+                        <span class="text">Coupon</span>
                     </a>
                 </li>
                 
-            </ul>
-            <hr>
-            <ul class="menu-aside">
-                
-                <li class="menu-item">
-                    <a class="menu-link" href="page-blank.html"> <i class="icon material-icons md-local_offer"></i>
-                        <span class="text"> Starter page </span>
-                    </a>
-                </li> {% endcomment %}
             </ul>
             <br>
             <br>
@@ -122,12 +119,12 @@
             <div class="col-nav">
                 <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i class="material-icons md-apps"></i> </button>
                 <ul class="nav">
-                    {% comment %} <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link btn-icon" href="#">
                             <i class="material-icons md-notifications animation-shake"></i>
                             <span class="badge rounded-pill">3</span>
                         </a>
-                    </li> {% endcomment %}
+                    </li> 
                     {% comment %} <li class="nav-item">
                         <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i> </a>
                     </li>

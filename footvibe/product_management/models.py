@@ -2,6 +2,10 @@ from django.db import models
 from django.utils.text import slugify
 import uuid
 from django.urls import reverse
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 
 # Create your models here.
 class Category(models.Model):
@@ -102,7 +106,7 @@ class ProductVariant(models.Model):
         attribute_values = ', '.join([str(value) for value in self.attribute_value.all()])
         return f"{self.product.product_name} {attribute_values}"
 
-   
+
     
     
     def save(self, *args, **kwargs):
@@ -122,7 +126,7 @@ class ProductVariant(models.Model):
 
         super(ProductVariant, self).save(*args, **kwargs)
     
-     
+    
         
     def get_url(self):
         return reverse('product-variant-detail',args=[self.product.product_catg.slug,self.product_variant_slug])
@@ -135,6 +139,8 @@ class ProductVariant(models.Model):
     def get_url(self):
         return reverse('log:product_detail', args=[self.product_variant_slug])
 
+
+    
 
 class ProductImage(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='product_images')

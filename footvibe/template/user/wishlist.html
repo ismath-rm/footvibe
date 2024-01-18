@@ -1,0 +1,65 @@
+﻿{% extends 'user/base.html' %}
+{% load static %}
+{% block title %} Wishlist {% endblock %}
+{% block  body %}
+
+
+<div class="main">
+    {% if not wishlist_items %}
+    <div class="mb-200 mt-200">
+        <div class="text-center">
+            <h4>Your wishlist is empty !!!!!</h4>
+        </div>
+        <div class="text-center mb-10">
+            <a href="{% url 'log:index' %}" class="btn">Continue Shopping</a>
+        </div>
+    </div>
+        
+        
+    {% else %}
+
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">image</th>
+                                    <th scope="col" >Product</th>
+                                    <th scope="col">Price</th>                            
+                                    <th scope="col">Action</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for list in wishlist_items %}
+                                <tr>
+                                    <td class="image product-thumbnail"><img src="{{ list.product_variant.thumbnail_image.url }}" alt="#"></td>
+                                    <td class="product-des product-name">
+                                        <h5 class="product-name"><a href="#">{{ list.product_variant.product.product_slug }}</a></h5>
+                                    </td>
+                                  
+                                    <td class="price" data-title="Price"><span>{{ list.product_variant.sale_price }}</span></td>
+                                    
+                                    
+                                    <td class="text-right" data-title="Cart">
+                                        <a href="{% url 'log:product_detail' list.product_variant.product_variant_slug %}" class="btn btn-sm">view</a>
+                                    </td>
+                                    <td class="action" data-title="Remove"><a href="{% url 'log:delete_wishlist' list.id %}"><i class="fi-rs-trash"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+    

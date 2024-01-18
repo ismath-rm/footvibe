@@ -2,8 +2,10 @@
 {% load static %}
 {% block title %} Home {% endblock %}
 {% block  body %}      
-<section class="home-slider position-relative pt-50">
+{% comment %} <section class="home-slider position-relative pt-50">
     <div class="hero-slider-1 dot-style-1 dot-style-1-position-1">
+
+
         <div class="single-hero-slider single-animation-wrap">
             <div class="container">
                 <div class="row align-items-center slider-animated-1">
@@ -66,7 +68,32 @@
         </div>
     </div>
     <div class="slider-arrow hero-slider-1-arrow"></div>
+</section> {% endcomment %}
+
+
+<section class="home-slider position-relative pt-50">
+    <div class="col-lg-12">
+        <div id="header-carousel">
+            <div class="slick-carousel">
+                {% for slide in main_slid %}
+                    <div class="slick-slide {% if forloop.first %}active{% endif %}" style="height: 410px;">
+                        <img class="img-fluid" src="{{ slide.slide_image.url }}" alt="Image">
+                        <p>{{ slide.slide_image.url }}</p> 
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width: 700px;">
+                                <h4 class="text-dark text-uppercase font-weight-medium mb-3">{{ slide.subheading }}</h4>
+                                <h3 class="display-4 text-dark font-weight-semi-bold mb-4">{{ slide.heading }}</h3>
+                                <a href="{% url 'log:shop' %}" class="btn btn-outline-warning py-2 px-3">Shop Now</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="slider-arrow hero-slider-1-arrow"></div>
+        </div>
+    </div>
 </section>
+
 
 
 <section class="banners mb-15 mt-15">
@@ -136,12 +163,16 @@
                                 <div class="product-img product-img-zoom">
                                     <a href="{% url 'log:product_detail' product.product_variant_slug %}">
                                         
-                                        <img class="default-img" src="{{product.thumbnail_image.url}}" alt="">
-                                        <img class="hover-img" src="{{product.product_images.all.0.image.url}}" alt="">
+                                        {% comment %} <img class="default-img" src="{{product.thumbnail_image.url}}" alt="">
+                                        <img class="hover-img" src="{{product.product_images.all.0.image.url}}" alt=""> {% endcomment %}
+
+                                        <img class="default-img" src="{% if product.thumbnail_image %}{{ product.thumbnail_image.url }}{% else %}{% static 'path/to/default/image.jpg' %}{% endif %}" alt="">
+                                        <img class="hover-img" src="{% if product.product_images.all.0.image %}{{ product.product_images.all.0.image.url }}{% else %}{% static 'path/to/default/image.jpg' %}{% endif %}" alt="">
+
                                     </a>
                                 </div>
                                 <div class="product-action-1">
-                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
+                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'log:add_wishlist' product.id %}"><i class="fi-rs-heart"></i></a>
                                 </div>
                                 <div class="product-badges product-badges-position product-badges-mrg">
                                     <span class="hot">Hot</span>
@@ -234,4 +265,28 @@
         </div>
     </div>
 </section>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Include Slick.js -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $('#header-carousel .slick-carousel').slick({
+            dots: false,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            prevArrow: '<div class="btn btn-dark slick-prev" style="width: 45px; height: 45px;"><span class="carousel-control-prev-icon mb-n2"></span></div>',
+            nextArrow: '<div class="btn btn-dark slick-next" style="width: 45px; height: 45px;"><span class="carousel-control-next-icon mb-n2"></span></div>',
+        });
+    });
+</script>
+
+
 {% endblock %}

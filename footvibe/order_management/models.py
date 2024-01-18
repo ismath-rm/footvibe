@@ -12,7 +12,6 @@ class Payment(models.Model):
     payment_method = models.CharField(max_length=100)
     amount_paid = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
-    # discount = models.FloatField(default=0,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     
@@ -23,11 +22,13 @@ class Payment(models.Model):
 class Order(models.Model):
     STATUS = (
         ('New', 'New'),
-        # ('Pending', 'Pending'),
+        ('Pending ', 'Pending'),
         ('Accepted', 'Accepted'),
         ('Cancelled', 'Cancelled'),
         ('Delivered', 'Delivered'),
         ('Returned', 'Returned'),
+        ('Requested for cancel','Requested for cancel'),
+        ('Requested for return','Requested for return')
     )
 
 
@@ -46,11 +47,12 @@ class Order(models.Model):
     pincode = models.CharField(max_length=10)
     order_total = models.FloatField()
     tax = models.FloatField()
-    status = models.CharField(max_length=10, choices=STATUS, default='New')
+    status = models.CharField(max_length=30, choices=STATUS, default='New')
     ip = models.CharField(blank=True, max_length=20)
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    cancellation_reason = models.CharField(max_length=150,default="Damaged Product")
 
     
 
@@ -84,5 +86,3 @@ class OrderProduct(models.Model):
     
 
 
-    # def __str__(self):
-    #     return f"OrderProduct for {self.user.username} - {self.product.product_name}"

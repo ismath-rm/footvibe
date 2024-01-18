@@ -24,6 +24,8 @@ urlpatterns = [
    
 
    path('product_detail/<slug:variant_slug>/', views.product_detail, name='product_detail'),
+   
+
 
    
    path('shop/', views.shop, name = 'shop'),
@@ -32,14 +34,30 @@ urlpatterns = [
 #...................................................Profile..............................................................#
 
    path('user_profile/', views.user_profile, name='user_profile'),
-   path('add_address/<str:source>/', views.add_address, name='add_address'),
    path('edit_profile/', views.edit_profile, name='edit_profile'),
+   path('add_address/<str:source>/', views.add_address, name='add_address'),
    path('edit_address/<int:address_id>/', views.edit_address, name='edit_address'),
    path('set_default_address/<int:address_id>/', views.set_default_address, name='set_default_address'),
+   path('reset_password/<int:user_id>/',views.reset_password,name='reset_password'),
+
+   
+
+#..........................................wishlist...........................................#
+
+   path('wishlist',views.wishlist,name='wishlist'),
+   path('add_wishlist/<int:product_id>/',views.add_wishlist,name='add_wishlist'),
+   path('delete_wishlist/<int:list_id>/',views.delete_wishlist,name='delete_wishlist'),
+
 
    #.....................................checkout..............................................#
 
    path('checkout/', views.checkout, name='checkout'),
+   path('apply_coupon/', views.apply_coupon, name='apply_coupon'),
+
+
+   path('contact',views.contact,name='contact'),
+   path('about',views.about,name='about'),
+
 
 
 ]

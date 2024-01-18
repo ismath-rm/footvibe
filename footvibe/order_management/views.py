@@ -10,6 +10,8 @@ from django.http import Http404
 import razorpay
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from decimal import Decimal
+
 
 # Create your views here.
 
@@ -37,9 +39,18 @@ def order_placed(request, total=0, quantity=0):
         messages.warning(request, 'Your cart is empty. Add items to your cart before placing an order.')
         return redirect('cart_mng:cart')
 
+    # if request.method == 'POST':
+    #     selected_payment_option = request.POST.get('payment_option')
+    #     print(request,'this is requeest----------------------------')
+    
     if request.method == 'POST':
         selected_payment_option = request.POST.get('payment_option')
-        print(request,'this is requeest----------------------------')
+        coupon=request.POST.get('coupon')
+        total_final=request.POST.get('total_final')
+        print(f"{total_final} amount")
+        if coupon :
+            grand_total = total_final
+            total = total_final
         try:
             print("yoooooo")
             address = AddressBook.objects.get(user=request.user, is_default=True)
@@ -49,33 +60,34 @@ def order_placed(request, total=0, quantity=0):
             print("\n\n\n\n\n\n\n ismath \n\n\n")
             return redirect('log:checkout')
 
-        data = Order()
-        data.user = current_user
-        data.first_name = address.first_name
-        data.last_name = address.last_name
-        data.phone = address.phone
-        data.email = address.email
-        data.address_line_1 = address.address_line_1
-        data.city = address.city
-        data.state = address.state
-        data.country = address.country
-        data.pincode = address.pincode
-        data.order_total = grand_total
-        data.tax = tax
-        data.ip = request.META.get('REMOTE_ADDR')
-        data.save()
-        yr = int(datetime.date.today().strftime('%Y'))
-        dt = int(datetime.date.today().strftime('%d'))
-        mt = int(datetime.date.today().strftime('%m'))
-        d = datetime.date(yr, mt, dt)
-        current_date = d.strftime("%Y%m%d")
-        order_number = current_date + str(data.id)
-        data.order_number = order_number
-        data.is_ordered = True
-        data.save()
 
         if selected_payment_option == "CashOnDelivery":
             print("Selected Payment Method:", selected_payment_option)
+
+            data = Order()
+            data.user = current_user
+            data.first_name = address.first_name
+            data.last_name = address.last_name
+            data.phone = address.phone
+            data.email = address.email
+            data.address_line_1 = address.address_line_1
+            data.city = address.city
+            data.state = address.state
+            data.country = address.country
+            data.pincode = address.pincode
+            data.order_total = grand_total
+            data.tax = tax
+            data.ip = request.META.get('REMOTE_ADDR')
+            data.save()
+            yr = int(datetime.date.today().strftime('%Y'))
+            dt = int(datetime.date.today().strftime('%d'))
+            mt = int(datetime.date.today().strftime('%m'))
+            d = datetime.date(yr, mt, dt)
+            current_date = d.strftime("%Y%m%d")
+            order_number = current_date + str(data.id)
+            data.order_number = order_number
+            data.is_ordered = True
+            data.save()
 
             payment_id = f'uw{data.order_number}{data.id}'
             payment_status = 'COMPLETED' if selected_payment_option == 'CashOnDelivery' else 'Pending'
@@ -123,6 +135,32 @@ def order_placed(request, total=0, quantity=0):
             return render(request, "user/order_placed.html", context)
 
         elif selected_payment_option == "RAZORPAY":
+                
+                data = Order()
+                data.user = current_user
+                data.first_name = address.first_name
+                data.last_name = address.last_name
+                data.phone = address.phone
+                data.email = address.email
+                data.address_line_1 = address.address_line_1
+                data.city = address.city
+                data.state = address.state
+                data.country = address.country
+                data.pincode = address.pincode
+                data.order_total = grand_total
+                data.tax = tax
+                data.ip = request.META.get('REMOTE_ADDR')
+                data.save()
+                yr = int(datetime.date.today().strftime('%Y'))
+                dt = int(datetime.date.today().strftime('%d'))
+                mt = int(datetime.date.today().strftime('%m'))
+                d = datetime.date(yr, mt, dt)
+                current_date = d.strftime("%Y%m%d")
+                order_number = current_date + str(data.id)
+                data.order_number = order_number
+                data.is_ordered = True
+                data.save()
+            
                 # Initialize Razorpay client with API key and secret
                 client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY, settings.SECRET_KEY))
 
@@ -150,8 +188,113 @@ def order_placed(request, total=0, quantity=0):
                 }
 
                 return render(request, "user/payment.html", context)
+        
+    
 
+        elif selected_payment_option == "Wallet":
+            try:
+                wallet = Wallet.objects.get(user=request.user)
 
+                if grand_total <= wallet.balance:
+                    data = Order()
+                    data.user = current_user
+                    data.first_name = address.first_name
+                    data.last_name = address.last_name
+                    data.phone = address.phone
+                    data.email = address.email
+                    data.address_line_1 = address.address_line_1
+                    data.city = address.city
+                    data.state = address.state
+                    data.country = address.country
+                    data.pincode = address.pincode
+                    data.order_total = grand_total
+                    data.tax = tax
+                    data.ip = request.META.get('REMOTE_ADDR')
+                    data.save()
+
+                    yr = int(datetime.date.today().strftime('%Y'))
+                    dt = int(datetime.date.today().strftime('%d'))
+                    mt = int(datetime.date.today().strftime('%m'))
+                    d = datetime.date(yr, mt, dt)
+                    current_date = d.strftime("%Y%m%d")
+                    order_number = current_date + str(data.id)
+                    data.order_number = order_number
+                    data.is_ordered = True
+                    data.save()
+
+                    if data.is_ordered:
+                        payment = Payment.objects.create(
+                            user=request.user,
+                            payment_method='Wallet',
+                            payment_id='Wlt',
+                            amount_paid=grand_total,
+                            status='COMPLETED'
+                        )
+                        data.payment = payment
+                        data.save()
+
+                        wallet.balance -= grand_total
+                        wallet.save()
+
+                        WalletHistory.objects.create(
+                            wallet=wallet,
+                            type='Debit',
+                            amount=grand_total
+                        )
+
+                        ordered_products = []
+
+                        for cart_item in cart_items:
+                            ordered_product = OrderProduct.objects.create(
+                                user=current_user,
+                                order=data,
+                                payment=payment,
+                                product=cart_item.product_variant.product,
+                                quantity=cart_item.quantity,
+                                ordered=True,
+                                product_variant=cart_item.product_variant,
+                            )
+
+                            ordered_products.append(ordered_product)
+                            cart_item.product_variant.stock -= cart_item.quantity
+                            cart_item.product_variant.save()
+
+                        cart_items.delete()
+
+                        variant = ProductVariant.objects.filter(product=ordered_product.product)
+                        context = {
+                            'order': data,
+                            'total': total,
+                            'tax': tax,
+                            'grand_total': grand_total,
+                            'ordered_products': ordered_products,
+                            'variant': variant,
+                            'payment_method': 'Wallet',
+                            'wallet': wallet,
+                            'wallethistory': WalletHistory.objects.filter(wallet=wallet),
+                        }
+
+                        request.session['order_id'] = data.id
+
+                        print(f"Debug: Wallet order_placed context: {context}")
+
+                        return render(request, "user/order_placed.html", context)
+                    else:
+                        messages.warning(request, 'Error processing order. Please try again.')
+                        print(f"Debug: Error processing order. Redirecting to checkout.")
+                        
+
+                else:
+                    messages.warning(request, 'Insufficient wallet balance. Please choose a different payment method.')
+                    print(f"Debug: Insufficient wallet balance. Redirecting to checkout.")
+
+            except Wallet.DoesNotExist:
+                messages.warning(request, 'No wallet found for the user. Please choose a different payment method.')
+                print(f"Debug: No wallet found for the user. Redirecting to checkout.")
+
+                
+
+                
     return redirect('log:checkout')
 
 
@@ -211,11 +354,12 @@ def payment(request):
             product_variant=cart_item.product_variant,
         )
         ordered_products.append(ordered_product)
+        cart_item.product_variant.stock -= cart_item.quantity
+        cart_item.product_variant.save()
 
     cart_items.delete()
 
-
-    #pass additional context data 
+ 
     context = {
         'order': order,
         'ordered_products': ordered_products,
@@ -254,32 +398,128 @@ def ordered_detail(request, order_id):
 
 
 
+# @login_required(login_url='log:user_login')
+# def cancel_order(request, order_id):
+#     try:
+#         # Fetch the order
+#         order = Order.objects.get(id=order_id, user=request.user)
+#         orders = OrderProduct.objects.filter(order=order)
+#         # If the order is not already canceled, proceed with cancellation
+#         if order.status != 'Cancelled':
+#             # Update the order status to 'Cancelled'
+#             order.status = 'Cancelled'
+#             order.save()
+#             for item in orders:
+#                 item.product_variant.stock += item.quantity
+#                 item.product_variant.save()
+#             # Check if the order has associated payment
+#             if order.payment:
+#                 # Update the payment status to 'Cancelled'
+#                 order.payment.status = 'Cancelled'
+#                 order.payment.save()
+
+
+#             # Redirect to the referring page or a default page
+#             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+#         else:
+#             messages.warning(request, 'Order is already cancelled.')
+
+#     except Order.DoesNotExist:
+#         messages.warning(request, 'Order not found.')
+
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
+# @login_required(login_url='log:user_login')
+# def cancel_order(request, order_id):
+#     try:
+        
+#         order = get_object_or_404(Order, id=order_id, user=request.user)
+        
+#         orders = OrderProduct.objects.filter(order=order)
+       
+
+#         if order.status != 'Cancelled':
+#             # Get cancel reason from the form data
+#             cancel_reason = request.POST.get('cancellation_reason', 'No reason provided')
+
+            
+#             order.status = 'Cancelled'
+#             order.cancellation_reason = cancel_reason
+#             order.save()
+
+#             for item in orders:
+               
+#                 item.product_variant.stock += item.quantity
+#                 item.product_variant.save()
+
+            
+#             if order.payment:
+                
+#                 if order.payment.payment_method == 'RAZORPAY' or order.payment.payment_method=='Wallet':
+                    
+#                     order.payment.status = 'Cancelled'
+#                     order.payment.save()
+                    
+                    
+#                     wallet,created = Wallet.objects.get_or_create(user=request.user)
+#                     if order.order_total > 0:
+
+                        
+#                         wallet.balance += order.order_total
+#                         wallet.save()
+                        
+
+#                         WalletHistory.objects.create(
+#                             wallet=wallet,
+#                             type='Credited',
+#                             amount=order.order_total
+#                         )
+#                         messages.success(request, f'Order {order.id} has been cancelled. Amount of {order.order_total} credited to your wallet.')
+#                     else:
+#                         print("not cancelled")
+
+#                 elif order.payment.payment_method == 'CashOnDelivery':
+#                     messages.success(request, f'Cash on Delivery order {order.id} has been cancelled.')
+
+#                 else:
+                   
+#                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+#         else:
+#             messages.warning(request, 'Order is already cancelled.')
+
+#     except Order.DoesNotExist:
+#         messages.warning(request, 'Order not found.')
+
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
 @login_required(login_url='log:user_login')
 def cancel_order(request, order_id):
     try:
-        # Fetch the order
-        order = Order.objects.get(id=order_id, user=request.user)
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+
         orders = OrderProduct.objects.filter(order=order)
-        # If the order is not already canceled, proceed with cancellation
-        if order.status != 'Cancelled':
-            # Update the order status to 'Cancelled'
-            order.status = 'Cancelled'
+
+        if order.status != 'Requested for cancel':
+            # Get cancel reason from the form data
+            cancel_reason = request.POST.get('cancellation_reason', 'No reason provided')
+
+            order.status = 'Requested for cancel'
+            order.cancellation_reason = cancel_reason
             order.save()
+
             for item in orders:
                 item.product_variant.stock += item.quantity
                 item.product_variant.save()
-            # Check if the order has associated payment
-            if order.payment:
-                # Update the payment status to 'Cancelled'
-                order.payment.status = 'Cancelled'
-                order.payment.save()
 
-
-            # Redirect to the referring page or a default page
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            messages.success(request, f'Order {order.id} has been requested for cancel.')
 
         else:
-            messages.warning(request, 'Order is already cancelled.')
+            messages.warning(request, 'Order is already Requested for cancel.')
 
     except Order.DoesNotExist:
         messages.warning(request, 'Order not found.')
@@ -290,5 +530,87 @@ def cancel_order(request, order_id):
 
 
 
+# @login_required(login_url='log:user_login')
+# def return_order(request, order_id):
+#     try:
+        
+#         order = get_object_or_404(Order, id=order_id, user=request.user)
+        
+#         orders = OrderProduct.objects.filter(order=order)
+        
+
+#         if order.status != 'Requested for return':
+          
+#             order.status = 'Requested for return'
+           
+#             order.save()
+
+#             for item in orders:
+                
+#                 item.product_variant.stock += item.quantity
+#                 item.product_variant.save()
+
+    
+#             if order.payment:
+                
+
+#                 if order.payment.payment_method == 'RAZORPAY' or order.payment.payment_method == 'Wallet':
+             
+                    
+#                     order.payment.status = 'Returned'
+#                     order.payment.save()
+
+                    
+#                     wallet, created = Wallet.objects.get_or_create(user=request.user)
+                    
+    
+#                     wallet.balance += order.order_total
+#                     wallet.save()
+                   
+
+#                     WalletHistory.objects.create(
+#                         wallet=wallet,
+#                         type='Credited',
+#                         amount=order.order_total
+#                     )
+#                     messages.success(request, f'Order {order.id} has been returned. Amount of {order.order_total} credited to your wallet.')
+                    
+#                 else:
+                    
+#                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+#             else:
+#                 messages.warning(request, 'Order is already returned.')
+                
 
 
+#     except Order.DoesNotExist:
+#         messages.warning(request, 'Order not found.')
+
+#     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
+@login_required(login_url='log:user_login')
+def return_order(request, order_id):
+    try:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        orders = OrderProduct.objects.filter(order=order)
+
+        if order.status != 'Requested for return':
+            order.status = 'Requested for return'
+            order.save()
+
+            for item in orders:
+                item.product_variant.stock += item.quantity
+                item.product_variant.save()
+
+
+            messages.success(request, f'Order {order.id} has been requested for return.')
+
+        else:
+            messages.warning(request, 'Order is already requested for return.')
+
+    except Order.DoesNotExist:
+        messages.warning(request, 'Order not found.')
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

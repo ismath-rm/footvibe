@@ -12,14 +12,10 @@
 <section class="content-main">
     {% include 'admin_temp/general-alerts/alerts.html' %}
     <div class="content-header">
-        {% comment %} <div>
-            <h2 class="content-title card-title">Product: {{product.get_product_name}}</h2>
-        </div> {% endcomment %}
         <div>
             <h4 class="content-title card-title">Available Variants</h4>
         </div>
         <div>
-            {% comment %} <a href='{% url "product_mng:add_product_variant" product.id %}' class="btn btn-primary btn-sm rounded">Create new variant</a> {% endcomment %}
             <a class="dropdown-item" href="{% url 'product_mng:variant_list' product_id=product.id %}">View Variants</a>
 
         </div>
@@ -37,16 +33,6 @@
                 <div class="col-lg-4 col-md-2 col-6">
                     <button type="submit" class="btn btn-outline-primary">Search</button>
                 </div>
-
-                {% comment %} <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                    <select class="form-select">
-                        <option selected>All category</option>
-                        <option>Electronics</option>
-                        <option>Clothes</option>
-                        <option>Automobile</option>
-                    </select>
-                </div> {% endcomment %}
-
                 <div class="col-md-2 col-6">
                     <input type="date" value="02.05.2021" class="form-control">
                 </div>
@@ -63,68 +49,50 @@
         </header> <!-- card-header end// -->
 
         <div class="card-body">
-            
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Thumbnail image</th>
-                                        <th>Variant</th>  
-                                        <th>Stock</th>                                 
-                                        <th class="text-end">Is Active</th>
-                                        <th class="text-end">Action</th> 
-                                        
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for product_variant in variants %}
-                                    <tr>
-                                        {% if product_variant.thumbnail_image %}
-                                        <td><img src="{{ product_variant.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
-                                        {% else %}
-                                        <td><img src="" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
-                                        {% endif %}
-                                        <td><a href="#"> <h6 class="mb-0">{{ product_variant.get_product_name }}</h6></a></td>
-                                        <td>{{product_variant.stock}}</td>
-                                        <td class="text-end">
-                                            <span class="badge rounded-pill {% if product_variant.is_active %} alert-success {% else %} alert-danger {% endif %}">
-                                                {% if product_variant.is_active %} Active {% else %}Inactive {% endif %} </span>
-                                        </td>
-                                        <td class="text-end" >
-                                            <div class="dropdown">
-                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm text-secondary fw-bold font-sm"> 
-                                                    More
-                                                </a>
-                                                <div class="dropdown-menu dropdown-custom">
-                                                    {% comment %} <a class="dropdown-item" href="#">View detail</a> {% endcomment %}
-                                                    <a class="dropdown-item" href="{% url 'product_mng:product_variant_update' product_variant.product_variant_slug %}">Edit</a>
-                                                    <a class="dropdown-item" href="{% url 'product_mng:product_variant_control' product_variant.id %}">{% if not product_variant.is_active %}Enable {% else %}Disable{% endif %}</a>
-                                                </div>
-                                            </div> <!-- dropdown //end -->
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-            
-                        
-        
-             <!-- itemlist  .// -->
-        </div> <!-- card-body end// -->
-    </div> <!-- card end// -->
-    <div class="pagination-area mt-30 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                <li class="page-item"><a class="page-link" href="#">02</a></li>
-                <li class="page-item"><a class="page-link" href="#">03</a></li>
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">16</a></li>
-                <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
-            </ul>
-        </nav>
-    </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Thumbnail image</th>
+                            <th>Variant</th>  
+                            <th>Stock</th>                                 
+                            <th class="text-end">Is Active</th>
+                            <th class="text-end">Action</th> 
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product_variant in variants %}
+                        <tr>
+                            {% if product_variant.thumbnail_image %}
+                            <td><img src="{{ product_variant.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
+                            {% else %}
+                            <td><img src="" class="img-sm img-thumbnail" alt="Thumbnail image"></td>
+                            {% endif %}
+                            <td><a href="#"> <h6 class="mb-0">{{ product_variant.get_product_name }}</h6></a></td>
+                            <td>{{product_variant.stock}}</td>
+                            <td class="text-end">
+                                <span class="badge rounded-pill {% if product_variant.is_active %} alert-success {% else %} alert-danger {% endif %}">
+                                    {% if product_variant.is_active %} Active {% else %}Inactive {% endif %} </span>
+                            </td>
+                            <td class="text-end" >
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm text-secondary fw-bold font-sm"> 
+                                        More
+                                    </a>
+                                    <div class="dropdown-menu dropdown-custom">
+                                        <a class="dropdown-item" href="{% url 'product_mng:product_variant_update' product_variant.product_variant_slug %}">Edit</a>
+                                        <a class="dropdown-item" href="{% url 'product_mng:product_variant_control' product_variant.id %}">{% if not product_variant.is_active %}Enable {% else %}Disable{% endif %}</a>
+                                    </div>
+                                </div> 
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>     
+        </div> 
+    </div> 
 </section> 
 
 {% endblock %}

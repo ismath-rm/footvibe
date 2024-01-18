@@ -129,6 +129,12 @@ def edit_category(request,category_id):
     if request.method == "POST":
         cat_name = request.POST['category_name']
         cat_desc = request.POST['description']
+
+
+        if not cat_name or not cat_name.strip() or any(re.match('[@#$%^@%@#%&]', char) for char in cat_name):
+            messages.error(request, 'Invalid category name')
+            return render(request, 'admin_temp/edit_category.html', content)
+
         
 
         new_slug = slugify(cat_name)
@@ -176,15 +182,26 @@ def add_brand(request):
     print(f"Brand name received: {brand_name}")
 
     # Validate brand name
-    if any(re.match('[@#$%^@%@#%&]', char) for char in brand_name) or brand_name.startswith(" "):
+    if not brand_name or any(re.match('[@#$%^@%@#%&]', char) for char in brand_name) or brand_name.startswith(" "):
         messages.error(request, "Invalid brand name")
         return redirect('product_mng:brands')
+    
+    if Brand.objects.filter(brand_name=brand_name).exists():
+        messages.warning(request, f"Brand '{brand_name}' already exists.")
+        return redirect('product_mng:brands')
+    
+    try:
 
-    Brand.objects.create(
-        brand_name=brand_name,
-    )
+        Brand.objects.create(
+            brand_name=brand_name,
+        )
 
-    messages.success(request, f"Brand '{brand_name}' created successfully!")
+        messages.success(request, f"Brand '{brand_name}' created successfully!")
+
+    except IntegrityError as e:
+
+        messages.error(request, f"Failed to create brand '{brand_name}'. Please try again.")
+
 
     return redirect('product_mng:brands')
 
@@ -235,6 +252,11 @@ def edit_brand(request, brand_id):
     if request.method == "POST":
         brand_name = request.POST['brand_name']
 
+        if not brand_name or any(re.match('[@#$%^@%@#%&]', char) for char in brand_name) or brand_name.startswith(" "):
+            messages.error(request, "Invalid brand name")
+            return redirect('product_mng:edit_brand', brand_id=brand_id)
+
+
         try:
             brand.brand_name = brand_name
             brand.save()
@@ -275,7 +297,7 @@ def add_attribute(request):
     attribute_name = request.POST['attribute_name']
     
     # Validate attribute name
-    if any(re.match('[@#$%^@%@#%&]', char) for char in attribute_name) or attribute_name.startswith(" "):
+    if not attribute_name or any(re.match('[@#$%^@%@#%&]', char) for char in attribute_name) or attribute_name.startswith(" "):
         messages.error(request, "Invalid attribute name")
         return redirect('product_mng:attribute')
 
@@ -337,6 +359,11 @@ def edit_attribute(request, attribute_id):
     
     if request.method == "POST":
         attribute_name = request.POST['attribute_name']
+
+        if not attribute_name or any(re.match('[@#$%^@%@#%&]', char) for char in attribute_name) or attribute_name.startswith(" "):
+            messages.error(request, "Invalid attribute name")
+            return redirect('product_mng:edit_attribute', attribute_id=attribute_id)
+
 
         try:
 
@@ -467,6 +494,11 @@ def edit_attribute_value(request, attribute_value_id):
 
         attribute = Attribute.objects.get(attribute_name=attribute_name)
 
+        if not attribute_value_name or not attribute_value_name.strip():
+            messages.error(request, "Invalid attribute value name")
+            return redirect('product_mng:edit_attribute_value', attribute_value_id=attribute_value_id)
+
+
         try:
             attribute_value.attribute_value = attribute_value_name
             attribute_value.attribute_id = attribute.id
@@ -556,7 +588,7 @@ def add_product(request):
         product.save()
 
         messages.success(request, "Product added successfully add variants also!") 
-        return redirect('product_mng:add_product')
+        return redirect('product_mng:products_list')
     else:
         form=CreateProductForm()
 
@@ -671,7 +703,7 @@ def add_product_variant(request, product_id = None):
 
         product_variant.save()
         messages.success(request, 'Variant created successfully !!! ')
-        return redirect('product_mng:add_product_variant')
+        return redirect('product_mng:products_list')
     else:
         form=ProductVariantForm()
     

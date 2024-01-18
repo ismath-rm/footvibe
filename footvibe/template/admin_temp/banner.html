@@ -1,0 +1,87 @@
+{% extends 'admin_temp/base.html' %}
+{% load static %}
+{% block title %} Banner management {% endblock %}
+{% block  body %}
+
+{% include 'admin_temp/general-alerts/alerts.html' %}
+
+<center>
+    <h1>Home page Main Slider  </h1>
+    <p> Form to add slider image , heading and subheading </p>
+    <br><br>
+    
+        <section class="content-main">
+            <div class="row">
+                
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Banner</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="{% url 'admin_log:home_main_slider' %}" method="POST" enctype="multipart/form-data">
+
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <input type='submit' value='Add Banner' class='btn btn-primary'>
+                            </form>
+                            
+                        </div>
+                    </div> <!-- card end// -->
+                  
+                </div>
+                <div class="col-lg-6">
+                    <section class="content-main">
+                        <div class="card ">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th scope="col">Heading</th>
+                                                
+                                                <th scope="col" class="text-end"> Action </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {%for i in list %}
+                                            <tr>
+                                                
+                                                <td>{{forloop.counter}}</td>
+                                                <td><b>
+                                                    {{i.heading}}
+                                                </b></td>
+                                                <td class="text-end">
+                                                    <a href={% url "admin_log:delete_slide" slide_id=i.id%} class="btn bg-warning btn-md rounded font-sm">Delete</a>
+                                                     
+                                                </td>
+                                                
+                                            </tr>
+                                           {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <p>Only 3 slides can be inserted into the home slide</p>
+                                </div> <!-- table-responsive //end -->
+                            </div> <!-- card-body end// -->
+                        </div> <!-- card end// -->
+
+                    </section>
+                </div>
+
+              
+            </div>
+        </section>
+       
+
+       
+    
+
+ 
+
+</center>
+
+
+
+
+{% endblock %}

@@ -25,14 +25,21 @@
                                 </li>
 
                                 <li class="nav-item">
+                                    <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#wallet" role="tab"
+                                        aria-controls="wallet" aria-selected="false"><i
+                                            class="fi-rs-shopping-bag mr-10"></i>Wallet</a>
+                                </li>
+
+                                <li class="nav-item">
                                     <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
                                         aria-controls="address" aria-selected="true"><i
                                             class="fi-rs-marker mr-10"></i>My Address</a>
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'log:forgot_password' %}"><i
-                                            class="fi fi-rs-password mr-10"></i>Forgot Password</a>
+                                    <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
+                                       aria-controls="account-detail" aria-selected="true"><i
+                                           class="fi-rs-user mr-10"></i>Reset Password</a>
                                 </li>
 
                                 <li class="nav-item">
@@ -65,17 +72,7 @@
                                                         {% if user %}
                                                         <p><strong>Phone:</strong> {{ user.phone }}</p>
                                                         {% endif %}
-                                                        {% comment %} {% for address in addresses %}
-                                                        {% if address.is_default %}
-                                                        <p><strong>Address:</strong><br> {{ address.house_name }} {{
-                                                            address.streat_name }}<br> {{address.post_office}}, {{
-                                                            address.place }} <br>{{ address.district }}, {{
-                                                            address.state }}, {{ address.country }}<br>pincode: {{
-                                                            address.pincode }}
-                                                        </p>
-                                                        {% endif %}
-                                                        {% endfor %} {% endcomment %}
-
+                                            
 
 
                                                     </div> <!-- row.// -->
@@ -135,18 +132,56 @@
                                                         <td>
                                                             <a href="{% url 'order_mng:ordered_detail' order.id %}" class="btn-small d-block">View</a>
                                                         </td>
+                                                        {% if order.status == 'Delivered' %}
                                                         <td>
-                                                            {% if order.status != 'Cancelled' %}
+                                                          
+                                                            <a href="{% url 'order_mng:return_order' order.id %}" class="return-order-link" 
+                                                               data-form-id="returnOrderForm_{{ order.id }}">
+                                                                Return Order
+                                                            </a>
+                                                            <form id="returnOrderForm_{{ order.id }}" method="post" action="{% url 'order_mng:return_order' order.id %}" style="display: none;">
+                                                                {% csrf_token %}
+                                                            </form>
+                                                        
+                                                    
+                                                        </td>
+
+                                                        {% elif order.status != 'Cancelled' and order.status != 'Returned'  %}
+
+                                                        {% comment %} <td>
                                                             <a href="{% url 'order_mng:cancel_order' order.id %}" class="cancel-order-link" 
-                                                               data-form-id="cancelOrderForm_{{ order.id }}">
+                                                                data-form-id="cancelOrderForm_{{ order.id }}">
                                                                 Cancel Order
                                                             </a>
                                                             <form id="cancelOrderForm_{{ order.id }}" method="post" action="{% url 'order_mng:cancel_order' order.id %}" style="display: none;">
                                                                 {% csrf_token %}
+                                                                <label for="cancellation_reason">Cancellation Reason:</label>
+                                                                <input type="text" name="cancellation_reason" id="cancellation_reason" required>
                                                             </form>
-                                                        {% endif %}
-                                                    
+
+                                        
+
+                                                        </td> {% endcomment %}
+
+                                                        <td>
+                                                            {% if order.status == 'Cancel Order Request' %}
+                                                                Cancel Order Requested
+        
+                                                            {% elif order.status != 'Cancelled' and order.status != 'Returned' and order.status != 'Requested for cancel' and order.status != 'Requested for return' %}
+                                                                <a href="{% url 'order_mng:cancel_order' order.id %}" class="cancel-order-link" 
+                                                                    data-form-id="cancelOrderForm_{{ order.id }}">
+                                                                    Cancel Order
+                                                                </a>
+                                                                <form id="cancelOrderForm_{{ order.id }}" method="post" action="{% url 'order_mng:cancel_order' order.id %}" style="display: none;">
+                                                                    {% csrf_token %}
+                                                                    <label for="cancellation_reason">Cancellation Reason:</label>
+                                                                    <input type="text" name="cancellation_reason" id="cancellation_reason" required>
+                                                                </form>
+                                                            {% endif %}
                                                         </td>
+                                                        
+                                                        
+                                                        {% endif %}
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>
@@ -157,6 +192,58 @@
                                 </div>
                             </div>
 
+                            <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Wallet</h5>
+                                    </div>
+                                    <div class="card-body contact-from-area">
+                                        <div class="row">
+                                            <div class="col-lg-5">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <p><strong><h4>Wallet Balance: {{  wallet.balance  }}</h4></strong></p>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>                                           
+                                        </div>                                        
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Wallet History</h5>
+                                    </div>
+                                    <div class="card-body contact-from-area">
+                                        <div class="row">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Type</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for history in wallethistory %}
+                                                        <tr>
+                                                            <td>{{history.created_at}}</td>
+                                                            <td>{{history.type}}</td>
+                                                            <td>{{history.amount}}</td>
+                                                           
+                                                        </tr>
+                                                         
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
                             
 
                             <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
@@ -198,27 +285,27 @@
 
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Change Password</h5>
+                                        <h5>Reset Password</h5>
                                     </div>
                                     <div class="card-body">
 
-                                        <form method="post" action="#">
+                                        <form method="post" action="{% url 'log:reset_password' user.id %}">
                                             {% csrf_token %}
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label>Current Password <span class="required">*</span></label>
-                                                    <input required="" class="form-control square" name="pass"
-                                                        type="password">
+                                                    <label>Current Password <span class="required"></span></label>
+                                                    <input required="" class="form-control square" name="pass" type="password" autocomplete="current-password">
+
                                                 </div>
                                                 <div class="form-group col-md-12">
-                                                    <label>New Password <span class="required">*</span></label>
-                                                    <input required="" class="form-control square" name="npass"
-                                                        type="password">
+                                                    <label>New Password <span class="required"></span></label>
+                                                    <input required="" class="form-control square" name="npass" type="password" autocomplete="new-password">
+
                                                 </div>
                                                 <div class="form-group col-md-12">
-                                                    <label>Confirm Password <span class="required">*</span></label>
-                                                    <input required="" class="form-control square" name="cpass"
-                                                        type="password">
+                                                    <label>Confirm Password <span class="required"></span></label>
+                                                    <input required="" class="form-control square" name="cpass" type="password" autocomplete="new-password">
+
                                                 </div>
                                                 <div class="col-md-12">
                                                     <button type="submit" class="btn btn-fill-out submit" name="submit"
@@ -238,7 +325,7 @@
 </section>
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% comment %} <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const cancelOrderLinks = document.querySelectorAll('.cancel-order-link');
@@ -270,6 +357,167 @@
         }
     });
     
+</script> {% endcomment %}
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cancelOrderLinks = document.querySelectorAll('.cancel-order-link');
+
+        cancelOrderLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const orderUrl = this.getAttribute('href');
+                const cancelOrderForm = document.getElementById(this.getAttribute('data-form-id'));
+                confirmCancelOrder(orderUrl, cancelOrderForm);
+            });
+        });
+
+        function confirmCancelOrder(orderUrl, cancelOrderForm) {
+            Swal.fire({
+                title: 'Are you sure?',
+                html: `
+                    <input type="text" id="cancellation_reason_input" class="swal2-input" placeholder="Enter cancellation reason" required>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Request for cancellation'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const cancellationReasonInput = document.getElementById('cancellation_reason_input');
+                    const cancellationReason = cancellationReasonInput.value.trim();
+
+                    if (cancellationReason) {
+                        const reasonInput = document.createElement('input');
+                        reasonInput.type = 'hidden';
+                        reasonInput.name = 'cancellation_reason';
+                        reasonInput.value = cancellationReason;
+                        cancelOrderForm.appendChild(reasonInput);
+                        cancelOrderForm.submit();
+                    } else {
+                        Swal.fire('Cancellation reason is required!', '', 'error');
+                    }
+                }
+            });
+        }
+    });
+</script> \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} return {% endcomment %}
+
+{% comment %} <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const returnOrderLinks = document.querySelectorAll('.return-order-link');
+    
+        returnOrderLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const orderUrl = this.getAttribute('href');
+                const returnOrderForm = document.getElementById(this.getAttribute('data-form-id'));
+                confirmReturnOrder(orderUrl, returnOrderForm);
+            });
+        });
+    
+        function confirmReturnOrder(orderUrl, returnOrderForm) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You are about to return this order!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, return it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Manually submit the form
+                    returnOrderForm.submit();
+                }
+            });
+        }
+    });
+    
+</script> {% endcomment %}
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const returnOrderLinks = document.querySelectorAll('.return-order-link');
+    
+        returnOrderLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const orderUrl = this.getAttribute('href');
+                const returnOrderForm = document.getElementById(this.getAttribute('data-form-id'));
+                confirmReturnOrder(orderUrl, returnOrderForm);
+            });
+        });
+    
+        function confirmReturnOrder(orderUrl, returnOrderForm) {
+            Swal.fire({
+                title: 'Are you sure?',
+                html: `
+                    <input type="text" id="return_reason_input" class="swal2-input" placeholder="Enter return reason" required>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Request for return'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const returnReasonInput = document.getElementById('return_reason_input');
+                    const returnReason = returnReasonInput.value.trim();
+
+                    if (returnReason) {
+                        const reasonInput = document.createElement('input');
+                        reasonInput.type = 'hidden';
+                        reasonInput.name = 'return_reason';
+                        reasonInput.value = returnReason;
+                        returnOrderForm.appendChild(reasonInput);
+                        returnOrderForm.submit();
+                    } else {
+                        Swal.fire('Return reason is required!', '', 'error');
+                    }
+                }
+            });
+        }
+    });
 </script>
+
 
 {% endblock %}
