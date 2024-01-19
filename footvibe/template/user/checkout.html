@@ -336,7 +336,7 @@
             let totalAmount_value = parseFloat(totalAmount.innerHTML.slice(1, totalAmount.length).slice(1, totalAmount.length))
             let sub_total_value = parseFloat(sub_total.innerHTML.slice(1, sub_total.length).slice(1, sub_total.length))
             let tax_value = parseFloat(tax.firstElementChild.innerHTML)
-            console.log(totalAmount_value);
+            console.log(sub_total_value);
 
 
 
@@ -364,8 +364,8 @@
                         });
 
                         // Update your DOM as needed
-                        sub_total_final = Math.ceil(sub_total_value - ((response.coupon / 100) * sub_total_value));
-                        tax_value = sub_total_final * 0.02
+                        sub_total_final = sub_total_value - response.coupon;
+                        // tax_value = sub_total_final * 0.02
                         console.log(tax_value);
                         console.log(sub_total_final);
                         $('.total-amount-no-discount')

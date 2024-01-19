@@ -45,12 +45,14 @@ def order_placed(request, total=0, quantity=0):
     
     if request.method == 'POST':
         selected_payment_option = request.POST.get('payment_option')
-        coupon=request.POST.get('coupon')
+        coupon=request.session['coupon']
         total_final=request.POST.get('total_final')
-        print(f"{total_final} amount")
+        print(f"{coupon} amount")
+        print(type(grand_total), type(coupon))
+        print("\n\n")
         if coupon :
-            grand_total = total_final
-            total = total_final
+            grand_total = float(float(grand_total) - float(coupon))
+            # total = total_final
         try:
             print("yoooooo")
             address = AddressBook.objects.get(user=request.user, is_default=True)
@@ -530,63 +532,63 @@ def cancel_order(request, order_id):
 
 
 
-# @login_required(login_url='log:user_login')
-# def return_order(request, order_id):
-#     try:
+@login_required(login_url='log:user_login')
+def return_order(request, order_id):
+    try:
         
-#         order = get_object_or_404(Order, id=order_id, user=request.user)
+        order = get_object_or_404(Order, id=order_id, user=request.user)
         
-#         orders = OrderProduct.objects.filter(order=order)
+        orders = OrderProduct.objects.filter(order=order)
         
 
-#         if order.status != 'Requested for return':
+        if order.status != 'Requested for return':
           
-#             order.status = 'Requested for return'
+            order.status = 'Requested for return'
            
-#             order.save()
+            order.save()
 
-#             for item in orders:
+            for item in orders:
                 
-#                 item.product_variant.stock += item.quantity
-#                 item.product_variant.save()
+                item.product_variant.stock += item.quantity
+                item.product_variant.save()
 
     
-#             if order.payment:
+            if order.payment:
                 
 
-#                 if order.payment.payment_method == 'RAZORPAY' or order.payment.payment_method == 'Wallet':
+                if order.payment.payment_method == 'RAZORPAY' or order.payment.payment_method == 'Wallet':
              
                     
-#                     order.payment.status = 'Returned'
-#                     order.payment.save()
+                    order.payment.status = 'Returned'
+                    order.payment.save()
 
                     
-#                     wallet, created = Wallet.objects.get_or_create(user=request.user)
+                    wallet, created = Wallet.objects.get_or_create(user=request.user)
                     
     
-#                     wallet.balance += order.order_total
-#                     wallet.save()
+                    wallet.balance += order.order_total
+                    wallet.save()
                    
 
-#                     WalletHistory.objects.create(
-#                         wallet=wallet,
-#                         type='Credited',
-#                         amount=order.order_total
-#                     )
-#                     messages.success(request, f'Order {order.id} has been returned. Amount of {order.order_total} credited to your wallet.')
+                    WalletHistory.objects.create(
+                        wallet=wallet,
+                        type='Credited',
+                        amount=order.order_total
+                    )
+                    messages.success(request, f'Order {order.id} has been returned. Amount of {order.order_total} credited to your wallet.')
                     
-#                 else:
+                else:
                     
-#                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-#             else:
-#                 messages.warning(request, 'Order is already returned.')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            else:
+                messages.warning(request, 'Order is already returned.')
                 
 
 
-#     except Order.DoesNotExist:
-#         messages.warning(request, 'Order not found.')
+    except Order.DoesNotExist:
+        messages.warning(request, 'Order not found.')
 
-#     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 
@@ -605,10 +607,10 @@ def return_order(request, order_id):
                 item.product_variant.save()
 
 
-            messages.success(request, f'Order {order.id} has been requested for return.')
+            messages.success(request, f'Order {order.id} has been returned.')
 
         else:
-            messages.warning(request, 'Order is already requested for return.')
+            messages.warning(request, 'Order is already returned.')
 
     except Order.DoesNotExist:
         messages.warning(request, 'Order not found.')

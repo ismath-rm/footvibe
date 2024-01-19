@@ -593,6 +593,7 @@ def delete_wishlist(request, list_id):
 
 def checkout(request):
     try:
+        request.session['coupon'] = 0
         tax = 0
         grand_total = 0
         total = 0
@@ -635,10 +636,14 @@ def checkout(request):
 
 
 def apply_coupon(request):
+    print("Debug: Start of apply_coupon function")
+
     if request.method == "POST":
         coupon_code = request.POST.get("couponCode").strip()
         total = request.POST.get("total")
         user = request.user
+
+        print(f"Debug: coupon_code: {coupon_code}, total: {total}, user: {user}")
 
 
         if not coupon_code:
@@ -649,19 +654,24 @@ def apply_coupon(request):
             coupons = Coupon.objects.filter(coupon_code=coupon_code)
             if coupons:
 
+                print(f"Debug: Coupon found for code: {coupon_code}")
+
                 if coupons[0].Is_Redeemed_By_User_New(request, user):
-                    
+                    print("Debug: User Already Used The Coupon")
                     return JsonResponse({'error': "User Already Used The Coupon"})
                 else:
                     try:
                         redeemed_details = Coupon_Redeemed_Details(coupon=coupons[0], user=user)
-                        print("onnum nadakkunnilla", redeemed_details)
+                        request.session['coupon'] = int(coupons[0].discount)
                         redeemed_details.save()
+                        print("ya  i got this \n\n", request.session['coupon'])
                     except Exception as e:
-                        print(e)
+                        print(f"Debug: Error saving redeemed details: {e}")
+                    # request.session["coupon"] = coupons.discount
+                    # print('coupon discount amot',  request.session["coupon"] )
                     return JsonResponse({
                                          'success': True,
-                                         'coupon': coupons[0].discount,
+                                         'coupon': (coupons[0].discount),
                                          'message': 'Coupon Applied Successfully'})
             else:
                     print(f"No coupon found for code: {coupon_code}")
