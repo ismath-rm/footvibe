@@ -73,7 +73,7 @@
                                     <div class="attr-detail attr-color mb-15">
                                         <strong class="mr-10">Color</strong>
                                         <select class="js-select2" name="color" required>
-                                            <option value="" disabled selected>Choose an option</option>
+                                            {% comment %} <option value="" disabled selected>Choose an option</option> {% endcomment %}
                                                 {% for value in color %}
 
                                                     <option value="{{ value.attribute_value }}">{{ value.attribute_value | capfirst }}</option>
@@ -87,7 +87,7 @@
                                         <strong class="mr-10">Size </strong>
                                         <select class="js-select2" name="size" required>
 
-                                            <option value="" disabled selected>Choose an option</option>
+                                            {% comment %} <option value="" disabled selected>Choose an option</option> {% endcomment %}
                                                 {% for value in size %}
 
                                                     <option value="{{ value.attribute_value }}">{{ value.attribute_value | capfirst }}</option>

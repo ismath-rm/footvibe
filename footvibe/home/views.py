@@ -269,16 +269,21 @@ def product_detail(request, variant_slug=None):
         product_variants = ProductVariant.objects.filter(product=single_product.product)
 
         attribute_values = [product_variant.attribute_value.all() for product_variant in product_variants]
-        # print([product for product in attribute_values])
+        # print(attribute_values)
+        print([product for product in attribute_values])
 
     except ProductVariant.DoesNotExist:
         return HttpResponseNotFound("Product not found")
+    print(product)
 
     product_images = [image.image for image in single_product.product_images.all()]
     product_images.insert(0, single_product.thumbnail_image)
-   
-    color = Attribute_Value.objects.filter(attribute = 10)
-    size = Attribute_Value.objects.filter(attribute = 11)
+    attribute = ProductVariant.objects.prefetch_related('attribute_value').filter(product=product)
+    color = set([val.attribute_value.filter(attribute = 10)[0] for val in attribute])
+    size = set([val.attribute_value.filter(attribute = 11)[0] for val in attribute])
+    # print(color[0])
+    print(attribute)
+    # print(size)
 
     context = {
         'single_product': single_product,
