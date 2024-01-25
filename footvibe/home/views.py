@@ -279,8 +279,8 @@ def product_detail(request, variant_slug=None):
     product_images = [image.image for image in single_product.product_images.all()]
     product_images.insert(0, single_product.thumbnail_image)
     attribute = ProductVariant.objects.prefetch_related('attribute_value').filter(product=product)
-    color = set([val.attribute_value.filter(attribute = 10)[0] for val in attribute])
-    size = set([val.attribute_value.filter(attribute = 11)[0] for val in attribute])
+    color = set([val.attribute_value.filter(attribute = 1)[0] for val in attribute])
+    size = set([val.attribute_value.filter(attribute = 2)[0] for val in attribute])
     # print(color[0])
     print(attribute)
     # print(size)
