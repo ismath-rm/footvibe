@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#0e5y3)#vw_+yo&zun*ur(ikx%72e3cl!@z04a-mq4i8x_61+@'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -85,9 +85,9 @@ AUTH_USER_MODEL ='home.Account'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce',
-        'USER': 'postgres',
-        'PASSWORD': '9847',
+        'NAME': config('NAME'),
+        'USER': config('USER'),
+        'PASSWORD': config('PASSWORD'),
         'HOST': 'localhost',  # Use the actual host if it's not on localhost
         'PORT': '5432',       # Use the actual PostgreSQL port if it's not the default
     }
@@ -96,8 +96,8 @@ DATABASES = {
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True  # Use TLS for secure communication
-EMAIL_HOST_USER = 'ismathrm9@gmail.com'
-EMAIL_HOST_PASSWORD = 'ukvi rqyi gfmq dbzr'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
 EMAIL_DEBUG = True  
 
 # Password validation
@@ -153,6 +153,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-RAZOR_PAY_KEY = 'rzp_test_7g2Uvpoxn3gc8O'
-SECRET_KEY = 'Ks8h3J0OYZswamZnOoqhvhov'
-SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+RAZOR_PAY_KEY = config('RAZOR_PAY_KEY')
+SECRET_KEY = config('SECRET_KEY')
+SECURE_CROSS_ORIGIN_OPENER_POLICY = config('SECURE_CROSS_ORIGIN_OPENER_POLICY')
