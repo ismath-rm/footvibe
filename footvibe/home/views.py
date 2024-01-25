@@ -272,6 +272,17 @@ def product_detail(request, variant_slug=None):
         # print(attribute_values)
         print([product for product in attribute_values])
 
+        # Check if attribute_values is not empty
+        if attribute_values:
+            # Access the first element (you might want to adjust this based on your logic)
+            first_attribute_values = attribute_values[0]
+            
+            # Print or use the values as needed
+            print([product for product in first_attribute_values])
+        else:
+            # Handle the case where attribute_values is empty
+            print("No attribute values found for the product variants.")
+
     except ProductVariant.DoesNotExist:
         return HttpResponseNotFound("Product not found")
     print(product)
@@ -279,8 +290,12 @@ def product_detail(request, variant_slug=None):
     product_images = [image.image for image in single_product.product_images.all()]
     product_images.insert(0, single_product.thumbnail_image)
     attribute = ProductVariant.objects.prefetch_related('attribute_value').filter(product=product)
-    color = set([val.attribute_value.filter(attribute = 10)[0] for val in attribute])
-    size = set([val.attribute_value.filter(attribute = 11)[0] for val in attribute])
+    # color = set([val.attribute_value.filter(attribute = 2)[0] for val in attribute])
+    color = set([val.attribute_value.filter(attribute=2).first() for val in attribute if val.attribute_value.filter(attribute=2).exists()])
+
+    # size = set([val.attribute_value.filter(attribute = 1)[0] for val in attribute])
+    size = set([val.attribute_value.filter(attribute=1).first() for val in attribute if val.attribute_value.filter(attribute=1).exists()])
+
     # print(color[0])
     print(attribute)
     # print(size)
