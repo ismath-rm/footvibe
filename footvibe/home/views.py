@@ -320,7 +320,7 @@ def shop(request):
 
     # Check if products are available for the selected brand and category
     if brand_filter and category_filter and not products.exists():
-        not_found_message = f"No products found for brand '{brand_filter}' in category '{category_filter}'."
+        not_found_message = ("No products found")
 
     categories = Category.objects.all()
 
