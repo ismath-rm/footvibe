@@ -78,7 +78,7 @@
                 {% for slide in main_slid %}
                     <div class="slick-slide {% if forloop.first %}active{% endif %}" style="height: 410px;">
                         <img class="img-fluid" src="{{ slide.slide_image.url }}" alt="Image">
-                        <p>{{ slide.slide_image.url }}</p> 
+                        {% comment %} <p>{{ slide.slide_image.url }}</p>  {% endcomment %}
                         <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
                             <div class="p-3" style="max-width: 700px;">
                                 <h4 class="text-dark text-uppercase font-weight-medium mb-3">{{ slide.subheading }}</h4>
