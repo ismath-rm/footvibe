@@ -305,19 +305,27 @@ def shop(request):
     sort_by = request.GET.get('sort_by', 'price_low_high')  
     print(f'Sort by: {sort_by}')
     brand_filter = request.GET.get('brand', None) 
+    category_filter = request.GET.get('category', None)
 
     variants = []
-    products = Product.objects.filter(is_active = True)
+    products = Product.objects.filter(is_active=True)
 
     if brand_filter:
         products = products.filter(product_brand__brand_name=brand_filter)
-        print(products)
+
+    if category_filter:
+        products = products.filter(product_catg__slug=category_filter)
+
+    not_found_message = None
+
+    # Check if products are available for the selected brand and category
+    if brand_filter and category_filter and not products.exists():
+        not_found_message = f"No products found for brand '{brand_filter}' in category '{category_filter}'."
 
     categories = Category.objects.all()
-    
 
     for product in products:
-        prod_variants = ProductVariant.objects.filter(product = product, is_active = True)
+        prod_variants = ProductVariant.objects.filter(product=product, is_active=True)
         if prod_variants:
             variants.append(prod_variants[0])
 
@@ -325,18 +333,20 @@ def shop(request):
         variants = sorted(variants, key=lambda x: x.sale_price)
     elif sort_by == 'price_high_low':
         variants = sorted(variants, key=lambda x: x.sale_price, reverse=True)
-    
-
 
     context = {
         'products': variants,
         'categories': categories,
         'current_sort': sort_by,
         'selected_brand': brand_filter,
-        'brands': Brand.objects.all(), 
+        'selected_category': category_filter,
+        'brands': Brand.objects.all(),
+        'not_found_message': not_found_message,
     }
 
-    return render(request,'user/shop.html',context)
+    return render(request, 'user/shop.html', context)
+
+
 
 
 
@@ -364,7 +374,7 @@ def user_profile(request):
         wallet,created = Wallet.objects.get_or_create(user=user_profile)
         wallethistory = WalletHistory.objects.filter(wallet=wallet)
         addresses = AddressBook.objects.filter(user=user_profile)
-        orders= Order.objects.filter(user=user_profile)
+        orders= Order.objects.filter(user=user_profile, payment__isnull=False)
 
     except Account.DoesNotExist:
         messages.error(request, "User profile not found.")
@@ -509,10 +519,9 @@ def set_default_address(request, address_id):
 @login_required(login_url='log:user_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def reset_password(request,user_id):
-
     user=Account.objects.get(id=user_id)
-    if request.method == 'POST':
-        
+
+    if request.method == 'POST':    
         old_pass=request.POST.get('pass')
         pass1=request.POST.get('npass')
         pass2=request.POST.get('cpass')
@@ -522,8 +531,12 @@ def reset_password(request,user_id):
                 if pass1 == pass2: 
                     user.set_password(pass1)
                     user.save()
+
+                    user = authenticate(request, email=user.email, password=pass1)
+                    login(request, user)
+                    
                     messages.success(request, 'Password changed successfully.')
-                    return redirect('log:user_login')
+                    return redirect('log:user_profile')
                 else:
                     messages.error(request, 'New passwords do not match.')
                     
@@ -625,6 +638,10 @@ def checkout(request):
 
     user_cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = user_cart.cartitem_set.all()
+    
+    redeemed_coupons = Coupon_Redeemed_Details.objects.filter(user=request.user)
+    redeemed_coupon_codes = [redeemed.coupon.coupon_code for redeemed in redeemed_coupons]
+    available_coupons = Coupon.objects.exclude(coupon_code__in=redeemed_coupon_codes)
 
     context = {
         'form': form,
@@ -634,6 +651,7 @@ def checkout(request):
         'quantity': quantity,
         'tax': tax,
         'grand_total': grand_total,
+        'coupons': available_coupons,
     }
 
     return render(request, 'user/checkout.html', context)

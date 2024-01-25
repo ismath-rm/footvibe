@@ -9,62 +9,64 @@
             <div class="col-lg-9">
                
                 <div class="row product-grid-3">
-                    {% for product in products %}
-                    <div class="col-lg-4 col-md-4 col-12 col-sm-6">
-                        <div class="product-cart-wrap mb-30">
-                            <div class="product-img-action-wrap">
-                                <div class="product-img product-img-zoom">
-                                    <a href="{% url 'log:product_detail' product.product_variant_slug %}">
-
-                                        <img class="default-img" src="{{product.thumbnail_image.url}}" alt="">
-                                        <img class="hover-img" src="{{product.product_images.all.0.image.url}}" alt="">
-                                    </a>
-                                </div>
-                                <div class="product-action-1">
-                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'log:add_wishlist' product.id %}"><i class="fi-rs-heart"></i></a>                                 
-                                </div>
-                                <div class="product-badges product-badges-position product-badges-mrg">
-                                    <span class="hot">Hot</span>
-                                </div>
-                            </div>
-                            <div class="product-content-wrap">
-                                <div class="product-category">
-                                    <a href="">{{product.product.product_catg.category_name}}</a>
-                                </div>
-                                <h2><a href="{% url 'log:product_detail' product.product_variant_slug %}">{{product.product.product_name}}</a></h2>
-                                <div class="rating-result" title="90%">
-                                    <span>
-                                        <span>90%</span>
-                                    </span>
-                                </div>
-                                <div class="product-price">
-                                    <span>{{product.sale_price}} </span>
-                                    <span class="old-price">{{product.max_price}}</span>
-                                </div>
-                               
-                            </div>
+                    {% if not_found_message %}
+                        <div class="col-12">
+                            <p class="text-danger">{{ not_found_message }}</p>
                         </div>
-                    </div>
-                    {% endfor %}
-                      
+                    {% else %}
+
+                        {% for product in products %}
+                            <div class="col-lg-4 col-md-4 col-12 col-sm-6">
+                                <div class="product-cart-wrap mb-30">
+                                    <div class="product-img-action-wrap">
+                                        <div class="product-img product-img-zoom">
+                                            <a href="{% url 'log:product_detail' product.product_variant_slug %}">
+
+                                                <img class="default-img" src="{{product.thumbnail_image.url}}" alt="">
+                                                <img class="hover-img" src="{{product.product_images.all.0.image.url}}" alt="">
+                                            </a>
+                                        </div>
+                                        <div class="product-action-1">
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'log:add_wishlist' product.id %}"><i class="fi-rs-heart"></i></a>                                 
+                                        </div>
+                                        <div class="product-badges product-badges-position product-badges-mrg">
+                                            <span class="hot">Hot</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-content-wrap">
+                                        <div class="product-category">
+                                            <a href="">{{product.product.product_catg.category_name}}</a>
+                                        </div>
+                                        <h2><a href="{% url 'log:product_detail' product.product_variant_slug %}">{{product.product.product_name}}</a></h2>
+                                        <div class="rating-result" title="90%">
+                                            <span>
+                                                <span>90%</span>
+                                            </span>
+                                        </div>
+                                        <div class="product-price">
+                                            <span>{{product.sale_price}} </span>
+                                            <span class="old-price">{{product.max_price}}</span>
+                                        </div>
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                
             </div>
 
             <div class="col-lg-3 primary-sidebar sticky-sidebar">
-                <div class="widget-category mb-30">
-                    <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
-                    <ul class="categories">
-                        {% for category in categories %}
-                            <li><a href="{% url 'log:shop_category' slug=category.slug %}">{{ category.category_name }}</a></li>
-                        {% endfor %}
-                    </ul>                    
-                </div>
                 
-                <!-- sorting product -->
+                <!-- Sorting and filtering product -->
+
                 <form method="get" action="{% url 'log:shop' %}">
 
+                    <!-- Add hidden input field to store current sort value -->
+                    <input type="hidden" name="sort_by" value="{{ current_sort }}">
+                
                     <div class="form-group">
                         <label for="brand"><strong>Brand</strong>:</label>
                         <select name="brand" id="brand">
@@ -74,7 +76,17 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
+                
+                    <div class="form-group">
+                        <label for="category"><strong>Category</strong>:</label>
+                        <select name="category" id="category">
+                            <option value="" {% if not selected_category %}selected{% endif %}>All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.category_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
                     <div class="form-group">
                         <label for="sort_by"><strong>Sort by</strong>:</label>
                         <select name="sort_by" id="sort_by">
@@ -82,8 +94,10 @@
                             <option value="price_high_low" {% if current_sort == 'price_high_low' %}selected{% endif %}>Price: High to Low</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Apply Filter</button>
+                
+                    <button type="submit" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Apply Filters</button>
                 </form>
+                
             </div>
         </div>
     </div>

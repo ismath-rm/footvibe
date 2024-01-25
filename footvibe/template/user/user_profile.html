@@ -39,7 +39,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
                                        aria-controls="account-detail" aria-selected="true"><i
-                                           class="fi-rs-user mr-10"></i>Reset Password</a>
+                                           class="fi-rs-user mr-10"></i>Change Password</a>
                                 </li>
 
                                 <li class="nav-item">
@@ -148,21 +148,7 @@
 
                                                         {% elif order.status != 'Cancelled' and order.status != 'Returned'  %}
 
-                                                        {% comment %} <td>
-                                                            <a href="{% url 'order_mng:cancel_order' order.id %}" class="cancel-order-link" 
-                                                                data-form-id="cancelOrderForm_{{ order.id }}">
-                                                                Cancel Order
-                                                            </a>
-                                                            <form id="cancelOrderForm_{{ order.id }}" method="post" action="{% url 'order_mng:cancel_order' order.id %}" style="display: none;">
-                                                                {% csrf_token %}
-                                                                <label for="cancellation_reason">Cancellation Reason:</label>
-                                                                <input type="text" name="cancellation_reason" id="cancellation_reason" required>
-                                                            </form>
-
-                                        
-
-                                                        </td> {% endcomment %}
-
+                                                        
                                                         <td>
                                                             {% if order.status == 'Cancel Order Request' %}
                                                                 Cancel Order Requested
@@ -285,7 +271,7 @@
 
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Reset Password</h5>
+                                        <h5>Change Password</h5>
                                     </div>
                                     <div class="card-body">
 
@@ -316,6 +302,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
                 </div>

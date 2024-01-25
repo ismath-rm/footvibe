@@ -81,6 +81,40 @@
                     <div class="panel-collapse collapse coupon_form " id="coupon">
                         <div class="panel-body">
                             <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                            <div>
+                                <h3>Available Coupons:</h3>
+                                <table border="1">
+                                    <thead>
+                                        <tr>
+                                            <th>Coupon Code</th>
+                                            <th>Discount</th>
+                                            <th>Minimum Amount</th>
+                                            <th>Expiry Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for coupon in coupons %}
+                                            <tr>
+                                                
+                                                <td style="color: rgb(110, 210, 63); font-weight: 600;">
+                                                    {{coupon.coupon_code}}
+                                                </td>
+                                            
+                                                <td>
+                                                    {{coupon.discount}}
+                                                </td>
+                                                
+                                                <td>
+                                                    {{coupon.minimum_amount}}
+                                                </td>
+                                                <td>
+                                                    {{coupon.valid_to}}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             <form method="post" action="{% url 'log:apply_coupon' %}" id="coupon-form">
                                 <div class="form-group">
                                     <label for="coupon-field"></label>
@@ -88,6 +122,8 @@
                                 </div>
                                 <div class="form-group">
                                     <button id="coupon-btn" class="btn btn-md" type="button" name="login">Apply Coupon</button>
+                                    <button id="remove-coupon-btn" class="btn btn-md" style="display: none;">Remove Coupon</button>
+
                                 </div>
                             </form>
                         </div>
@@ -333,9 +369,9 @@
             let tax = document.getElementById("tax")
 
 
-            let totalAmount_value = parseFloat(totalAmount.innerHTML.slice(1, totalAmount.length).slice(1, totalAmount.length))
-            let sub_total_value = parseFloat(sub_total.innerHTML.slice(1, sub_total.length).slice(1, sub_total.length))
-            let tax_value = parseFloat(tax.firstElementChild.innerHTML)
+            let totalAmount_value = parseFloat(totalAmount.innerHTML.slice(1,totalAmount.length).slice(1, totalAmount.length));
+            let sub_total_value = parseFloat(sub_total.innerHTML.slice(1,sub_total.length).slice(1, sub_total.length));
+            let tax_value = parseFloat(tax.firstElementChild.innerHTML);
             console.log(sub_total_value);
 
 
@@ -365,8 +401,6 @@
 
                         // Update your DOM as needed
                         sub_total_final = sub_total_value - response.coupon;
-                        // tax_value = sub_total_final * 0.02
-                        console.log(tax_value);
                         console.log(sub_total_final);
                         $('.total-amount-no-discount')
                             .css("text-decoration", "line-through")
@@ -374,6 +408,9 @@
                             .text('\u20B9' + sub_total_final);
                         totalAmount.innerHTML = (sub_total_final + tax_value)
                         tax.firstElementChild.innerHTML = tax_value
+
+                        $('#coupon-btn').hide();
+                        $('#remove-coupon-btn').show();
 
 
                     } else {
@@ -393,6 +430,44 @@
             });
         });
     });
+
+    $('#remove-coupon-btn').on('click', function (e) {
+        e.preventDefault();
+            let totalAmount = document.getElementById("total_amount");
+            let sub_total = document.getElementById("sub_total");
+            let tax = document.getElementById("tax");
+
+            let totalAmount_value = parseFloat(totalAmount.innerHTML.slice(1,totalAmount.length).slice(1, totalAmount.length));
+            let sub_total_value = parseFloat(sub_total.innerHTML.slice(1,sub_total.length).slice(1, sub_total.length));
+            let tax_value = parseFloat(tax.firstElementChild.innerHTML);
+        
+            // Update your DOM as needed
+            totalAmount.innerHTML = (sub_total_value + tax_value);
+            sub_total_final.innerHTML=(sub_total_value );
+            tax.firstElementChild.innerHTML = tax_value;
+            document.getElementById("sub_total").innerHTML = '&#8377 ' + sub_total_value;
+            location.reload()
+
+            // Show the 'Apply Coupon' button and hide 'Remove Coupon'           
+            $('#remove-coupon-btn').hide();
+    });
+
+    
 </script>
 
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -790,7 +790,6 @@ def edit_product(request, product_id):
 
     
     product = Product.objects.get(id=product_id)
- 
     categories = Category.objects.all()
     brands = Brand.objects.all().exclude(is_active=False)
 
@@ -807,6 +806,9 @@ def edit_product(request, product_id):
             form.save()
             messages.success(request, "Product updated successfully!")
             return redirect('product_mng:products_list')
+        else:
+            messages.error(request, "Error updating product. Please check the form.")
+
 
     else:
         form = CreateProductForm(instance=product)

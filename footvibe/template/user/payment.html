@@ -82,54 +82,6 @@
                     </div> 
 
                     </div>
-                    {% comment %} <div class="container mt-5">
-                        <a href="{% url "app:index" %}" class="btn btn-primary">Continue Shopping</a>
-                        <a href="{% url "orders:my_orders" %}" class="btn btn-primary">My Orders</a>
-                    </div> {% endcomment %}
-
-                {% comment %} <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-                     <form action="{% url 'orders:place_order' id=order.id %}" method="POST">
-                        {% csrf_token %}
-                        <div class="payment_method">
-                            <div class="mb-25">
-                                <h5>Payment</h5>
-                            </div>
-                            <div class="payment_option">
-                                <input hidden name="order_number" id="order_number" type="text" value="{{order.order_number}}">
-
-                              {% for method in paymentmethods %}
-                                    {% if method.method_name != 'WALLET' %}
-                                    <div class="">
-                                        <input class="form-check-input" required type="radio" name="payment_option" id="id_payment_div_{{method.method_name}}" value = {{method.method_name}}>
-                                        <label class="form-check-label" for="method{{forloop.counter}}">{{method.method_name}}</label>
-                                    </div>
-                                   { {% endif %} 
-                                {% endfor %} 
-
-                                <input disabled checked type="radio" class="form-check-input" id="id_payment_div_WALLET" name="payment_option" value="WALLET">
-
-                                <dl class="dlist-align">
-                                    <dt>
-                                        <i class="fa fa-wallet"></i> Wallet :
-                                        <span id="wallet_updated_balance">{{wallet.balance}}</span>
-                                    </dt>
-                                    <dd class="text-right align-items-center">
-                                        <label class="checkbox-inline custom-checkbox-label">
-                                            <input type="checkbox" class="custom-input" id="wallet_balance" name="wallet_balance" value="0" onclick="wallet_balance_add();"/>
-                                            Use Wallet
-                                        </label>
-                                    </dd>
-                                </dl>                                
-
-                            </div>
-                        </div>
-                        <button type="submit" name="submit" id="payment-form-btn" class="btn btn-fill-out btn-block mt-30">Pay
-                            <span id="grand_total_update">
-                                ${{order.total}}
-                            </span>
-                        </button>                    
-                    </form> 
-                </div> {% endcomment %}
             </div>
         </div>
     </section>

@@ -19,6 +19,7 @@ import string
 from django.views import View
 from admin_side.models import *
 from home.forms import *
+from django.utils import timezone
 
 
 # Create your views here. 
@@ -508,15 +509,71 @@ class AdminCoupon(View):
 
         return render(request, self.template_name, context)
 
+    # def post(self, request, *args, **kwargs):
+    #     coupon_code = request.POST.get("couponcode")
+    #     discount_amount = request.POST.get("discount")
+    #     minimum_amount = request.POST.get("minimumAmount")
+    #     valid_to = request.POST.get("couponexpiry")
+
+
+    #     if Coupon.objects.filter(coupon_code=coupon_code).exists():
+    #         messages.warning(request,"Coupon Code is Alredy Exist")
+    #         coupons = Coupon.objects.all()
+    #         return render(request, self.template_name, {"coupons": coupons, "error": "Duplicate coupon code"})
+
+    #     coupon = Coupon.objects.create(
+    #         coupon_code=coupon_code,
+    #         discount=discount_amount,
+    #         minimum_amount=minimum_amount,
+    #         valid_to=valid_to
+    #     )
+        
+    #     messages.success(request, f"Coupon '{coupon.coupon_code}' created successfully!")
+
+    #     coupons = Coupon.objects.all()
+    #     return redirect("admin_log:coupon")
+
+
     def post(self, request, *args, **kwargs):
         coupon_code = request.POST.get("couponcode")
         discount_amount = request.POST.get("discount")
         minimum_amount = request.POST.get("minimumAmount")
         valid_to = request.POST.get("couponexpiry")
 
+        # Validate date format
+        try:
+            valid_to_date = timezone.datetime.strptime(valid_to, "%Y-%m-%d").date()
+        except ValueError:
+            messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
+            return redirect("admin_log:coupon")
 
+        # Validate if the expiry date is in the past
+        if valid_to_date < timezone.now().date():
+            messages.error(request, "Expiry date cannot be in the past.")
+            return redirect("admin_log:coupon")
+
+        # Validate if the coupon value is lesser than the minimum required amount
+        if not (discount_amount and minimum_amount and valid_to):
+            messages.error(request, "All fields are required.")
+            return redirect("admin_log:coupon")
+
+        try:
+            discount_amount = float(discount_amount)
+            minimum_amount = float(minimum_amount)
+
+            if discount_amount >= minimum_amount:
+                messages.error(request, "Discount amount should be lesser than the minimum required amount.")
+                return redirect("admin_log:coupon")
+
+        except ValueError:
+            messages.error(request, "Invalid numeric value for discount or minimum amount.")
+            return redirect("admin_log:coupon")
+
+        # Validate other conditions (offer price lower than base price, etc.) as needed
+
+        # If all validations pass, create the Coupon object
         if Coupon.objects.filter(coupon_code=coupon_code).exists():
-            messages.warning(request,"Coupon Code is Alredy Exist")
+            messages.warning(request, "Coupon Code is already Exist")
             coupons = Coupon.objects.all()
             return render(request, self.template_name, {"coupons": coupons, "error": "Duplicate coupon code"})
 
@@ -524,9 +581,9 @@ class AdminCoupon(View):
             coupon_code=coupon_code,
             discount=discount_amount,
             minimum_amount=minimum_amount,
-            valid_to=valid_to
+            valid_to=valid_to_date
         )
-        
+
         messages.success(request, f"Coupon '{coupon.coupon_code}' created successfully!")
 
         coupons = Coupon.objects.all()
@@ -580,21 +637,21 @@ def sales_report(request):
         except ValueError as e:
             print(f"Error: {e}")
 
-    # Annotate orders with total_quantity
+    
     orders = orders.annotate(
         total_quantity=Sum('orderproduct__quantity')
     )
 
-    paginator = Paginator(orders, 10)  # Show 10 orders per page
+    paginator = Paginator(orders, 10)  
     page = request.GET.get('page')
 
     try:
         orders = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
+        
         orders = paginator.page(1)
     except EmptyPage:
-        # If page is out of range, deliver last page of results.
+        
         orders = paginator.page(paginator.num_pages)
 
     context = {
@@ -634,7 +691,6 @@ def delete_slide(request, slide_id):
         slide_to_delete = HomeMainSlide.objects.get(pk=slide_id)
         slide_to_delete.delete()
     except HomeMainSlide.DoesNotExist:
-        # Handle the case where the slide with the given ID does not exist.
         pass
 
     return redirect('admin_log:home_main_slider')

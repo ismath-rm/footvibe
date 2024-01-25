@@ -28,7 +28,7 @@
 
                                 {% if order.status == 'Cancelled' %}
                                 <span>{{order.order_number}} is cancelled</span>
-                                {% elif order.status == 'Return' %}
+                                {% elif order.status == 'Returned' %}
                                 <span>{{order.order_number}} is Returned</span>
                                 {% else %}
                                 <div class="col-md-2">
