@@ -9922,3 +9922,53 @@ span.fi-rs-apps {
 .zoomContainer{ z-index: 9999;}
 .zoomWindow{ z-index: 9999;}
 /*# sourceMappingURL=main.css.map */
+
+
+/* Default styles for large screens */
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+.main-categori-wrap {
+  display: block;
+}
+
+.main-menu {
+  display: flex;
+  margin-top: 0;  /* Adjust the margin as needed */
+}
+
+/* Styles for smaller screens (e.g., tablets) */
+@media only screen and (max-width: 991px) {
+  .main-categori-wrap {
+      display: none;
+  }
+
+  .main-menu {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;  /* Adjust the top position as needed */
+      left: 0;
+      width: 100%;
+      background-color: #fff;  /* Set your background color */
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-nav a.categori-button-active {
+      display: block;
+      padding: 10px;
+  }
+
+  .header-nav:hover .main-menu {
+      display: flex;
+  }
+}
+
+/* Styles for small screens (e.g., smartphones) */
+@media only screen and (max-width: 767px) {
+  .header-nav {
+      flex-direction: column;
+  }
+}

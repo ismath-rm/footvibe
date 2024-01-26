@@ -24,24 +24,36 @@
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
 <!-- Default theme -->
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
-    
+
+<style>
+    /* For screens below 992px width */
+    @media (max-width: 991px) {
+        .header-top,
+        .header-middle {
+            display: block !important;
+        }
+        .header-top.header-info{
+            display: none;
+        }
+    }
+</style>
 </head>
 
 <body>
     
-    <header class="header-area header-style-1 header-height-2">
+    <header class="header-area header-style-1 header-height-1">
         <div class="header-top header-top-ptb-1 d-none d-lg-block">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-xl-3 col-lg-4">
+                    <div class="col-xl-3 d-none d-lg-block col-lg-4">
                         <div class="header-info">
                             <ul>
-                                <li><i class="fi-rs-smartphone"></i> <a href="#">(+01) - 2345 - 6789</a></li>
-                                <li><i class="fi-rs-marker"></i><a  href="page-contact.html">Our location</a></li>
+                                <li><i class="fi-rs-smartphone"></i> <a href="#">+91 - 9633018297</a></li>
+                                
                             </ul>
                         </div>
                     </div>
-                    <div class="col-xl-6 col-lg-4">
+                    <div class="col-xl-6 col-lg-4 d-none d-lg-block">
                         <div class="text-center">
                             <div id="news-flash" class="d-inline-block">
                                 <ul>
@@ -93,11 +105,13 @@
                     </div>
                     <div class="header-right">
                         <div class="search-style-2">
-                            <form action="#">
-                               
-                                
+                            <form action="{% url 'log:shop' %}" method="GET">
+                                {% csrf_token %}
+                                <input type="text" name="q" value="{{ query }}" placeholder="Search for items...">
+                                <input type="submit" style="display: none;"> 
                             </form>
-                        </div> 
+                        </div>
+                        <span></span>
                         <div class="header-action-right">
                             <div class="header-action-2">
                                 <div class="header-action-icon-2">
@@ -119,44 +133,44 @@
                 </div>
             </div>
         </div>
-        <div class="header-bottom header-bottom-bg-color sticky-bar">
-            <div class="container">
-                <div class="header-wrap header-space-between position-relative">
-                    <div class="logo logo-width-1 d-block d-lg-none">
-                        <a href="index.html"><img src="{% static 'image\home images\footvibe logo - 2.png' %}" alt="logo"></a>
-                    </div>
-                    <div class="header-nav d-none d-lg-flex">
-                        <div class="main-categori-wrap d-none d-lg-block">
-                            <a class="categori-button-active" href="#">
-                                <span class="fi-rs-apps"></span> Browse Categories
-                            </a>
-                            
-                        </div>
-                        <div class="main-menu main-menu-padding-1 main-menu-lh-2 d-none d-lg-block">
-                            <nav>
-                                <ul>
-                                    <li>
-                                        <a href="{% url 'log:index' %}">Home</a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url "log:shop" %}">Shop</a>
-                                    </li>
         
-                                    <li>
-                                        <a href="{% url "log:about" %}">About</a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url "log:contact" %}">Contact Us</a>
-                                    </li>
-                                </ul>
-                            </nav>
+        <div class="header-middle header-middle-ptb-1 d-none d-lg-block">
+            <div class="container">
+                <div class="row justify-content-center">
+                   
+                    <div class="col-lg-4">
+                        <div class="header-right ms-5">
+                            <div class="search-style-2">
+                                <div class="header-nav  d-lg-flex">                    
+                                    <div class="main-menu main-menu-padding-1 main-menu-lh-2  d-lg-block ">
+                                        
+                                        <nav>
+                                            <ul>
+                                                <li>
+                                                    <a href="{% url 'log:index' %}">Home</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{% url "log:shop" %}">Shop</a>
+                                                </li>
+                    
+                                                <li>
+                                                    <a href="{% url "log:about" %}">About</a>
+                                                </li>
+                                                <li>
+                                                    <a href="{% url "log:contact" %}">Contact</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                   
+                            </div>
                         </div>
                     </div>
-                   
                 </div>
             </div>
         </div>
-        </header>
+    </header>
     {% block body %}
     {% endblock body %}
     <footer class="main">
