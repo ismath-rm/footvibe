@@ -49,7 +49,7 @@
                                 <tbody>
                                     {% for ordered_product in ordered_products %}
                                     <tr>
-                                        <td class="image product-thumbnail"><img src="{{ordered_product.product_variant.thumbnail_image.url }}" alt="#"></td>
+                                        <td class="image product-thumbnail"><img src="{{ ordered_product.product_variant.thumbnail_image.url }}" alt="#"></td>
                                         <td>
                                             
                                             <h5><a href="shop-product-full.html">{{ordered_product.product.product_name}}</a></h5> <span class="product-qty">Quantity: {{ordered_product.quantity}}</span>

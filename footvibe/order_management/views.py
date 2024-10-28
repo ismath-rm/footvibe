@@ -163,9 +163,18 @@ def order_placed(request, total=0, quantity=0):
                 data.order_number = order_number
                 data.is_ordered = True
                 data.save()
-            
-                # Initialize Razorpay client with API key and secret
-                client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY, settings.SECRET_KEY))
+                settings.RAZOR_PAY_KEY = settings.RAZOR_PAY_KEY.strip()
+                settings.RAZOR_PAY_SECRET = settings.RAZOR_PAY_SECRET.strip()
+                client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY, settings.RAZOR_PAY_SECRET))
+                print(f"Razorpay Key: {settings.RAZOR_PAY_KEY}")
+                print(f"Razorpay Secret: {settings.RAZOR_PAY_SECRET}")
+
+
+                # try:
+                #     response = client.order.create({'amount': 100, 'currency': 'INR', 'receipt': 'test_receipt'})
+                #     print(response)
+                # except razorpay.errors.BadRequestError as e:
+                #     print(f"Authentication failed: {str(e)}")
 
                 # Create a Razorpay order
                 order_amount_paise = int(data.order_total * 100) 
@@ -179,7 +188,7 @@ def order_placed(request, total=0, quantity=0):
                     
                 })
 
-                print(razorpay_order)
+                # print(razorpay_order)
 
                 context = {
                     'order': data,

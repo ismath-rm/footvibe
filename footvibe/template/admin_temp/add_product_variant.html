@@ -1,5 +1,110 @@
 {% extends 'admin_temp/base.html' %}
 {% load static %}
+{% block title %}Add Product Variant{% endblock %}
+{% block body %}
+
+<section class="content-main">
+    {% include 'admin_temp/general-alerts/alerts.html' %}
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Add Product Variant</h2>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Product Details</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-4">
+                                    <label for="{{ form.product_name.id_for_label }}" class="form-label">Product</label>
+                                    {% if product %}
+                                        <input value="{{ product.get_product_name }}" type="text" class="form-control" readonly>
+                                    {% else %}
+                                        <select class="form-control" name="product" required>
+                                            <option value="">Select a Product</option>
+                                            {% for p in all_products %}
+                                                <option value="{{ p.id }}">{{ p.get_product_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-4">
+                                    <label for="{{ form.sku_id.id_for_label }}" class="form-label">SKU Id</label>
+                                    {{ form.sku_id }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            {% for attribute_name, attribute_values in attribute_dict.items %}
+                                <div class="col-3">
+                                    <label class="form-label">{{ attribute_name }}</label>
+                                    <select name="attributes_{{ forloop.counter }}" class="form-control" 
+                                            {% if not attribute_values %} disabled {% endif %}>
+                                        <option value="None">Select</option>
+                                        {% for value in attribute_values %}
+                                            <option value="{{ value.id }}">{{ value.attribute_value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-4">
+                            <label for="max_price" class="form-label">Max Price</label>
+                            <input placeholder="Type here" class="form-control" name="max_price" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="sale_price" class="form-label">Sale Price</label>
+                            <input placeholder="Type here" class="form-control" name="sale_price" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="stock" class="form-label">Stock</label>
+                            <input placeholder="Type here" class="form-control" name="stock" required>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Thumbnail</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-upload">
+                                    <input class="form-control" type="file" required name="thumbnail_image" accept=".jpg,.jpeg,.webp,.png">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Additional Images</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-upload">
+                                    <input class="form-control" multiple type="file" name="additional_images" accept=".jpg,.jpeg,.webp,.png">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="mb-4">
+                                <button type="submit" class="btn btn-primary btn-sm rounded col-lg-12">Add Product Variant</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- card end// -->
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+
+
+{% comment %} {% extends 'admin_temp/base.html' %}
+{% load static %}
 {% block title %} Add product Variant {% endblock %}
 {% block body %}
 
@@ -50,14 +155,6 @@
 
 
                         <div class="mb-4">
-                            {% comment %} <label for="{{ form.Attribute_value.id_for_label }}"
-                                class="form-label">Attribute value</label>
-                            {{form.attribute_value}} {% endcomment %}
-                            {% comment %} <select class="form-select" name="Attribute_value" required="True">
-                                {% for attribute_value in form.Attribute_Value %}
-                                <option value="{{attribute_value}}">{{attribute_value}}</option>
-                                {% endfor %}
-                            </select> {% endcomment %}
                             {% for attribute_name, attribute_values in attribute_dict.items %}
                             <div class="col-3">
                                 <label class="form-label">{{attribute_name}}</label>
@@ -137,4 +234,4 @@
 
     </div>
 </section>
-{% endblock %}
+{% endblock %} {% endcomment %}

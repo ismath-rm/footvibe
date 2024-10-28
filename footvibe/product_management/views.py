@@ -637,83 +637,180 @@ def product_variant_control(request, product_variant_id):
 
 
 
-def add_product_variant(request, product_id = None):
+# def add_product_variant(request, product_id = None):
+#     if product_id:
+#         product = Product.objects.filter(id = product_id).first()
+#         print("Product ID:", product_id)
+#         print("Product:", product)
+
+#         if not product:
+#             messages.error(request, 'Product not found.')
+#             return redirect('product_mng:add_product_variant')
+#     else:
+#         product = None
+
+#     if not request.user.is_superuser:
+#         return redirect('admin_log:admin_login')
+    
+#     attributes = Attribute.objects.prefetch_related('attribute_value_set')
+#     print("=====================================================================================")
+#     print(attributes)
+#     attribute_values_count = attributes.count()
+#     attribute_dict = {}
+#     for attribute in attributes:
+#         attribute_values = attribute.attribute_value_set.filter(is_active = True)
+#         attribute_dict[attribute.attribute_name] = attribute_values
+#     print(attribute_dict.items(),"llllllllllllllllllllllllllllllllll")
+
+#     attribute_values = Attribute_Value.objects.all()
+  
+
+#     if request.method == 'POST':
+#         if not product_id:
+#             product_id= int(request.POST.get('product'))
+#             product = Product.objects.filter(id = product_id).first()
+    
+#         sku_id= request.POST.get('sku_id')
+#         attribute_value= request.POST.get('attribute_value')
+#         print(attribute_value)
+#         max_price=request.POST.get('max_price')
+#         sale_price=request.POST.get('sale_price')
+#         stock=request.POST.get('stock')
+#         image=request.FILES.get('thumbnail_image')
+#         additional_images=request.FILES.getlist('additional_images')
+#         print("the additional image is      -----------------------------", additional_images)
+
+#         attribute_ids = []
+
+#         for i in range(1,attribute_values_count+1):
+#             attribute_value_id = request.POST.get('attributes_'+str(i))
+#             if attribute_value_id != 'None':
+#                 attribute_ids.append(int(attribute_value_id))
+
+
+#         print("hello stephan")
+
+#         product_variant = ProductVariant(
+#             product = product,
+#             sku_id = sku_id,
+#             max_price = max_price,
+#             sale_price = sale_price,
+#             stock = stock,
+#             thumbnail_image = image
+#         )
+#         product_variant.save()
+#         image_objects = []
+
+#         for image in additional_images:
+#             variant_image = ProductImage.objects.create(product_variant = product_variant, image = image)
+#             variant_image.save()
+
+#         product_variant.attribute_value.set(attribute_ids)
+
+#         product_variant.save()
+#         messages.success(request, 'Variant created successfully !!! ')
+#         return redirect('product_mng:products_list')
+#     else:
+#         form=ProductVariantForm()
+    
+    
+#     context = {
+#         'product': product,
+#         'attribute_value':attribute_values,
+#         'attribute_dict':attribute_dict,
+#         'form': form,
+
+#     }
+
+#     return render(request, 'admin_temp/add_product_variant.html', context)
+
+
+def add_product_variant(request, product_id=None):
+    # Check if product_id is provided and retrieve the product
     if product_id:
-        product = Product.objects.filter(id = product_id).first()
+        product = Product.objects.filter(id=product_id).first()
+        if not product:
+            messages.error(request, 'Product not found.')
+            return redirect('product_mng:add_product_variant')
     else:
         product = None
 
+    # Restrict access to superusers only
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
+    # Retrieve attributes and their values
     attributes = Attribute.objects.prefetch_related('attribute_value_set')
-    print("=====================================================================================")
-    print(attributes)
     attribute_values_count = attributes.count()
-    attribute_dict = {}
-    for attribute in attributes:
-        attribute_values = attribute.attribute_value_set.filter(is_active = True)
-        attribute_dict[attribute.attribute_name] = attribute_values
-    print(attribute_dict.items(),"llllllllllllllllllllllllllllllllll")
+    attribute_dict = {attr.attribute_name: attr.attribute_value_set.filter(is_active=True) for attr in attributes}
 
+    # Get all attribute values
     attribute_values = Attribute_Value.objects.all()
-  
 
+    # Retrieve all products to display in the form for selection
+    all_products = Product.objects.all()
+
+    # Handle form submission
     if request.method == 'POST':
+        # Check if product is selected in the form submission
         if not product_id:
-            product_id= int(request.POST.get('product'))
-            product = Product.objects.filter(id = product_id).first()
-    
-        sku_id= request.POST.get('sku_id')
-        attribute_value= request.POST.get('attribute_value')
-        print(attribute_value)
-        max_price=request.POST.get('max_price')
-        sale_price=request.POST.get('sale_price')
-        stock=request.POST.get('stock')
-        image=request.FILES.get('thumbnail_image')
-        additional_images=request.FILES.getlist('additional_images')
-        print("the additional image is      -----------------------------", additional_images)
+            product_id = request.POST.get('product')
+            if not product_id:
+                messages.error(request, 'Please select a product.')
+                return redirect('product_mng:add_product_variant')
+            
+            product = Product.objects.filter(id=product_id).first()
+            if not product:
+                messages.error(request, 'Selected product does not exist.')
+                return redirect('product_mng:add_product_variant')
 
+        # Get form data
+        sku_id = request.POST.get('sku_id')
+        max_price = request.POST.get('max_price')
+        sale_price = request.POST.get('sale_price')
+        stock = request.POST.get('stock')
+        image = request.FILES.get('thumbnail_image')
+        additional_images = request.FILES.getlist('additional_images')
+
+        # Gather selected attribute values
         attribute_ids = []
-
-        for i in range(1,attribute_values_count+1):
-            attribute_value_id = request.POST.get('attributes_'+str(i))
-            if attribute_value_id != 'None':
+        for i in range(1, attribute_values_count + 1):
+            attribute_value_id = request.POST.get(f'attributes_{i}')
+            if attribute_value_id and attribute_value_id != 'None':
                 attribute_ids.append(int(attribute_value_id))
 
-
-        print("hello stephan")
-
+        # Create a new product variant
         product_variant = ProductVariant(
-            product = product,
-            sku_id = sku_id,
-            max_price = max_price,
-            sale_price = sale_price,
-            stock = stock,
-            thumbnail_image = image
+            product=product,
+            sku_id=sku_id,
+            max_price=max_price,
+            sale_price=sale_price,
+            stock=stock,
+            thumbnail_image=image
         )
         product_variant.save()
-        image_objects = []
 
+        # Save additional images
         for image in additional_images:
-            variant_image = ProductImage.objects.create(product_variant = product_variant, image = image)
-            variant_image.save()
+            ProductImage.objects.create(product_variant=product_variant, image=image)
 
+        # Set attribute values for the product variant
         product_variant.attribute_value.set(attribute_ids)
-
         product_variant.save()
-        messages.success(request, 'Variant created successfully !!! ')
+
+        # Notify the user and redirect
+        messages.success(request, 'Variant created successfully!')
         return redirect('product_mng:products_list')
     else:
-        form=ProductVariantForm()
-    
-    
+        form = ProductVariantForm()
+
+    # Render the template with the context data
     context = {
         'product': product,
-        'attribute_value':attribute_values,
-        'attribute_dict':attribute_dict,
+        'attribute_value': attribute_values,
+        'attribute_dict': attribute_dict,
         'form': form,
-
+        'all_products': all_products,
     }
 
     return render(request, 'admin_temp/add_product_variant.html', context)
