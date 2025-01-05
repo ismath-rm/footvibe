@@ -44,58 +44,120 @@ def cart(request, total=0, quantity=0, cart_items=None):
 
 
 
+# def add_cart(request, id):
+#     color = request.POST.get('color')
+#     size = request.POST.get('size')
+#     qyt = request.POST.get('input')
+#     qyt = int(qyt)
+#     print(color)
+#     print(size)
+#     try:
+#         id = Product.objects.get(id=id)
+#         print(id)
+#         product_variant = ProductVariant.objects.filter(
+#             product=id,
+#             attribute_value__attribute__attribute_name__in=['color', 'size'],
+#             attribute_value__attribute_value__in=[color, size]
+#         ).first()
+#         print(product_variant)
+#         if product_variant.stock >= 1:
+#             if request.user.is_authenticated:
+#                 is_cart_item_exists = CartItem.objects.filter(
+#                     cart__user=request.user,
+#                     product_variant=product_variant
+#                 ).exists()
+
+#                 if is_cart_item_exists:
+#                     cart_item = CartItem.objects.get(
+#                         cart__user=request.user,
+#                         product_variant=product_variant,
+#                     )
+
+#                     if qyt < product_variant.stock:
+#                         cart_item.quantity += qyt
+#                         cart_item.save()
+#                         messages.success(request, "Item quantity updated.")
+#                     else:
+#                         messages.success(request, "Product out of stock")
+#                 else:
+#                     cart, created = Cart.objects.get_or_create(user=request.user)
+#                     CartItem.objects.create(cart=cart, product_variant=product_variant, quantity=qyt)
+#                     messages.success(request, "Item added to the cart.")
+#                     return redirect('cart_mng:cart')
+#             else:
+#                 messages.success(request, "Please login to purchase")
+#                 return redirect('log:user_login')
+#         else:
+#             messages.warning(request, 'This item is out of stock.')
+#             return redirect('log:product_detail', id)
+#     except ProductVariant.DoesNotExist:
+#         messages.warning(request, 'Variation not available, please select another variation')
+#     except Exception as e:
+#         print(f"The error is {e}")
+
+#     return redirect('cart_mng:cart')
+
 def add_cart(request, id):
     color = request.POST.get('color')
     size = request.POST.get('size')
     qyt = request.POST.get('input')
     qyt = int(qyt)
-    print(color)
-    print(size)
+    print(f"Color: {color}, Size: {size}, Quantity: {qyt}")
     try:
-        id = Product.objects.get(id=id)
-        print(id)
+        product = Product.objects.get(id=id)
+        
+        # Check if product_variant exists based on the selected color and size
         product_variant = ProductVariant.objects.filter(
-            product=id,
+            product=product,
             attribute_value__attribute__attribute_name__in=['color', 'size'],
             attribute_value__attribute_value__in=[color, size]
         ).first()
-        print(product_variant)
-        if product_variant.stock >= 1:
-            if request.user.is_authenticated:
-                is_cart_item_exists = CartItem.objects.filter(
-                    cart__user=request.user,
-                    product_variant=product_variant
-                ).exists()
+        
+        print(f"Found product_variant: {product_variant}")
 
-                if is_cart_item_exists:
-                    cart_item = CartItem.objects.get(
-                        cart__user=request.user,
-                        product_variant=product_variant,
-                    )
-
-                    if qyt < product_variant.stock:
-                        cart_item.quantity += qyt
-                        cart_item.save()
-                        messages.success(request, "Item quantity updated.")
-                    else:
-                        messages.success(request, "Product out of stock")
-                else:
+        if product_variant:
+            if product_variant.stock >= 1:
+                if request.user.is_authenticated:
                     cart, created = Cart.objects.get_or_create(user=request.user)
-                    CartItem.objects.create(cart=cart, product_variant=product_variant, quantity=qyt)
-                    messages.success(request, "Item added to the cart.")
+
+                    is_cart_item_exists = CartItem.objects.filter(
+                        cart=cart,
+                        product_variant=product_variant
+                    ).exists()
+
+                    if is_cart_item_exists:
+                        cart_item = CartItem.objects.get(
+                            cart=cart,
+                            product_variant=product_variant,
+                        )
+
+                        if qyt < product_variant.stock:
+                            cart_item.quantity += qyt
+                            cart_item.save()
+                            messages.success(request, "Item quantity updated.")
+                        else:
+                            messages.success(request, "Product out of stock")
+                    else:
+                        CartItem.objects.create(cart=cart, product_variant=product_variant, quantity=qyt)
+                        messages.success(request, "Item added to the cart.")
                     return redirect('cart_mng:cart')
+                else:
+                    messages.success(request, "Please login to purchase")
+                    return redirect('log:user_login')
             else:
-                messages.success(request, "Please login to purchase")
-                return redirect('log:user_login')
+                messages.warning(request, 'This item is out of stock.')
+                return redirect('log:product_detail', id)
         else:
-            messages.warning(request, 'This item is out of stock.')
+            messages.warning(request, 'Variation not available, please select another variation')
             return redirect('log:product_detail', id)
-    except ProductVariant.DoesNotExist:
-        messages.warning(request, 'Variation not available, please select another variation')
+    except Product.DoesNotExist:
+        messages.warning(request, 'Product does not exist')
     except Exception as e:
         print(f"The error is {e}")
+        messages.error(request, 'An error occurred, please try again later.')
 
     return redirect('cart_mng:cart')
+
 
 
 
