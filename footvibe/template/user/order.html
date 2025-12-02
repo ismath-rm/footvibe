@@ -30,13 +30,11 @@
                             <span class="mx-3 " style="color: rgb(0, 164, 38);">Transaction ID :{{ order.payment.payment_id }}</span>
                         </div>
 
-                        <!-- DIVIDER STARTS -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="divider mt-5 mb-5"></div>
                             </div>
                         </div>
-                        <!-- DIVIDER ENDS -->
 
                         {% for order_product in order.orderproduct_set.all %}
                             <div class="d-flex flex-row justify-content-evenly">
@@ -62,38 +60,14 @@
                         <div>
                             <span class="mx-3 " style="color: rgb(0, 14, 164);">Transaction ID : &nbsp{{ order.payment.payment_method }}</span>
                         </div>
-                        <!-- DIVIDER STARTS -->
+
                         <div class="row">
                             <div class="col-12">
                                 <div class="divider mt-5 mb-5"></div>
                             </div>
                         </div>
-                        <!-- DIVIDER ENDS -->
-
-                        {% comment %} <div class="d-flex flex-row align-items-center justify-content-between mt-25">
-                            <div>
-                                <label for="orderID1"></label>
-                                <input type="number" id="orderID1" value="{{ order.id }}" hidden="hidden">
-                                {% if order.status == "Pending" or order.status == "Shipped" %}
-                                <form action="{% url 'order_mng:cancel_order' order.id %}" method="post" id="cancelOrderForm">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="cancellation_reason" id="cancellationReason">
-                                    <button type="button" onclick="Confirm()" class="btn btn-outline-warning">
-                                        <i class="material-icons md-close"></i>
-                                        <span>Cancel Order</span>
-                                    </button>
-                                    <!-- In your template -->
-                                    <a href="{% url 'order_mng:ordered_detail' order_id=order.id %}" class="btn btn-primary mr-2>View Order</a>
-
-                                </form>
-                                {% else %}
-
-                                {% endif %}
-                                </div>
-                                
-                            <div><span>{{ order.paymentMethod }}</span></div>
-                            <div><span class="font-lg font-weight-bolder text-dark">TOTAL : &#8377; {{ order.order_total }}</span></div>
-                        </div> {% endcomment %}
+                        
+                        
                         <div class="d-flex flex-row align-items-center justify-content-between mt-25">
                             <div>
                                 <label for="orderID1"></label>
@@ -106,7 +80,7 @@
                                         <i class="material-icons md-close"></i>
                                         <span>Cancel Order</span>
                                     </button>
-                                    <!-- In your template -->
+
                                     <a href="{% url 'order_mng:ordered_detail' order_id=order.id %}" class="btn btn-primary mr-2">View Order</a>
                                 </form>
                                 {% else %}
@@ -122,9 +96,8 @@
                             function confirmCancellation() {
                                 var cancellationReason = prompt("Please enter the reason for cancellation:");
                                 if (cancellationReason !== null) {
-                                    // Set the entered reason in the hidden field
+                                    
                                     document.getElementById('cancellationReason').value = cancellationReason;
-                                    // Submit the form
                                     document.getElementById('cancelOrderForm').submit();
                                 }
                             }

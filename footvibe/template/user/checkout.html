@@ -4,7 +4,6 @@
 {% block body %}
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
-<!-- Default theme -->
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -150,7 +149,6 @@
                             <div class="mb-20">
                                 <h4>Select Your address</h4>
                             </div>
-                            <!-- LOOP -->
                             {% for address in address_list %}
                             <div class="border border-dark rounded pt-15 pb-20 mb-15 table-responsive order_table text-center row">
                                 <div class="col-lg-11">
@@ -180,7 +178,7 @@
                                 </div>
                             </div>
                             {% endfor %}
-                            <!-- LOOP ENDS-->
+                            
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -197,7 +195,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!--PRODUCT LOOP-->
+                                    
                                     {% for cart_item in cart_items %}
                                     <tr>
                                         <td class="image product-thumbnail">
@@ -223,7 +221,7 @@
                                         <td><span> &#8377  {{ cart_item.product_variant.sale_price}}</span></td>
                                     </tr>
                                     {% endfor %}
-                                    <!--PRODUCT LOOP ENDS HERE-->
+                                   
 
                                     <tr>
                                         <th>SubTotal</th>
@@ -299,24 +297,19 @@
 <script>
 
     function placeOrder() {
-        // Handle the logic for placing the order here
         document.getElementById('orderForm').submit();
     }
 
-    // Add event listener to radio buttons to update the default address
     const addressRadios = document.querySelectorAll('.address-radio');
     addressRadios.forEach(function (radio) {
         radio.addEventListener('change', function () {
-            // Make an AJAX request to update the default address on the server
             const addressId = this.value;
             updateDefaultAddress(addressId);
         });
     });
 
     function updateDefaultAddress(addressId) {
-        // Make an AJAX request to update the default address on the server
-        // You can use your framework's AJAX functions or the Fetch API
-        // Example using Fetch API
+      
         fetch(`/set_default_address/${addressId}/`, {
             method: 'POST',
             headers: {
@@ -329,7 +322,6 @@
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                // You can handle the response as needed
                 console.log('Default address updated successfully');
             })
             .catch(error => {
@@ -399,7 +391,6 @@
                             showConfirmButton: false,
                         });
 
-                        // Update your DOM as needed
                         sub_total_final = sub_total_value - response.coupon;
                         console.log(sub_total_final);
                         $('.total-amount-no-discount')
@@ -441,14 +432,12 @@
             let sub_total_value = parseFloat(sub_total.innerHTML.slice(1,sub_total.length).slice(1, sub_total.length));
             let tax_value = parseFloat(tax.firstElementChild.innerHTML);
         
-            // Update your DOM as needed
             totalAmount.innerHTML = (sub_total_value + tax_value);
             sub_total_final.innerHTML=(sub_total_value );
             tax.firstElementChild.innerHTML = tax_value;
             document.getElementById("sub_total").innerHTML = '&#8377 ' + sub_total_value;
             location.reload()
 
-            // Show the 'Apply Coupon' button and hide 'Remove Coupon'           
             $('#remove-coupon-btn').hide();
     });
 

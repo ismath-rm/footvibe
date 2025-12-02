@@ -1,9 +1,5 @@
 {% load static %}
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <![endif]-->
 <html>
     <head>
         <meta charset="utf-8">
@@ -12,7 +8,6 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" type="image/x-icon" href="{% static 'admin/imgs/theme/favicon.svg' %} ">
-        <!-- Template CSS -->
         <link href="{% static 'admin/css/main.css' %}" rel="stylesheet" type="text/css" />
     </head>
     <body>
@@ -25,20 +20,20 @@
                         {%csrf_token%}
                         <div class="mb-3">
                             <input class="form-control" placeholder="email" type="text" name='email'>
-                        </div> <!-- form-group// -->
+                        </div> 
                         <div class="mb-3">
                             <input class="form-control" placeholder="Password" type="password" name='password'>
-                        </div> <!-- form-group// -->
+                        </div> 
                         <div class="mb-3">
                             <a href="#" class="float-end font-sm text-muted">Forgot password?</a>
                             <label class="form-check">
                                 <input type="checkbox" class="form-check-input" checked="">
                                 <span class="form-check-label">Remember</span>
                             </label>
-                        </div> <!-- form-group form-check .// -->
+                        </div> 
                         <div class="mb-4">
                             <button type="submit" class="btn btn-primary w-100"> Login </button>
-                        </div> <!-- form-group// -->
+                        </div>
                     </form>
                     
                 </div>

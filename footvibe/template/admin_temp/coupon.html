@@ -60,7 +60,7 @@
                             
                     </form>
                 </div>
-            </div> <!-- card end// -->
+            </div> 
         </div>
 
 
@@ -156,7 +156,6 @@
                 type: 'GET',
                 url: '/admin_log/generate_code',
                 success: function (data) {
-                    // Assuming you have an input field with the ID 'couponCode'
                     $('#couponCode').val(data.code);
                 },
                 error: function () {

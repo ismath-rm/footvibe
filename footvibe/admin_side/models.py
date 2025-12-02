@@ -2,7 +2,7 @@ from django.db import models
 from product_management.models import *
 from home.models import *
 
-# Create your models here.
+
 class Coupon(models.Model):
     coupon_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     discount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -12,7 +12,6 @@ class Coupon(models.Model):
 
     def Is_Redeemed_By_User_New(self, request, user):
         coupon_code = request.POST.get("couponCode")
-        # Assuming there is a Coupon model with a field named 'coupon_code'
         coupon = Coupon.objects.get(coupon_code=coupon_code)
 
         print(coupon)

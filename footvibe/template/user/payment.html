@@ -23,7 +23,6 @@
                           <p class="card-text mb=0">{{order.address_line_1}}</p>   
                           <p class="card-text mb=0">{{order.city}}, {{order.state}}</p>  
                           <p class="card-text mb=0">{{order.country}}</p>
-                          {% comment %} <p class="card-text mb=0">{{order.email}}</p> {% endcomment %}
                           <p class="card-text mb=0">{{order.phone}}</p>
                           {% if order.order_note %}
                             <b>Order Note:</b>{{order.order_note}}
@@ -34,7 +33,6 @@
                     
                 </div>
                 <div class="col-md-6">
-                    <!-- Cart Total -->
                     <div class="border p-md-4 p-30 border-radius cart-totals">
                         <div class="heading_s1 mb-3">
                             <h4>Cart Totals</h4>
@@ -96,23 +94,18 @@
 
 <script>
     var options = {
-        "key": "rzp_test_8XSNvVIgMjtH1b", // Enter the Key ID generated from the Dashboard
-        "amount": "{{grand_total}}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "key": "rzp_test_8XSNvVIgMjtH1b", 
+        "amount": "{{grand_total}}", 
         "currency": "INR",
         "name": "Footvibe",
         "description": "Purchases",
         "image": "https://example.com/image/home images/footvibe logo - 2.png",
         "order_id": "{{razorpay_order.id}}", 
         "handler": function (response){
-            //console.log(response)
             window.location.href = `/order_mng/payment/?order_id={{order.order_number}}&method=RAZORPAY&payment_id=${response.razorpay_payment_id}&payment_order_id=${response.razorpay_order_id}&user={{user}}`
         },
 
-        /*"handler": function (response){
-            alert(response.razorpay_payment_id);
-            alert(response.razorpay_order_id);
-            alert(response.razorpay_signature)
-        }, */
+        
         "prefill": {
             "name": "Ismath R M",
             "email": "ismathrm9@gmail.com",

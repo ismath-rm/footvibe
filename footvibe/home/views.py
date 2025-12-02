@@ -1,28 +1,20 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from django.contrib.auth.models import User,auth
 from django.http import HttpResponseNotFound,HttpResponseRedirect
 from django.contrib import messages
 from home.models import Account,AddressBook
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
-from django.contrib.sessions.models import Session
-from django.contrib.sessions.backends.db import SessionStore
 from django.core.mail import send_mail
 import random,re
 from django.core.exceptions import ObjectDoesNotExist
 from product_management.models import *
-from django.contrib.auth import update_session_auth_hash
 from home.forms import AddressForm
 from cart_management.models import *
-from django.db.models import Sum
 from order_management.models import *
-from django.core.validators import validate_email, validate_integer
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import JsonResponse
 from admin_side.models import *
-from django.utils import timezone
 from django.contrib.auth.hashers import check_password
 
 
@@ -44,6 +36,7 @@ def index(request):
     }
 
     return render(request, 'user/index.html',context)
+
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -84,8 +77,7 @@ def user_signup(request):
         phone = request.POST.get('phone')
         password = request.POST.get('password1')
         confirm_password = request.POST.get('password2')
-        print('email',email)
-        print('pass',password)
+       
         
         if  Account.objects.filter(username=user).exists():
             messages.error(request, "Username already existing")
@@ -120,18 +112,14 @@ def user_signup(request):
         user=Account.objects.create_user(email=email, password=password,username=user,phone=phone)
         user.save()
 
-        # Add success message
         messages.success(request, 'Signup successful. Please check your email for OTP verification.')
-
-
 
         request.session['email']=email
         return redirect('log:send_otp')
         
-
     else:
-        
         return render(request,'user/user_signup.html')
+
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -140,7 +128,6 @@ def send_otp(request):
     random_num=random.randint(1000,9999)
     request.session['OTP_Key']=random_num
 
-
     send_mail(
         "OTP AUTHENTICATING footvibe",
         f"{random_num} -OTP",
@@ -148,28 +135,28 @@ def send_otp(request):
         [request.session['email']],
         fail_silently=False,
     )
-
-    print(random_num)
+    
     return redirect('log:verify_otp')
 
+
+
 def verify_otp(request):
-    print('hiii')
+    
     user=Account.objects.get(email=request.session['email'])
     if request.method=="POST":
 
         if str(request.session['OTP_Key']) != str(request.POST['otp']):
-            print(request.session['OTP_Key'],request.POST['otp'])
             messages.error(request, "wrong OTP. Please enter the correct OTP")
 
         else:
             user.is_active=True
             user.save()
-            # login(request,user)
-            print("helo")
+
             messages.success(request, "OTP has been verified successfully!")
             return redirect('log:user_login')
             
     return render(request,'user/otp_verification.html')
+
 
 
 @login_required(login_url='log:user_login')
@@ -201,12 +188,13 @@ def forgot_password(request):
     else:
          return render(request,'user/forgot_password.html')
     
+
     
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def sent_otp_forgot_password(request):
    random_num=random.randint(1000,9999)
-   print(random_num)
    request.session['OTP_Key']=random_num
+
    send_mail(
    "OTP AUTHENTICATING footvibe",
    f"{random_num} -OTP",
@@ -214,7 +202,9 @@ def sent_otp_forgot_password(request):
    [request.session['email']],
    fail_silently=False,
     )
+   
    return redirect('log:verify_otp_forgot_password')
+
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -223,9 +213,9 @@ def verify_otp_forgot_password(request):
 
     if request.method=="POST":
       if str(request.session['OTP_Key']) != str(request.POST['otp']):
-         print(request.session['OTP_Key'],request.POST['otp'])
          messages.error(request, "wrong OTP. Please enter the correct OTP")
          return redirect('log:verify_otp_forgot_password')
+      
       else:
          password=request.session['password']
          user.set_password(password)
@@ -233,6 +223,7 @@ def verify_otp_forgot_password(request):
          login(request,user)
          messages.success(request, "Password changed successfully!")
          return redirect('log:user_login')
+      
     return render(request,'user/otp_verification.html')
 
 
@@ -241,8 +232,8 @@ def resend_otp(request):
     
     
     random_num=random.randint(1000,9999)
-    print(random_num)
     request.session['OTP_Key']=random_num
+
     send_mail(
     "OTP AUTHENTICATING footvibe",
     f"{random_num} -OTP",
@@ -250,10 +241,9 @@ def resend_otp(request):
     [request.session['email']],
     fail_silently=False,
     )
+
     messages.success(request, "OTP has been resent successfully!")
     return redirect('log:verify_otp')
-
-
 
 
 
@@ -261,7 +251,6 @@ def product_detail(request, variant_slug=None):
     
     try:
         single_product = get_object_or_404(ProductVariant, product_variant_slug=variant_slug)
-        # print(single_product, "single_product")
         print(single_product.product_variant_slug)
 
         product = ProductVariant.objects.get(product_variant_slug=variant_slug).product
@@ -269,36 +258,26 @@ def product_detail(request, variant_slug=None):
         product_variants = ProductVariant.objects.filter(product=single_product.product)
 
         attribute_values = [product_variant.attribute_value.all() for product_variant in product_variants]
-        # print(attribute_values)
         print([product for product in attribute_values])
 
-        # Check if attribute_values is not empty
         if attribute_values:
-            # Access the first element (you might want to adjust this based on your logic)
             first_attribute_values = attribute_values[0]
-            
-            # Print or use the values as needed
             print([product for product in first_attribute_values])
+
         else:
-            # Handle the case where attribute_values is empty
             print("No attribute values found for the product variants.")
+
 
     except ProductVariant.DoesNotExist:
         return HttpResponseNotFound("Product not found")
-    print(product)
+    
 
     product_images = [image.image for image in single_product.product_images.all()]
     product_images.insert(0, single_product.thumbnail_image)
+
     attribute = ProductVariant.objects.prefetch_related('attribute_value').filter(product=product)
-    # color = set([val.attribute_value.filter(attribute = 2)[0] for val in attribute])
     color = set([val.attribute_value.filter(attribute=2).first() for val in attribute if val.attribute_value.filter(attribute=2).exists()])
-
-    # size = set([val.attribute_value.filter(attribute = 1)[0] for val in attribute])
     size = set([val.attribute_value.filter(attribute=1).first() for val in attribute if val.attribute_value.filter(attribute=1).exists()])
-
-    # print(color[0])
-    print(attribute)
-    # print(size)
 
     context = {
         'single_product': single_product,
@@ -318,7 +297,6 @@ def product_detail(request, variant_slug=None):
 
 def shop(request):
     sort_by = request.GET.get('sort_by', 'price_low_high')  
-    print(f'Sort by: {sort_by}')
     brand_filter = request.GET.get('brand', None) 
     category_filter = request.GET.get('category', None)
 
@@ -333,7 +311,6 @@ def shop(request):
 
     not_found_message = None
 
-    # Check if products are available for the selected brand and category
     if brand_filter and category_filter and not products.exists():
         not_found_message = ("No products found")
 
@@ -363,17 +340,12 @@ def shop(request):
 
 
 
-
-
-
-
 def shop_category(request,slug):
-    categorires = Category.objects.all()
+    categories = Category.objects.all()
     products = ProductVariant.objects.filter(product__product_catg__slug=slug)
-    print(categorires)
     context = {
         'products': products,
-        'categories':categorires,
+        'categories':categories,
     }
     return render(request, "user/shop.html", context)
 
@@ -406,8 +378,6 @@ def user_profile(request):
 
 
 
-
-
 def edit_profile(request):
     if not request.user.is_authenticated:
         return redirect('log:index')
@@ -419,32 +389,26 @@ def edit_profile(request):
         username = request.POST.get('username')
         number = request.POST.get('number')
 
-        # Validate email format
         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
             messages.error(request, "Invalid email")
             return render(request, "user/edit_profile.html", {'user': user})
 
-        # Validate username format (only letters)
         if not re.match(r'^[a-zA-Z]+$', username):
             messages.error(request, "Invalid username. Use only letters.")
             return render(request, "user/edit_profile.html", {'user': user})
 
-        # Validate phone number format
         if not re.match(r'^\d{10}$', number):
             messages.error(request, "Invalid phone number. Please enter a 10-digit phone number.")
             return render(request, "user/edit_profile.html", {'user': user})
         
-        # Check if the new username already exists
         if Account.objects.filter(username=username).exclude(id=user.id).exists():
             messages.error(request, "Username already exists. Please choose a different one.")
             return render(request, "user/edit_profile.html", {'user': user})
 
-        # Check if the new email already exists
         if Account.objects.filter(email=email).exclude(id=user.id).exists():
             messages.error(request, "Email address already exists. Please choose a different one.")
             return render(request, "user/edit_profile.html", {'user': user})
 
-        # Update user fields
         user.email = email
         user.username = username
         user.phone = number
@@ -465,9 +429,7 @@ def edit_profile(request):
 
 
 def add_address(request, source=None):
-    print(source)
     
-    print(request.path)
     if request.method == 'POST':
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -497,9 +459,6 @@ def add_address(request, source=None):
 
 
 
-
-
-
 def edit_address(request, address_id):
     address = get_object_or_404(AddressBook, pk=address_id)
     if request.method == 'POST':
@@ -519,7 +478,6 @@ def edit_address(request, address_id):
 
 
 
-
 def set_default_address(request, address_id):
 
     AddressBook.objects.filter(user=request.user).exclude(pk=address_id).update(is_default=False)
@@ -529,6 +487,7 @@ def set_default_address(request, address_id):
     address.save()
 
     return redirect('log:user_profile')
+
 
 
 @login_required(login_url='log:user_login')
@@ -562,8 +521,6 @@ def reset_password(request,user_id):
              messages.error(request, 'User not found.')
         except Exception as e:
             messages.error(request, f'An error occurred: {str(e)}')
-            # Log the exception for debugging
-            print(f'An error occurred: {str(e)}')
             
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -575,10 +532,8 @@ def wishlist(request):
     if not request.user.is_authenticated:
         messages.info(request, 'Login to access wishlist')
         return redirect('log:user_login')
+    
     else:
-     
-        
-        print("HAIIIIIIIIIIIII")
         wishlist, created = Wishlist.objects.get_or_create(user=request.user)
         wishlist_items = WishlistItems.objects.filter(wishlist=wishlist)
         for item in wishlist_items:
@@ -604,9 +559,7 @@ def add_wishlist(request, product_id):
        
 
         if WishlistItems.objects.filter(wishlist=wishlist, product_variant=product_variant).exists():
-                
-                print('Product is already in your wishlist')
-                messages.error(request, 'Product is already in your wishlist')
+            messages.error(request, 'Product is already in your wishlist')
                 
         else:
             WishlistItems.objects.create(wishlist=wishlist, product_variant=product_variant)
@@ -617,7 +570,6 @@ def add_wishlist(request, product_id):
 
 
 def delete_wishlist(request, list_id):
-    print(list_id)
     item = get_object_or_404(WishlistItems, pk=list_id)
     item.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
@@ -674,62 +626,50 @@ def checkout(request):
 
 
 def apply_coupon(request):
-    print("Debug: Start of apply_coupon function")
 
     if request.method == "POST":
         coupon_code = request.POST.get("couponCode").strip()
         total = request.POST.get("total")
         user = request.user
 
-        print(f"Debug: coupon_code: {coupon_code}, total: {total}, user: {user}")
-
-
-        if not coupon_code:
+        if not coupon_code: 
             return JsonResponse({'error': "Coupon code is empty.", 'message': 'Coupon code is empty.'})
-
 
         try:
             coupons = Coupon.objects.filter(coupon_code=coupon_code)
             if coupons:
 
-                print(f"Debug: Coupon found for code: {coupon_code}")
-
                 if coupons[0].Is_Redeemed_By_User_New(request, user):
-                    print("Debug: User Already Used The Coupon")
                     return JsonResponse({'error': "User Already Used The Coupon"})
+                
                 else:
                     try:
                         redeemed_details = Coupon_Redeemed_Details(coupon=coupons[0], user=user)
                         request.session['coupon'] = int(coupons[0].discount)
                         redeemed_details.save()
-                        print("ya  i got this \n\n", request.session['coupon'])
+
                     except Exception as e:
                         print(f"Debug: Error saving redeemed details: {e}")
-                    # request.session["coupon"] = coupons.discount
-                    # print('coupon discount amot',  request.session["coupon"] )
+
                     return JsonResponse({
                                          'success': True,
                                          'coupon': (coupons[0].discount),
                                          'message': 'Coupon Applied Successfully'})
             else:
-                    print(f"No coupon found for code: {coupon_code}")
-                    return JsonResponse({'error': "Invalid coupon code or expired.", 'message': 'Invalid coupon code or expired.'})
-        except Exception as e:
-            print("Error applying coupon:", e)
+                return JsonResponse({'error': "Invalid coupon code or expired.", 'message': 'Invalid coupon code or expired.'})
+            
+        except Exception:
             return JsonResponse({'error': "Error applying coupon.", 'message': 'Error applying coupon.'})
 
     return redirect('log:checkout')
 
 
 
-
-
-
-
-
 def contact(request):
 
     return render(request, 'user/contact.html')
+
+
 
 def about(request):
 

@@ -58,9 +58,7 @@
                                             <input type="hidden" value=" {{forloop.counter}}" id="item_counter">
 
                                             <input type="hidden" value="{{cart_item.id}} " id="cart_id">
-                                            {% comment %} <a href="#" class="qyt-down"><i class="fi-rs-angle-small-down button-minus"></i></a> {% endcomment %}
                                             <button class="button-plus border-0 bg-white " ><i class="fi-rs-angle-small-up "></i></button>
-                                            <!-- <span class="qyt">{{cart_item.quantity}}</span>  -->
                                             <input type="text" class="txt-center qyt"   value="{{cart_item.quantity   }}">
                                             <button class="button-minus  border-0 bg-white "><i class="fi-rs-angle-small-down "></i></button> 
                                         </div>
@@ -77,11 +75,7 @@
                                 </tr>
                             {% endfor %}
                         
-                                {% comment %} <tr>
-                                    <td colspan="6" class="text-end">
-                                    
-                                    </td>
-                                </tr> {% endcomment %}
+                                
                             </tbody>
                         </table>
                     </div>
@@ -111,12 +105,7 @@
                                 <td class="cart_total_label">Tax</td>
                                 <td class="cart_total_amount" id='tax'><i class="ti-gift mr-5"></i>{{ tax }}</td>
                             </tr>
-                            {% comment %} {% if descount %}
-                            <tr>
-                                <td class="cart_total_label">Coupon Discount</td>
-                                <td class="cart_total_amount"><i class="ti-gift mr-5"></i>{{ descount }}</td>
-                            </tr>
-                            {% endif %} {% endcomment %}
+                            
                             <tr>
                                 <td class="cart_total_label">Total</td>
                                 <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand" id='grandTotal'>{{ grand_total}}</span></strong></td>
@@ -132,7 +121,6 @@
     {% endif %}
 </main>
 
-<!-- url 'cart_mng:remove_cart_item' cart_item.id  -->
   <!-- alertify -->
 
     <!-- JavaScript -->
@@ -140,27 +128,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-	<!-- </form> -->
     <script>
         $(document).ready(function() {
             var token = $('input[name=csrfmiddlewaretoken]').val();
     
-            // Handle button clicks
             $(document).on('click', '.button-plus', function(e) {
                 e.preventDefault();
                 console.log('ytfguhjk');
                 console.log($(this).closest('td'));
     
-                // Get the product ID, cart item ID, and quantity from the DOM
                 var productId = $(this).closest('td').find('#product_id').val();
-                var itemCounter = parseInt($(this).closest('td').find('#item_counter').val(), 10); // Convert to integer
+                var itemCounter = parseInt($(this).closest('td').find('#item_counter').val(), 10); 
                 var cartItemId = $(this).closest('td').find('#cart_id').val();
                 var qytInput = $(this).closest('td').find('.qyt');
                 var subTotalField = $(this).closest('tr').find('td.sub_total');
                 var sub_total = document.getElementById('sub_total');
                 
     
-                // Make an AJAX request to update the cart item quantity
                 $.ajax({
                     method: "POST",
                     url: "{% url 'cart_mng:newcart_update' %}",
@@ -175,11 +159,9 @@
                         if (response.status === "success") {
                             console.log(sub_total);
                             console.log(response);
-                            // Update the displayed quantity
                             qytInput.val(parseInt(response.new_quantity, 10));
                             sub_total.innerText= "₹" + response.sub_total;
 
-                            // Update the subtotal for this specific cart item
                             subTotalField.html("₹" + response.sub_total);
     
                             $('#cartsub').text("₹" + response.total);
@@ -195,7 +177,6 @@
                 });
             });
     
-            // Handle button clicks
             $('.button-minus').click(function(e) {
                 e.preventDefault();
     
@@ -252,7 +233,7 @@
             $(".remove-cart-item").on("click", function (event) {
                 event.preventDefault();
     
-                // Get the cart item ID from the data attribute
+                
                 var cartItemId = $(this).data("cart-item-id");
     
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -273,7 +254,6 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // User confirmed, send AJAX request
                         $.ajax({
                             url: "{% url 'cart_mng:remove_cart_item' 0 %}".replace(0, cartItemId),
                             method: "POST", 
@@ -282,7 +262,6 @@
                                 'csrfmiddlewaretoken': token
                             },
         
-                            // Success callback
                             success: function (data) {
                                 swalWithBootstrapButtons.fire({
                                     title: "Deleted!",
@@ -290,18 +269,15 @@
                                     icon: "success"
                                 });
     
-                                // Optionally reload the page or perform other actions
                                 window.location.reload();
                             },
         
-                            // Error callback
+                            
                             error: function (xhr, status, error) {
                                 console.error("AJAX request failed", status, error);
-                                // Handle the error if needed
                             }
                         });
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // User canceled, show cancel message
                         swalWithBootstrapButtons.fire({
                             title: "Cancelled",
                             text: "Your imaginary file is safe :)",
@@ -314,13 +290,10 @@
     </script>
 <script>
     $(document).ready(function () {
-        // Continue Shopping button click event handler
+        
         $('.cart-action a.btn').click(function (e) {
-            // Prevent the default behavior of the anchor tag
             e.preventDefault();
 
-            // Add your logic here to handle the click event
-            // For example, you can redirect the user to the index page
             window.location.href = "{% url 'log:index' %}";
         });
     });

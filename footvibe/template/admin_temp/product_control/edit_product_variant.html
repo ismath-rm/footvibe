@@ -116,7 +116,6 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- Container for Additional Images with scrollbar -->
                     <div class="additional-images-container">
                         {% if current_additional_images %}
                             <h5>Current Additional Images</h5>
@@ -124,7 +123,6 @@
                                 <div class="existing-image" data-image-id="{{ image.id }}">
                                     <img src="{{ image.image.url }}" alt="Additional Image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
                                 
-                                    <!-- Use an anchor tag for deletion and redirection -->
                                     <a href="{% url 'product_mng:delete_product_variant_images' product_variant_slug=image.product_variant.product_variant_slug id=image.id %}">
                                         <button type="submit" class="btn btn-sm btn-danger remove-additional-image" data-image-id="{{ image.id }}">Remove</button>
                                     </a>

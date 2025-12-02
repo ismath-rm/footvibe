@@ -26,8 +26,6 @@ urlpatterns = [
    path('product_detail/<slug:variant_slug>/', views.product_detail, name='product_detail'),
    
 
-
-   
    path('shop/', views.shop, name = 'shop'),
    path('shop_category/<slug:slug>', views.shop_category, name='shop_category'),
 
@@ -57,7 +55,5 @@ urlpatterns = [
 
    path('contact',views.contact,name='contact'),
    path('about',views.about,name='about'),
-
-
 
 ]

@@ -1,13 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.db.models import F, ExpressionWrapper
 from django.contrib import messages
 from cart_management.models import *
 from product_management.models import *
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpRequest, JsonResponse
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse
+from django.http import JsonResponse
 
 
 
@@ -49,20 +46,16 @@ def add_cart(request, id):
     size = request.POST.get('size')
     qyt = request.POST.get('input')
     qyt = int(qyt)
-    print(color)
-    print(size)
+    
+
     try:
         id = Product.objects.get(id=id)
-        print(id)
         product_variant = ProductVariant.objects.filter(
             product=id,
-            attribute_value__attribute__attribute_name__iexact='colour',
-            attribute_value__attribute_value__iexact=color
-        ).filter(
-            attribute_value__attribute__attribute_name__iexact='size',
-            attribute_value__attribute_value__iexact=size
+            attribute_value__attribute__attribute_name__in=['color', 'size'],
+            attribute_value__attribute_value__in=[color, size]
         ).first()
-        print(product_variant)
+
         if product_variant.stock >= 1:
             if request.user.is_authenticated:
                 is_cart_item_exists = CartItem.objects.filter(
@@ -104,8 +97,6 @@ def add_cart(request, id):
 
 
 def newcart_update(request):
-    print('newcart_update view is called')
-
     new_quantity = 0
     total = 0
     tax = 0
@@ -114,7 +105,6 @@ def newcart_update(request):
     counter = 0
 
     if request.method == 'POST' and request.user.is_authenticated:
-        print('impliment ajax')
         prod_id = int(request.POST.get('product_id'))
         cart_item_id = int(request.POST.get('cart_id'))
         qyt = int(request.POST.get('qyt'))
@@ -153,6 +143,7 @@ def newcart_update(request):
             'grand_total': grand_total,
             'sub_total': sub_total
         })
+
 
 
 def remove_cart_item_fully(request):
@@ -202,13 +193,10 @@ def remove_cart_item_fully(request):
     
 
 
-
-
 def remove_cart_item(request, cart_item_id):
     try:
         cart_item = CartItem.objects.get(cart__user=request.user, id=cart_item_id)
         cart_item.delete()
-        print ('helllo in cart ')
         return JsonResponse({'status': True, 'message': 'Product is deleted successfully'})
     except CartItem.DoesNotExist:
         pass 

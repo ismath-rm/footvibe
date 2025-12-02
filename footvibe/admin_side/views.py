@@ -22,8 +22,6 @@ from home.forms import *
 from django.utils import timezone
 
 
-# Create your views here. 
-
 def superadmin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
@@ -60,12 +58,9 @@ def dashboard(request):
             total_del += order.order_total
                   
         if order.payment and (order.payment.payment_method == 'RAZORPAY' or order.payment.payment_method == 'Wallet') and not order.status == 'Cancelled':
-            print(f'payment method:{order.payment.payment_method} order status: {order.status} order total:{order.order_total}')
-            # total_raz += order.order_total
             if order.payment.payment_method == 'RAZORPAY':
                 total_raz += order.order_total
             elif order.payment.payment_method == 'Wallet':
-            # Handle Wallet payments
                 total_wallet += order.order_total
        
   
@@ -83,7 +78,6 @@ def dashboard(request):
         .order_by('date')
     )
 
-    print(daily_order_counts)
     dates = [entry['date'].strftime('%Y-%m-%d') for entry in daily_order_counts]
     counts = [entry['order_count'] for entry in daily_order_counts]
 
@@ -131,13 +125,9 @@ def dashboard(request):
     return render(request, 'admin_temp/index.html', context)
 
 
-
-
-
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_login(request):
-    print("hiii")
+
     if request.user.is_authenticated and request.user.is_superuser:
         return redirect('admin_log:dashboard')
 
@@ -146,7 +136,6 @@ def admin_login(request):
         user_email = request.POST['email']
         password = request.POST['password']
         user = authenticate(request, email=user_email, password=password)
-        print("helloooooooooo")
 
         if user:
             if user.is_superuser:
@@ -207,121 +196,6 @@ def order_list(request):
 
 
 
-
-# @login_required(login_url='admin_log:admin_login')  
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def order_detail(request, order_id):
-#     print('ypoooooo')
-#     try:
-#         order = Order.objects.get(id=order_id)
-#     except Order.DoesNotExist:
-#         return HttpResponse("Order not found")
-
-#     ordered_products = OrderProduct.objects.filter(order=order)
-
-#     tax = (2 * order.order_total) / 100
-
-#     if request.method == 'POST':
-#         form = OrderForm(request.POST, instance=order)
-#         if form.is_valid():
-#             form.save()
-#             print(form)
-#             messages.success(request, 'Changes saved successfully.')
-#             return redirect('admin_log:order_list')  
-#     else:
-#         form = OrderForm(instance=order)
-#     context = {
-#         'order': order,
-#         'ordered_products': ordered_products,
-#         'total': sum(item.get_total for item in ordered_products),
-#         'tax': tax,
-#         'subtotal':int(order.order_total-tax),
-#         'grand_total': order.order_total + tax,
-#         'form': form,
-#     }
-
-#     return render(request, 'admin_temp/order_detail.html', context)
-
-
-# @login_required(login_url='admin_log:admin_login')  
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def order_detail(request, order_id):
-#     try:
-#         order = Order.objects.get(id=order_id)
-#     except Order.DoesNotExist:
-#         return HttpResponse("Order not found")
-
-#     ordered_products = OrderProduct.objects.filter(order=order)
-
-#     tax = (2 * order.order_total) / 100
-
-#     if request.method == 'POST':
-#         form = OrderForm(request.POST, instance=order)
-#         if form.is_valid():
-#             form.save()
-
-#             # Check for cancellation and process accordingly
-#             if order.status == 'Cancelled' and order.payment:
-#                 if order.payment.payment_method in ['RAZORPAY', 'Wallet']:
-#                     order.payment.status = 'Cancelled'
-#                     order.payment.save()
-
-#                     wallet, created = Wallet.objects.get_or_create(user=order.user)
-#                     if order.order_total > 0:
-#                         wallet.balance += order.order_total
-#                         print(f"Before balance update: {wallet.balance}")
-#                         wallet.save()
-#                         print(f"After balance update: {wallet.balance}")
-
-#                         WalletHistory.objects.create(
-#                             wallet=wallet,
-#                             type='Credited',
-#                             amount=order.order_total
-#                         )
-                        
-#                         # Debugging print statements
-#                         print(f"Order {order.id} has been cancelled. Amount of {order.order_total} credited to the wallet.")
-
-#                         wallet_history_entries = WalletHistory.objects.filter(wallet=wallet)
-#                         for entry in wallet_history_entries:
-#                             print(f"Wallet history entry: {entry.type} - {entry.amount}")
-
-                        
-#                         messages.success(request, f'Order {order.id} has been cancelled. Amount of {order.order_total} credited to your wallet.')
-#                     else:
-#                         # Debugging print statements
-#                         print(f"Order {order.id} has been cancelled. No amount to credit.")
-#                         messages.success(request, f'Order {order.id} has been cancelled.')
-#                 elif order.payment.payment_method == 'CashOnDelivery':
-#                     # Debugging print statements
-#                     print(f'Cash on Delivery order {order.id} has been cancelled.')
-#                     messages.success(request, f'Cash on Delivery order {order.id} has been cancelled.')
-#                 else:
-#                     # Debugging print statements
-#                     print("Invalid payment method")
-#                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-#             messages.success(request, 'Changes saved successfully.')
-#             return redirect('admin_log:order_list')          
-#     else:
-#         form = OrderForm(instance=order)
-
-#     context = {
-#         'order': order,
-#         'ordered_products': ordered_products,
-#         'total': sum(item.get_total for item in ordered_products),
-#         'tax': tax,
-#         'subtotal': int(order.order_total - tax),
-#         'grand_total': order.order_total + tax,
-#         'form': form,
-#     }
-
-#     return render(request, 'admin_temp/order_detail.html', context)
-
-
-
-
-
 @login_required(login_url='admin_log:admin_login')  
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def order_detail(request, order_id):
@@ -339,7 +213,6 @@ def order_detail(request, order_id):
         if form.is_valid():
             form.save()
 
-            # Check for cancellation and process accordingly
             if order.status == 'Cancelled' and order.payment:
                 if order.payment.payment_method in ['RAZORPAY', 'Wallet']:
                     order.payment.status = 'Cancelled'
@@ -348,9 +221,7 @@ def order_detail(request, order_id):
                     wallet, created = Wallet.objects.get_or_create(user=order.user)
                     if order.order_total > 0:
                         wallet.balance += order.order_total
-                        print(f"Before balance update: {wallet.balance}")
                         wallet.save()
-                        print(f"After balance update: {wallet.balance}")
 
                         WalletHistory.objects.create(
                             wallet=wallet,
@@ -358,29 +229,17 @@ def order_detail(request, order_id):
                             amount=order.order_total
                         )
                         
-                        # Debugging print statements
-                        print(f"Order {order.id} has been cancelled. Amount of {order.order_total} credited to the wallet.")
-
-                        wallet_history_entries = WalletHistory.objects.filter(wallet=wallet)
-                        for entry in wallet_history_entries:
-                            print(f"Wallet history entry: {entry.type} - {entry.amount}")
-
                         
+                     
                         messages.success(request, f'Order {order.id} has been cancelled. Amount of {order.order_total} credited to your wallet.')
                     else:
-                        # Debugging print statements
-                        print(f"Order {order.id} has been cancelled. No amount to credit.")
                         messages.success(request, f'Order {order.id} has been cancelled.')
                 elif order.payment.payment_method == 'CashOnDelivery':
-                    # Debugging print statements
-                    print(f'Cash on Delivery order {order.id} has been cancelled.')
                     messages.success(request, f'Cash on Delivery order {order.id} has been cancelled.')
                 else:
-                    # Debugging print statements
-                    print("Invalid payment method")
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-            # Check for return and process accordingly
+
             if order.status == 'Returned' and order.payment:
                 if order.payment.payment_method in ['RAZORPAY', 'Wallet']:
                     order.payment.status = 'Returned'
@@ -389,9 +248,7 @@ def order_detail(request, order_id):
                     wallet, created = Wallet.objects.get_or_create(user=order.user)
                     if order.order_total > 0:
                         wallet.balance += order.order_total
-                        print(f"Before retrun balance update: {wallet.balance}")
                         wallet.save()
-                        print(f"After return balance update: {wallet.balance}")
 
                         WalletHistory.objects.create(
                             wallet=wallet,
@@ -399,23 +256,12 @@ def order_detail(request, order_id):
                             amount=order.order_total
                         )
                         
-                        # Debugging print statements
-                        print(f'Order {order.id} has been returned. Amount of {order.order_total} credited to your wallet.')
-
-                        wallet_history_entries = WalletHistory.objects.filter(wallet=wallet)
-                        for entry in wallet_history_entries:
-                            print(f"Wallet history entry: {entry.type} - {entry.amount}")
-
                         
                         messages.success(request, f'Order {order.id} has been returned. Amount of {order.order_total} credited to your wallet.')
                     else:
-                        # Debugging print statements
-                        print(f'Order {order.id} has been returned. No amount to credit.')
                         messages.success(request, f'Order {order.id} has been returned.')
                 
                 else:
-                    # Debugging print statements
-                    print("Invalid payment method for return")
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
             messages.success(request, 'Changes saved successfully.')
@@ -436,27 +282,6 @@ def order_detail(request, order_id):
     return render(request, 'admin_temp/order_detail.html', context)
 
 
-
-
-
-# @login_required(login_url='admin_log:admin_login')  
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# def cancell_order(request, order_id):
-#     if not request.user.is_superuser:
-#         return redirect('admin_log:admin_login')
-    
-#     try:
-#         order = Order.objects.get(id=order_id)
-#     except Order.DoesNotExist:
-#         messages.error(request, "Order does not exist")
-#         return redirect('admin_log:order_list')
-
-#     order.status = 'Cancelled'
-#     order.save()
-#     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-
-
 #......................................user list........................................#
 
 
@@ -472,12 +297,13 @@ def user_list(request):
          users = Account.objects.filter(username__icontains=search_query)
     else:
          users = Account.objects.filter(is_staff = False)
-         print("the users are :", users)
+
     context = {
         'users': users
     }
       
     return render(request,'admin_temp/user_list.html',context)
+
 
 
 @login_required(login_url='admin_log:admin_login') 
@@ -509,50 +335,23 @@ class AdminCoupon(View):
 
         return render(request, self.template_name, context)
 
-    # def post(self, request, *args, **kwargs):
-    #     coupon_code = request.POST.get("couponcode")
-    #     discount_amount = request.POST.get("discount")
-    #     minimum_amount = request.POST.get("minimumAmount")
-    #     valid_to = request.POST.get("couponexpiry")
-
-
-    #     if Coupon.objects.filter(coupon_code=coupon_code).exists():
-    #         messages.warning(request,"Coupon Code is Alredy Exist")
-    #         coupons = Coupon.objects.all()
-    #         return render(request, self.template_name, {"coupons": coupons, "error": "Duplicate coupon code"})
-
-    #     coupon = Coupon.objects.create(
-    #         coupon_code=coupon_code,
-    #         discount=discount_amount,
-    #         minimum_amount=minimum_amount,
-    #         valid_to=valid_to
-    #     )
-        
-    #     messages.success(request, f"Coupon '{coupon.coupon_code}' created successfully!")
-
-    #     coupons = Coupon.objects.all()
-    #     return redirect("admin_log:coupon")
-
-
+    
     def post(self, request, *args, **kwargs):
         coupon_code = request.POST.get("couponcode")
         discount_amount = request.POST.get("discount")
         minimum_amount = request.POST.get("minimumAmount")
         valid_to = request.POST.get("couponexpiry")
 
-        # Validate date format
         try:
             valid_to_date = timezone.datetime.strptime(valid_to, "%Y-%m-%d").date()
         except ValueError:
             messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
             return redirect("admin_log:coupon")
 
-        # Validate if the expiry date is in the past
         if valid_to_date < timezone.now().date():
             messages.error(request, "Expiry date cannot be in the past.")
             return redirect("admin_log:coupon")
 
-        # Validate if the coupon value is lesser than the minimum required amount
         if not (discount_amount and minimum_amount and valid_to):
             messages.error(request, "All fields are required.")
             return redirect("admin_log:coupon")
@@ -569,9 +368,7 @@ class AdminCoupon(View):
             messages.error(request, "Invalid numeric value for discount or minimum amount.")
             return redirect("admin_log:coupon")
 
-        # Validate other conditions (offer price lower than base price, etc.) as needed
 
-        # If all validations pass, create the Coupon object
         if Coupon.objects.filter(coupon_code=coupon_code).exists():
             messages.warning(request, "Coupon Code is already Exist")
             coupons = Coupon.objects.all()
@@ -606,22 +403,16 @@ def delete_coupon(request,id):
     messages.success(request, f"Coupon '{coupon.coupon_code}' deleted successfully!")
     return redirect("admin_log:coupon") 
 
-    
-
-
-
-
-
-
 
 def sales_report(request):
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
 
-    orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
 
+    orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
     start_date_value = ""
     end_date_value = ""
+
 
     if request.method == 'POST':
         start_date = request.POST.get('start_date')
@@ -629,13 +420,14 @@ def sales_report(request):
         start_date_value = start_date
         end_date_value = end_date
 
+
         try:
             if start_date and end_date:
                 start_date = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date = datetime.strptime(end_date, '%Y-%m-%d')
                 orders = orders.filter(created_at__range=(start_date, end_date))
-        except ValueError as e:
-            print(f"Error: {e}")
+        except ValueError:
+            pass
 
     
     orders = orders.annotate(

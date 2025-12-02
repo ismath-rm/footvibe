@@ -1,11 +1,10 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from django.http import HttpRequest,HttpResponse,HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from .models import Category,Brand,Attribute,Attribute_Value,Product,ProductVariant, ProductImage
 from .forms import CreateProductForm
 from django.utils.text import slugify
 from django.db import IntegrityError
 from django.views.decorators.cache import cache_control
-from django.contrib.auth.decorators import login_required
 from .forms import ProductVariantForm 
 from django.contrib import messages
 import re
@@ -15,6 +14,7 @@ import re
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def category(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     categories = Category.objects.all()
@@ -28,6 +28,7 @@ def category(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_category(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
 
@@ -36,23 +37,18 @@ def add_category(request):
         parent_name = request.POST.get('parent')
         description = request.POST.get('description')
 
-        # Basic validation checks
         if not category_name or not description:
             messages.error(request, 'Category name and description are required.')
             return redirect('product_mng:category')
         
-        # Validate category name
         if any(re.match('[@#$%^@%@#%&]', char) for char in category_name) or category_name.startswith(" "):
             messages.error(request, "Invalid category name")
             return redirect('product_mng:category')
 
-
-        # Check if the category already exists
         if Category.objects.filter(category_name=category_name).exists():
             messages.error(request, 'Category with this name already exists.')
             return redirect('product_mng:category')
 
-        # Continue with creating the category
         parent = None if parent_name == 'None' else Category.objects.get(category_name=parent_name)
         Category.objects.create(
             category_name=category_name,
@@ -64,10 +60,9 @@ def add_category(request):
 
 
 
-
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def available(request,category_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -95,9 +90,9 @@ def available(request,category_id):
 
 
 
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def delete_category(request,category_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     try:
@@ -113,6 +108,7 @@ def delete_category(request,category_id):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_category(request,category_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -135,7 +131,6 @@ def edit_category(request,category_id):
             messages.error(request, 'Invalid category name')
             return render(request, 'admin_temp/edit_category.html', content)
 
-        
 
         new_slug = slugify(cat_name)
         if Category.objects.filter(slug=new_slug).exclude(id=category_list.id).exists():
@@ -154,14 +149,13 @@ def edit_category(request,category_id):
     return render(request,'admin_temp/edit_category.html',content)
 
 
-
-
 #...............................................brand...........................................................#
 
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def brands(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -172,16 +166,17 @@ def brands(request):
     return render(request, 'admin_temp/brands.html',content)
 
 
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_brand(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
-    brand_name = request.POST.get('brand_name', '')  # Use get() to handle the case when 'brand_name' is not in POST
+    brand_name = request.POST.get('brand_name', '') 
     
-    print(f"Brand name received: {brand_name}")
 
-    # Validate brand name
     if not brand_name or any(re.match('[@#$%^@%@#%&]', char) for char in brand_name) or brand_name.startswith(" "):
         messages.error(request, "Invalid brand name")
         return redirect('product_mng:brands')
@@ -208,11 +203,9 @@ def add_brand(request):
 
 
 
-
-
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)   
 def brand_available(request,brand_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -228,8 +221,10 @@ def brand_available(request,brand_id):
 
 
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def delete_brand(request,brand_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     try:
@@ -242,8 +237,10 @@ def delete_brand(request,brand_id):
 
 
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_brand(request, brand_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -280,6 +277,7 @@ def edit_brand(request, brand_id):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def attribute(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     attributes = Attribute.objects.all()
@@ -289,26 +287,27 @@ def attribute(request):
     return render(request, 'admin_temp/attribute.html',content)
 
 
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_attribute(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
 
     attribute_name = request.POST['attribute_name']
     
-    # Validate attribute name
     if not attribute_name or any(re.match('[@#$%^@%@#%&]', char) for char in attribute_name) or attribute_name.startswith(" "):
         messages.error(request, "Invalid attribute name")
         return redirect('product_mng:attribute')
 
     try:
-        # Check if the attribute already exists
         existing_attribute = Attribute.objects.filter(attribute_name=attribute_name).first()
 
         if existing_attribute:
             messages.warning(request, f"Attribute '{attribute_name}' already exists.")
+
         else:
-            # Create the Attribute object if it doesn't exist
             Attribute.objects.create(attribute_name=attribute_name)
             messages.success(request, "Attribute added successfully.")
 
@@ -319,8 +318,10 @@ def add_attribute(request):
 
 
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def attribute_available(request,attribute_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
    
@@ -339,6 +340,7 @@ def attribute_available(request,attribute_id):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def delete_attribute(request,attribute_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     try:
@@ -350,8 +352,11 @@ def delete_attribute(request,attribute_id):
     return redirect('product_mng:attribute')
 
 
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_attribute(request, attribute_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -387,6 +392,7 @@ def edit_attribute(request, attribute_id):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def attribute_value(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     attribute_values = Attribute_Value.objects.all()
@@ -399,8 +405,10 @@ def attribute_value(request):
 
 
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_attribute_value(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
 
@@ -412,7 +420,6 @@ def add_attribute_value(request):
             messages.error(request, "Please provide both attribute name and value.")
             return redirect('product_mng:attribute_value')
 
-        # Validate the attribute_value_n using a regex pattern
         if not re.match(r'^[\w.@+-]+$', attribute_value_n):
             messages.error(request, "Invalid attribute value name. Please use only letters,")
             return redirect('product_mng:attribute_value')
@@ -420,7 +427,6 @@ def add_attribute_value(request):
         try:
             attribute_obj = Attribute.objects.get(attribute_name=attribute)
 
-            # Check if the attribute value already exists for the selected attribute
             existing_attribute_value = Attribute_Value.objects.filter(
                 attribute_value=attribute_value_n,
                 attribute_id=attribute_obj.id
@@ -428,8 +434,8 @@ def add_attribute_value(request):
 
             if existing_attribute_value:
                 messages.warning(request, f"Attribute value '{attribute_value_n}' already exists for the selected attribute.")
+
             else:
-                # Create the Attribute_Value object if it doesn't exist
                 Attribute_Value.objects.create(
                     attribute_value=attribute_value_n,
                     attribute_id=attribute_obj.id
@@ -450,8 +456,11 @@ def add_attribute_value(request):
     return render(request, 'admin_temp/attribute_value.html', context)
 
 
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def attribute_value_available(request,attribute_value_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     attribute_value = Attribute_Value.objects.get(id=attribute_value_id)
@@ -470,6 +479,7 @@ def attribute_value_available(request,attribute_value_id):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def delete_attribute_value(request,attribute_value_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     try:
@@ -483,6 +493,7 @@ def delete_attribute_value(request,attribute_value_id):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_attribute_value(request, attribute_value_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -530,15 +541,11 @@ def edit_attribute_value(request, attribute_value_id):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 
 def products_list(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
 
     product_values = Product.objects.all().order_by('-created_at')
-    
-    # for product in product_values:
-    #     total_stock = sum([variant.stock for variant in product.productvariant_set.all()])
-    #     product.total_stock = total_stock
-
 
     context = {
         'product_values':product_values
@@ -548,8 +555,10 @@ def products_list(request):
 
 
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def add_product(request):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
@@ -565,12 +574,10 @@ def add_product(request):
         brand_name=request.POST.get('product_brand')
 
 
-        # Basic validation checks
         if not product_name or not description or not category_name or not brand_name:
             messages.error(request, "All fields are required")
             return redirect('product_mng:add_product')
 
-        # Product name validation
         if any(re.match('[@#$%^@%@#%&]', char) for char in product_name) or product_name.startswith(" "):
             messages.error(request, "Invalid product name")
             return redirect('product_mng:add_product')
@@ -603,11 +610,11 @@ def add_product(request):
 
 
 
-
-
 def variant_list(request, product_id):
+
     try:
         product = Product.objects.get(id = product_id)
+
     except Exception as e:
         print(e)
     variants = ProductVariant.objects.filter(product = product).order_by('-is_active')
@@ -622,6 +629,7 @@ def variant_list(request, product_id):
 
 
 
+
 def product_variant_control(request, product_variant_id):
     try:
         product_variant = ProductVariant.objects.get(id = product_variant_id)
@@ -630,103 +638,13 @@ def product_variant_control(request, product_variant_id):
 
 
     product_variant.is_active = not product_variant.is_active
-    print("hiiiiiiiiiiiiii")
     product_variant.save()
-    print("h112345678")
     return redirect('product_mng:variant_list', product_variant.product.id )
 
 
 
-# def add_product_variant(request, product_id = None):
-#     if product_id:
-#         product = Product.objects.filter(id = product_id).first()
-#         print("Product ID:", product_id)
-#         print("Product:", product)
-
-#         if not product:
-#             messages.error(request, 'Product not found.')
-#             return redirect('product_mng:add_product_variant')
-#     else:
-#         product = None
-
-#     if not request.user.is_superuser:
-#         return redirect('admin_log:admin_login')
-    
-#     attributes = Attribute.objects.prefetch_related('attribute_value_set')
-#     print("=====================================================================================")
-#     print(attributes)
-#     attribute_values_count = attributes.count()
-#     attribute_dict = {}
-#     for attribute in attributes:
-#         attribute_values = attribute.attribute_value_set.filter(is_active = True)
-#         attribute_dict[attribute.attribute_name] = attribute_values
-#     print(attribute_dict.items(),"llllllllllllllllllllllllllllllllll")
-
-#     attribute_values = Attribute_Value.objects.all()
-  
-
-#     if request.method == 'POST':
-#         if not product_id:
-#             product_id= int(request.POST.get('product'))
-#             product = Product.objects.filter(id = product_id).first()
-    
-#         sku_id= request.POST.get('sku_id')
-#         attribute_value= request.POST.get('attribute_value')
-#         print(attribute_value)
-#         max_price=request.POST.get('max_price')
-#         sale_price=request.POST.get('sale_price')
-#         stock=request.POST.get('stock')
-#         image=request.FILES.get('thumbnail_image')
-#         additional_images=request.FILES.getlist('additional_images')
-#         print("the additional image is      -----------------------------", additional_images)
-
-#         attribute_ids = []
-
-#         for i in range(1,attribute_values_count+1):
-#             attribute_value_id = request.POST.get('attributes_'+str(i))
-#             if attribute_value_id != 'None':
-#                 attribute_ids.append(int(attribute_value_id))
-
-
-#         print("hello stephan")
-
-#         product_variant = ProductVariant(
-#             product = product,
-#             sku_id = sku_id,
-#             max_price = max_price,
-#             sale_price = sale_price,
-#             stock = stock,
-#             thumbnail_image = image
-#         )
-#         product_variant.save()
-#         image_objects = []
-
-#         for image in additional_images:
-#             variant_image = ProductImage.objects.create(product_variant = product_variant, image = image)
-#             variant_image.save()
-
-#         product_variant.attribute_value.set(attribute_ids)
-
-#         product_variant.save()
-#         messages.success(request, 'Variant created successfully !!! ')
-#         return redirect('product_mng:products_list')
-#     else:
-#         form=ProductVariantForm()
-    
-    
-#     context = {
-#         'product': product,
-#         'attribute_value':attribute_values,
-#         'attribute_dict':attribute_dict,
-#         'form': form,
-
-#     }
-
-#     return render(request, 'admin_temp/add_product_variant.html', context)
-
-
 def add_product_variant(request, product_id=None):
-    # Check if product_id is provided and retrieve the product
+
     if product_id:
         product = Product.objects.filter(id=product_id).first()
         if not product:
@@ -735,24 +653,18 @@ def add_product_variant(request, product_id=None):
     else:
         product = None
 
-    # Restrict access to superusers only
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
     
-    # Retrieve attributes and their values
     attributes = Attribute.objects.prefetch_related('attribute_value_set')
     attribute_values_count = attributes.count()
     attribute_dict = {attr.attribute_name: attr.attribute_value_set.filter(is_active=True) for attr in attributes}
 
-    # Get all attribute values
     attribute_values = Attribute_Value.objects.all()
 
-    # Retrieve all products to display in the form for selection
     all_products = Product.objects.all()
 
-    # Handle form submission
     if request.method == 'POST':
-        # Check if product is selected in the form submission
         if not product_id:
             product_id = request.POST.get('product')
             if not product_id:
@@ -764,7 +676,6 @@ def add_product_variant(request, product_id=None):
                 messages.error(request, 'Selected product does not exist.')
                 return redirect('product_mng:add_product_variant')
 
-        # Get form data
         sku_id = request.POST.get('sku_id')
         max_price = request.POST.get('max_price')
         sale_price = request.POST.get('sale_price')
@@ -772,14 +683,12 @@ def add_product_variant(request, product_id=None):
         image = request.FILES.get('thumbnail_image')
         additional_images = request.FILES.getlist('additional_images')
 
-        # Gather selected attribute values
         attribute_ids = []
         for i in range(1, attribute_values_count + 1):
             attribute_value_id = request.POST.get(f'attributes_{i}')
             if attribute_value_id and attribute_value_id != 'None':
                 attribute_ids.append(int(attribute_value_id))
 
-        # Create a new product variant
         product_variant = ProductVariant(
             product=product,
             sku_id=sku_id,
@@ -790,21 +699,17 @@ def add_product_variant(request, product_id=None):
         )
         product_variant.save()
 
-        # Save additional images
         for image in additional_images:
             ProductImage.objects.create(product_variant=product_variant, image=image)
 
-        # Set attribute values for the product variant
         product_variant.attribute_value.set(attribute_ids)
         product_variant.save()
 
-        # Notify the user and redirect
         messages.success(request, 'Variant created successfully!')
         return redirect('product_mng:products_list')
     else:
         form = ProductVariantForm()
 
-    # Render the template with the context data
     context = {
         'product': product,
         'attribute_value': attribute_values,
@@ -817,9 +722,12 @@ def add_product_variant(request, product_id=None):
 
 
 
+
 def edit_product_variant(request, product_variant_slug):
+
     try:
         product_variant = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
+
     except ProductVariant.DoesNotExist:
         messages.error(request, "Product variant not found.")
         return redirect('product_mng:variant_list', product_variant.product.id)
@@ -831,7 +739,7 @@ def edit_product_variant(request, product_variant_slug):
     attribute_dict = {attribute.attribute_name: attribute.attribute_value_set.filter(is_active=True) for attribute in attributes}
 
     selected_attribute_values = None
-    print(product_variant)
+
     if request.method == 'POST':
         form = ProductVariantForm(request.POST,request.FILES, instance=product_variant)
         if form.is_valid():
@@ -847,15 +755,12 @@ def edit_product_variant(request, product_variant_slug):
 
             return redirect('product_mng:variant_list', product_id=product_variant.product.id)
         else:
-            
-
             messages.error(request, form.errors)
 
     else:
         form = ProductVariantForm(instance=product_variant)
         selected_attribute_values = product_variant.attribute_value.all().values_list('id', flat=True)
     
-    # Check if remove_thumbnail is present in request.POST
 
     context = {
         'product_variant': product_variant.product,
@@ -869,40 +774,40 @@ def edit_product_variant(request, product_variant_slug):
 
     return render(request, 'admin_temp/product_control/edit_product_variant.html', context)
 
+
+
+
 def delete_product_variant_images(request,id,product_variant_slug):
+
     variant_image = ProductImage.objects.get(id=id)
     variant_image.delete()
-    print(product_variant_slug)
     product_variant = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
     messages.success(request, "Variant Updated")
     product_variant_slug = ProductVariant.objects.get(product_variant_slug=product_variant_slug)
     return redirect('product_mng:product_variant_update', product_variant_slug=product_variant.product_variant_slug)
 
 
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def edit_product(request, product_id):
+
     if not request.user.is_superuser:
         return redirect('admin_log:admin_login')
-    
-
     
     product = Product.objects.get(id=product_id)
     categories = Category.objects.all()
     brands = Brand.objects.all().exclude(is_active=False)
 
     if request.method == 'POST':
-        # product.product_name = request.POST.get('product_name')
-        # product.product_description = request.POST.get('description')
-        # product.product_catg = request.POST.get('product_catg')
-        # product.product_brand = request.POST.get('product_brand')
-
-        
+      
         form = CreateProductForm(request.POST, instance=product)
-        print(form.errors)
+        
         if form.is_valid():
             form.save()
             messages.success(request, "Product updated successfully!")
             return redirect('product_mng:products_list')
+        
         else:
             messages.error(request, "Error updating product. Please check the form.")
 
@@ -922,8 +827,8 @@ def edit_product(request, product_id):
 
 
 
-
 def product_control(request, product_id):
+
     try:
         product = Product.objects.get(id = product_id)
     except Exception as e:
@@ -933,6 +838,3 @@ def product_control(request, product_id):
     product.is_active = not product.is_active
     product.save()
     return redirect('product_mng:products_list')
-
-
-

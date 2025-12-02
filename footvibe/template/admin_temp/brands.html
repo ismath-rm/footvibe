@@ -55,7 +55,7 @@
                                                 <a class="dropdown-item" href="{% url 'product_mng:brand_available' brand.id %}">{% if not brand.is_active %}Mark UnAvailable {% else %}Mark available{% endif %}</a>
                                                 <a class="dropdown-item text-danger" href="{% url 'product_mng:delete_brand' brand.id %}">Delete</a>
                                             </div>
-                                        </div> <!-- dropdown //end -->
+                                        </div> 
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -63,10 +63,10 @@
                             </tbody>
                         </table>
                     </div>
-                </div> <!-- .col// -->
-            </div> <!-- .row // -->
-        </div> <!-- card body .// -->
-    </div> <!-- card .// -->
+                </div> 
+            </div>
+        </div> 
+    </div> 
 </section>
 
 {% endblock %}

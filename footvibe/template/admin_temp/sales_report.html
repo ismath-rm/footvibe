@@ -1,4 +1,3 @@
-
 {% extends 'admin_temp/base.html' %}
 {% load static %}
 {% block title %} Sales Report {% endblock %}
@@ -49,7 +48,6 @@
           <th scope="col">Quantity</th>
           <th scope="col">Order Total</th>
           <th scope="col">paid method</th>
-          {% comment %} <th scope="col">Coupon</th> {% endcomment %}
           
      
         </tr>
@@ -64,11 +62,7 @@
                 <td>{{ order.total_quantity }}</td>
                 <td>{{order.order_total}}</td>
                 <td>{{order.payment.payment_method}}</td>
-                {% comment %} {% if order.coupen is not None %}
-                  <td>{{order.coupen}}</td>
-                {% else %}
-                  <td>Nil</td>
-                {% endif %} {% endcomment %}
+                
             </tr>
             {% endfor %}
         {% endif %} 

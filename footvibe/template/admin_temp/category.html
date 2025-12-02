@@ -74,14 +74,13 @@
                                         <div class="dropdown">
                                             <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
                                             <div class="dropdown-menu">
-                                                {% comment %} <a class="dropdown-item" href="#">View detail</a> {% endcomment %}
                                                 <a class="dropdown-item" href="{% url 'product_mng:edit_category' category.id %}">edit_info</a>
 
 
                                                 <a class="dropdown-item" href="{% url 'product_mng:available' category.id %}">{% if not category.is_available %}Mark Available {% else %}Mark Unavailable{% endif %}</a>
                                                 <a class="dropdown-item text-danger" href="{% url 'product_mng:delete_category' category.id %}">Delete</a>
                                             </div>
-                                        </div> <!-- dropdown //end -->
+                                        </div> 
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -89,10 +88,10 @@
                             </tbody>
                         </table>
                     </div>
-                </div> <!-- .col// -->
-            </div> <!-- .row // -->
-        </div> <!-- card body .// -->
-    </div> <!-- card .// -->
+                </div> 
+            </div>
+        </div> 
+    </div> 
 </section>
 
 
